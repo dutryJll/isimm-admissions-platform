@@ -1,0 +1,148 @@
+<div class="avis-submission-container">
+  <!-- HEADER -->
+  <div class="submission-header">
+    <h2>Soumettre un Avis</h2>
+    <p *ngIf="candidatureId">Candidature #{{ candidatureId }}</p>
+  </div>
+
+  <!-- ALERTS -->
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+    <button (click)="errorMessage = ''" class="alert-close">✕</button>
+  </div>
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+    <button (click)="successMessage = ''" class="alert-close">✕</button>
+  </div>
+
+  <!-- STATISTICS -->
+  <div *ngIf="avisStatistics && !loadingStats" class="stats-section">
+    <div class="stat-item">
+      <span class="stat-label">Total Avis:</span>
+      <span class="stat-value">{{ avisStatistics.total }}</span>
+    </div>
+    <div class="stat-item favorable">
+      <span class="stat-label">Favorables:</span>
+      <span class="stat-value">{{ avisStatistics.favorables }}</span>
+    </div>
+    <div class="stat-item defavorable">
+      <span class="stat-label">Défavorables:</span>
+      <span class="stat-value">{{ avisStatistics.defavorables }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Taux Favorable:</span>
+      <span class="stat-value">{{ avisStatistics.pourcentage_favorable }}%</span>
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div class="form-container">
+    <form [formGroup]="avisForm" (ngSubmit)="submitAvis()">
+      <div class="form-group">
+        <label>Votre avis *</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input
+              type="radio"
+              id="avis-favorable"
+              [value]="true"
+              formControlName="avis"
+              (change)="avisForm.get('argument')?.clearAsyncValidators()"
+            />
+            <label for="avis-favorable" class="radio-label favorable">
+              <span class="radio-icon">✓</span>
+              Favorable
+            </label>
+          </div>
+          <div class="radio-option">
+            <input
+              type="radio"
+              id="avis-defavorable"
+              [value]="false"
+              formControlName="avis"
+              (change)="avisForm.get('argument')?.clearAsyncValidators()"
+            />
+            <label for="avis-defavorable" class="radio-label defavorable">
+              <span class="radio-icon">✗</span>
+              Défavorable
+            </label>
+          </div>
+        </div>
+        <small *ngIf="avisForm.get('avis')?.invalid && avisForm.get('avis')?.touched" class="error">
+          Veuillez sélectionner un avis
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label>
+          Argument
+          <span *ngIf="avisForm.get('avis')?.value === false" class="required">*</span>
+        </label>
+        <textarea
+          formControlName="argument"
+          placeholder="Justifiez votre avis (requis pour un avis défavorable)"
+          rows="4"
+          class="form-textarea"
+          [class.required-field]="avisForm.get('avis')?.value === false"
+        ></textarea>
+        <small
+          *ngIf="avisForm.get('argument')?.invalid && avisForm.get('argument')?.touched"
+          class="error"
+        >
+          {{
+            avisForm.get('argument')?.hasError('required')
+              ? 'Ce champ est requis'
+              : 'Minimum 10 caractères requis'
+          }}
+        </small>
+        <small class="char-count">{{ (avisForm.get('argument')?.value || '').length }}/500</small>
+      </div>
+
+      <div class="form-group">
+        <label>Commission active</label>
+        <select formControlName="commission_id" class="form-input">
+          <option [ngValue]="null">Sélectionnez une commission</option>
+          <option *ngFor="let commission of commissionOptions" [ngValue]="commission.id">
+            {{ commission.nom }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="!avisForm.valid || submitting">
+          <span *ngIf="!submitting && !editingAvisId">✓ Soumettre avis</span>
+          <span *ngIf="!submitting && editingAvisId">✓ Mettre à jour l'avis</span>
+          <span *ngIf="submitting">⏳ Envoi...</span>
+        </button>
+        <button type="button" (click)="resetForm()" class="btn btn-secondary">Réinitialiser</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- HISTORY -->
+  <div *ngIf="avisHistory && avisHistory.length > 0" class="history-section">
+    <h3>Historique des Avis</h3>
+    <div class="history-list">
+      <div *ngFor="let avis of avisHistory" class="history-item" [class.defavorable]="!avis.avis">
+        <div class="history-header">
+          <span class="member-name">{{ avis.member_name || avis.membre_name || 'Membre' }}</span>
+          <span class="avis-badge" [class.favorable]="avis.avis" [class.defavorable]="!avis.avis">
+            {{ avis.avis ? '✓ Favorable' : '✗ Défavorable' }}
+          </span>
+          <span class="avis-date">{{ avis.date | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="history-body">
+            <p class="argument">{{ avis.argument || 'Aucun argument' }}</p>
+          <div class="history-actions">
+            <button (click)="editAvis(avis)" class="btn btn-sm btn-secondary">Modifier</button>
+            <button (click)="deleteAvis(avis.id)" class="btn btn-sm btn-danger">Supprimer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loadingStats" class="loading">
+    <p>Chargement des informations...</p>
+  </div>
+</div>

@@ -1,0 +1,60 @@
+<div class="edit-user-page">
+  <div class="edit-user-card">
+    <div class="header-row">
+      <button type="button" class="btn-back" (click)="goBack()">Retour</button>
+      <h2>Modifier utilisateur</h2>
+    </div>
+
+    <div *ngIf="isLoading" class="info">Chargement utilisateur...</div>
+    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="success">{{ successMessage }}</div>
+
+    <form *ngIf="!isLoading" (ngSubmit)="saveUser()" class="form-grid">
+      <label>
+        Prenom
+        <input type="text" [(ngModel)]="userForm.first_name" name="first_name" required />
+      </label>
+
+      <label>
+        Nom
+        <input type="text" [(ngModel)]="userForm.last_name" name="last_name" required />
+      </label>
+
+      <label>
+        Email
+        <input type="email" [(ngModel)]="userForm.email" name="email" required />
+      </label>
+
+      <label>
+        Role
+        <select [(ngModel)]="userForm.role" name="role" required>
+          <option value="candidat">Candidat</option>
+          <option value="commission">Commission</option>
+          <option value="responsable_commission">Responsable commission</option>
+          <option value="admin">Admin</option>
+        </select>
+      </label>
+
+      <label>
+        Telephone
+        <input type="text" [(ngModel)]="userForm.phone" name="phone" />
+      </label>
+
+      <label>
+        Adresse
+        <input type="text" [(ngModel)]="userForm.address" name="address" />
+      </label>
+
+      <label class="checkbox-row">
+        <input type="checkbox" [(ngModel)]="userForm.is_active" name="is_active" />
+        Compte actif
+      </label>
+
+      <div class="actions">
+        <button type="submit" [disabled]="isSaving">
+          {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

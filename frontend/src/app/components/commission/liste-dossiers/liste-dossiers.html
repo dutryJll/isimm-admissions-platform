@@ -1,0 +1,19 @@
+<div class="liste-dossiers-page">
+  <h1>Liste des dossiers</h1>
+  <table class="dossiers-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Candidat</th>
+        <th>Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let d of dossiers">
+        <td>{{ d.id }}</td>
+        <td>{{ d.candidatName }}</td>
+        <td>{{ d.statut }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,385 @@
+.commission-dossier-upload {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+  font-family: var(--body-font);
+}
+
+.commission-dossier-upload__header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.commission-dossier-upload__header-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.commission-dossier-upload__back {
+  background: #f8f9fa;
+  border: none;
+  border-radius: 12px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #6c757d;
+}
+
+.commission-dossier-upload__back:hover {
+  background: #e9ecef;
+  transform: translateX(-2px);
+}
+
+.commission-dossier-upload__back i {
+  font-size: 1.2rem;
+}
+
+.commission-dossier-upload__title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.commission-dossier-upload__subtitle {
+  margin: 0.5rem 0 0 0;
+  color: #718096;
+  font-size: 1rem;
+}
+
+.commission-dossier-upload__progress-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.commission-dossier-upload__progress-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.commission-dossier-upload__progress-head h3 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.commission-dossier-upload__progress-head span {
+  color: #718096;
+  font-weight: 500;
+}
+
+.commission-dossier-upload__content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+}
+
+.commission-dossier-upload__card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.commission-dossier-upload__card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.commission-dossier-upload__card-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.commission-dossier-upload__icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.commission-dossier-upload__icon--cin {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.commission-dossier-upload__icon--releves {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+}
+
+.commission-dossier-upload__icon--diplome {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+.commission-dossier-upload__icon--photo {
+  background: linear-gradient(135deg, #43e97b, #38f9d7);
+}
+
+.commission-dossier-upload__meta h3 {
+  margin: 0 0 0.25rem 0;
+  color: #2d3748;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.commission-dossier-upload__meta p {
+  margin: 0;
+  color: #718096;
+  font-size: 0.875rem;
+}
+
+.commission-dossier-upload__status {
+  margin-left: auto;
+  color: #48bb78;
+  font-size: 1.5rem;
+}
+
+.commission-dossier-upload__drop {
+  border: 2px dashed #cbd5e0;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #f7fafc;
+}
+
+.commission-dossier-upload__drop:hover {
+  border-color: #667eea;
+  background: #edf2f7;
+}
+
+.commission-dossier-upload__drop i {
+  font-size: 3rem;
+  color: #a0aec0;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.commission-dossier-upload__drop p {
+  margin: 0;
+  color: #718096;
+  font-weight: 500;
+}
+
+.commission-dossier-upload__preview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.commission-dossier-upload__thumb {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.commission-dossier-upload__file {
+  flex: 1;
+}
+
+.commission-dossier-upload__file strong {
+  display: block;
+  color: #2d3748;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.commission-dossier-upload__file small {
+  display: block;
+  color: #718096;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.commission-dossier-upload__file-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.commission-dossier-upload__file-progress span {
+  font-size: 0.75rem;
+  color: #718096;
+  font-weight: 500;
+}
+
+.commission-dossier-upload__remove {
+  background: #fed7d7;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #e53e3e;
+  flex-shrink: 0;
+}
+
+.commission-dossier-upload__remove:hover {
+  background: #feb2b2;
+  transform: scale(1.1);
+}
+
+.commission-dossier-upload__submit {
+  grid-column: 1 / -1;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.commission-dossier-upload__submit-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.commission-dossier-upload__submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.commission-dossier-upload__submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.commission-dossier-upload__hint {
+  margin: 0;
+  color: #718096;
+  font-size: 0.875rem;
+}
+
+.commission-dossier-upload__submit-progress {
+  margin-top: 1.5rem;
+}
+
+.commission-dossier-upload__submit-progress-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.commission-dossier-upload__submit-progress-head strong {
+  color: #2d3748;
+  font-size: 0.875rem;
+}
+
+.commission-dossier-upload__submit-progress-head span {
+  color: #718096;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.commission-dossier-upload__progress-track--submit {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.commission-dossier-upload__progress-value--submit {
+  height: 100%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .commission-dossier-upload {
+    padding: 1rem;
+  }
+
+  .commission-dossier-upload__header {
+    padding: 1.5rem;
+  }
+
+  .commission-dossier-upload__header-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .commission-dossier-upload__title {
+    font-size: 1.5rem;
+  }
+
+  .commission-dossier-upload__content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .commission-dossier-upload__card {
+    padding: 1.5rem;
+  }
+
+  .commission-dossier-upload__card-head {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .commission-dossier-upload__meta h3 {
+    font-size: 1.125rem;
+  }
+
+  .commission-dossier-upload__preview {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .commission-dossier-upload__thumb {
+    width: 80px;
+    height: 80px;
+  }
+
+  .commission-dossier-upload__submit {
+    padding: 1.5rem;
+  }
+
+  .commission-dossier-upload__submit-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

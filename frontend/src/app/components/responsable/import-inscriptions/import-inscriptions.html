@@ -1,0 +1,195 @@
+<div class="import-inscriptions-page">
+  <!-- Header -->
+  <div class="page-header">
+    <h1><i class="fas fa-file-excel"></i> Importer les inscriptions</h1>
+    <p>Vérifiez les numéros d'inscription saisis par les candidats contre la liste officielle</p>
+  </div>
+
+  <div class="page-content">
+    <!-- Instructions -->
+    <div class="instructions-card">
+      <h3>Comment utiliser ce formulaire?</h3>
+      <ol>
+        <li>Téléchargez le template Excel ci-dessous</li>
+        <li>Remplissez-le avec les numéros d'inscription officiels de votre institution</li>
+        <li>Assurez-vous que la colonne s'appelle <code>numero_inscription</code></li>
+        <li>Chargez le fichier</li>
+        <li>Le système comparera automatiquement avec les numéros saisis par les candidats</li>
+      </ol>
+    </div>
+
+    <!-- Template Download -->
+    <div class="template-card">
+      <div class="template-content">
+        <i class="fas fa-download"></i>
+        <div>
+          <h4>Télécharger le template</h4>
+          <p>Fichier Excel vierge avec la structure correcte</p>
+        </div>
+        <button class="btn-download" (click)="telechargerTemplate()">
+          <i class="fas fa-download"></i> Télécharger (CSV)
+        </button>
+      </div>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="upload-card">
+      <h3>Charger votre fichier</h3>
+
+      <!-- File Input -->
+      <div class="upload-area" *ngIf="!resultats">
+        <input
+          type="file"
+          #fileInput
+          (change)="onFichierSelectionne($event)"
+          accept=".xlsx,.xls,.csv"
+          hidden
+        />
+        <button class="btn-select-file" (click)="fileInput.click()" *ngIf="!fichierSelectionne">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <span>Cliquez pour sélectionner un fichier ou glissez-déposez</span>
+        </button>
+
+        <!-- File Selected -->
+        <div class="file-selected" *ngIf="fichierSelectionne">
+          <div class="file-info">
+            <i class="fas fa-file-excel"></i>
+            <div>
+              <h4>{{ fichierSelectionne.name }}</h4>
+              <p>{{ (fichierSelectionne.size / 1024).toFixed(2) }} KB</p>
+            </div>
+          </div>
+          <button class="btn-change-file" (click)="fileInput.click()">
+            <i class="fas fa-exchange-alt"></i> Changer
+          </button>
+        </div>
+
+        <!-- Alerts -->
+        <div *ngIf="errorMessage" class="alert alert-error">
+          <i class="fas fa-exclamation-circle"></i>
+          {{ errorMessage }}
+        </div>
+
+        <!-- Import Button -->
+        <div class="form-actions" *ngIf="fichierSelectionne">
+          <button
+            class="btn-import"
+            (click)="importerFichier()"
+            [disabled]="loading || !fichierSelectionne"
+          >
+            <i class="fas" [class.fa-spinner]="loading" [class.fa-spin]="loading" [class.fa-check]="!loading"></i>
+            {{ loading ? 'Vérification en cours...' : 'Vérifier et importer' }}
+          </button>
+          <!-- v7 §6.5 — Identifier les admis non inscrits -->
+          <button
+            class="btn-import btn-non-inscrits"
+            (click)="comparerAdmisNonInscrits()"
+            [disabled]="loading || !fichierSelectionne"
+          >
+            <i class="fas fa-user-slash"></i>
+            Identifier les admis non inscrits
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div *ngIf="resultats" class="results-section">
+      <div class="results-header">
+        <h3>Résultats de la vérification</h3>
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        {{ successMessage }}
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card stat-confirmes">
+          <div class="stat-number">{{ resultats.nb_confirmes }}</div>
+          <div class="stat-label">Inscriptions confirmées</div>
+        </div>
+        <div class="stat-card stat-total">
+          <div class="stat-number">{{ resultats.nb_total_verifies }}</div>
+          <div class="stat-label">Total vérifiées</div>
+        </div>
+        <div class="stat-card stat-non-trouves" *ngIf="resultats.nb_non_trouves > 0">
+          <div class="stat-number">{{ resultats.nb_non_trouves }}</div>
+          <div class="stat-label">Non trouvées</div>
+        </div>
+      </div>
+
+      <!-- Confirmed List -->
+      <div *ngIf="resultats.details.confirmes.length > 0" class="list-section">
+        <h4><i class="fas fa-check-circle"></i> Inscriptions confirmées ({{ resultats.details.confirmes.length }})</h4>
+        <div class="list-content">
+          <div *ngFor="let candidat of resultats.details.confirmes" class="list-item confirmed">
+            <i class="fas fa-check-circle"></i>
+            {{ candidat }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Not Found List -->
+      <div *ngIf="resultats.details.non_trouves.length > 0" class="list-section">
+        <h4><i class="fas fa-exclamation-circle"></i> Non trouvées ({{ resultats.details.non_trouves.length }})</h4>
+        <div class="list-content">
+          <div *ngFor="let candidat of resultats.details.non_trouves" class="list-item not-found">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ candidat }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="results-actions">
+        <button class="btn-recommencer" (click)="recommencer()">
+          <i class="fas fa-redo"></i> Importer un autre fichier
+        </button>
+      </div>
+    </div>
+
+    <!-- v7 §6.5 — Admis mais NON inscrits -->
+    <div *ngIf="nonInscritsResultats" class="results-section">
+      <div class="results-header">
+        <h3><i class="fas fa-user-slash"></i> Admis mais non inscrits</h3>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card stat-total">
+          <div class="stat-number">{{ nonInscritsResultats.nb_admis }}</div>
+          <div class="stat-label">Admis</div>
+        </div>
+        <div class="stat-card stat-confirmes">
+          <div class="stat-number">{{ nonInscritsResultats.nb_inscrits_fichier }}</div>
+          <div class="stat-label">Inscrits (fichier)</div>
+        </div>
+        <div class="stat-card stat-non-trouves">
+          <div class="stat-number">{{ nonInscritsResultats.nb_non_inscrits }}</div>
+          <div class="stat-label">Admis non inscrits</div>
+        </div>
+      </div>
+
+      <div *ngIf="nonInscritsResultats.non_inscrits?.length > 0" class="list-section">
+        <h4><i class="fas fa-exclamation-circle"></i> À relancer / remplacer ({{ nonInscritsResultats.non_inscrits.length }})</h4>
+        <div class="list-content">
+          <div *ngFor="let c of nonInscritsResultats.non_inscrits" class="list-item not-found">
+            <i class="fas fa-user-times"></i>
+            {{ c.nom }} {{ c.prenom }} — {{ c.numero }} <span style="opacity:.7">({{ c.master_nom }})</span>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!nonInscritsResultats.non_inscrits?.length" class="alert alert-success">
+        <i class="fas fa-check-circle"></i> Tous les admis sont inscrits.
+      </div>
+
+      <div class="results-actions">
+        <button class="btn-recommencer" (click)="recommencer()">
+          <i class="fas fa-redo"></i> Recommencer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

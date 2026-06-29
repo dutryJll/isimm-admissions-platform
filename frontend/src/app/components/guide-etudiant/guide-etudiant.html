@@ -1,0 +1,34 @@
+<div class="guide-page">
+  <header class="guide-header">
+    <button class="btn-retour" (click)="retourAccueil()">
+      <i class="fas fa-arrow-left"></i>
+      Retour à l'accueil
+    </button>
+    <h1>Guide de l'Étudiant</h1>
+    <p>
+      Retrouvez toutes les informations utiles pour préparer votre candidature dans un format clair
+      et structuré.
+    </p>
+  </header>
+
+  <main class="guide-content">
+    <div class="guide-intro-card">
+      <h2>Parcours d'admission</h2>
+      <p>
+        Chaque bloc ci-dessous détaille une étape du parcours. Ouvrez un panneau pour consulter
+        rapidement les informations importantes.
+      </p>
+    </div>
+
+    <mat-accordion class="guide-accordion" multi>
+      <mat-expansion-panel *ngFor="let section of sections" class="guide-panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>{{ section.titre }}</mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="panel-content">
+          <p *ngFor="let paragraphe of section.contenu">{{ paragraphe }}</p>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </main>
+</div>

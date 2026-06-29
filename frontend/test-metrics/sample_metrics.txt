@@ -1,0 +1,30 @@
+Rapport métriques - Échantillon
+Généré le: 2026-05-13 17:40:00
+Période: Dernières 24 heures
+
+--- Résumé global ---
+Total candidatures reçues: 128
+Total candidatures présélectionnées: 24
+Total candidatures en attente: 34
+Total candidatures rejetées: 70
+Score moyen (toutes candidatures): 72.4
+
+--- Répartition par statut ---
+Présélectionné: 24
+En attente: 34
+Rejeté: 70
+Soumis: 0
+
+--- Top Masters (par nombre de candidatures) ---
+1. Master Informatique - 32
+2. Master Génie Logiciel - 21
+3. Master Data Science - 18
+4. Master Réseaux - 10
+5. Master Sécurité - 7
+
+--- Utilisateurs ---
+Utilisateurs actifs (30j): 462
+Utilisateurs suspendus: 3
+
+--- Notes ---
+Ce fichier est un exemple de rapport texte lisible humainement utilisé pour tester l'export .txt.

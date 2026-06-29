@@ -1,0 +1,63 @@
+<div class="login-admin-page">
+  <button class="btn-back" (click)="goBack()">← {{ 'login.admin.back' | translate }}</button>
+
+  <div class="login-card">
+    <div class="header-mark">{{ 'login.admin.mark' | translate }}</div>
+    <div class="header-icon" aria-hidden="true">
+      <i class="fas fa-cog"></i>
+    </div>
+    <h2>{{ 'login.admin.title.page' | translate }}</h2>
+    <p class="subtitle">{{ 'login.admin.subtitle' | translate }}</p>
+
+    <div class="entry-hints">
+      <span>{{ 'login.admin.hint.users' | translate }}</span>
+      <span>{{ 'login.admin.hint.settings' | translate }}</span>
+      <span>{{ 'login.admin.hint.control' | translate }}</span>
+    </div>
+
+    <div class="warning-box">
+      <i class="fas fa-shield-alt"></i>
+      <p>{{ 'login.admin.warning' | translate }}</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage | translate }}
+    </div>
+
+    <form (ngSubmit)="onLogin()">
+      <div class="form-group">
+        <label>{{ 'login.admin.email.label' | translate }}</label>
+        <input
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          [placeholder]="'login.admin.email.placeholder' | translate"
+          required
+          autocomplete="username"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'login.admin.password.label' | translate }}</label>
+        <input
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          [placeholder]="'login.admin.password.placeholder' | translate"
+          required
+          autocomplete="current-password"
+        />
+      </div>
+
+      <button type="submit" class="btn-login" [disabled]="isLoading">
+        <i class="fas fa-lock"></i>
+        {{ isLoading ? ('login.admin.loading' | translate) : ('login.admin.submit' | translate) }}
+      </button>
+    </form>
+
+    <div class="security-note">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p>{{ 'login.admin.note' | translate }}</p>
+    </div>
+  </div>
+</div>

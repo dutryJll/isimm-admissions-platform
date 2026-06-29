@@ -1,0 +1,628 @@
+<div class="inprogress-page">
+  <div class="inprogress-shell">
+    <aside class="steps-sidebar">
+      <h3>Soumission</h3>
+      <button
+        *ngFor="let step of steps"
+        type="button"
+        class="step-item"
+        [class.active]="currentStep === step.no"
+        [disabled]="!isStepAccessible(step.no)"
+        (click)="goToStep(step.no)"
+      >
+        Étape {{ step.no }}: {{ step.label }}
+      </button>
+    </aside>
+
+    <section class="step-content">
+      <header>
+        <h1>Processus de préinscription</h1>
+        <p *ngIf="titreOffre">
+          <strong>{{ titreOffre }}</strong>
+        </p>
+      </header>
+
+      <div *ngIf="currentStep === 1" class="step-panel">
+        <h2>Informations personnelles</h2>
+        <p *ngIf="isStepAccessible(2)" class="step-ok">
+          ✅ Étape 1 complétée automatiquement (profil inscrit)
+        </p>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Prénom</label>
+            <input type="text" [(ngModel)]="personal.prenom" name="ip_prenom" />
+          </div>
+          <div class="form-group">
+            <label>Nom</label>
+            <input type="text" [(ngModel)]="personal.nom" name="ip_nom" />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="personal.email" name="ip_email" />
+          </div>
+          <div class="form-group">
+            <label>Téléphone</label>
+            <input type="text" [(ngModel)]="personal.telephone" name="ip_tel" />
+          </div>
+          <div class="form-group">
+            <label>CIN</label>
+            <input type="text" [(ngModel)]="personal.cin" name="ip_cin" />
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="currentStep === 2" class="step-panel">
+        <h2>Informations Bac</h2>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Formation demandée</label>
+            <select
+              [(ngModel)]="selectedFormation"
+              name="selected_formation"
+              (ngModelChange)="onFormationSelectionChange()"
+            >
+              <option value="">Sélectionner une formation</option>
+              <option *ngFor="let f of formationOptions" [value]="f.code">{{ f.label }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Diplôme du candidat</label>
+            <select
+              [(ngModel)]="selectedDiplome"
+              name="selected_diplome"
+              (ngModelChange)="onDiplomeSelectionChange()"
+            >
+              <option value="">Sélectionner un diplôme</option>
+              <option *ngFor="let d of diplomeOptions" [value]="d">{{ d }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Nature de candidature</label>
+            <select [(ngModel)]="natureCandidature" name="nature_candidature">
+              <option value="">Sélectionner</option>
+              <option value="Étudiant ISIMM">Étudiant ISIMM</option>
+              <option value="Étudiant Externe">Étudiant Externe</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2" *ngIf="natureCandidature === 'Étudiant Externe'">
+          <div class="form-group">
+            <label>Etablissement de l'étudiant externe</label>
+            <input
+              type="text"
+              [(ngModel)]="etablissementExterne"
+              name="etablissement_externe"
+              placeholder="Nom de l'établissement"
+            />
+          </div>
+          <div class="form-group">
+            <label>Spécialité de l'étudiant externe</label>
+            <input
+              type="text"
+              [(ngModel)]="specialiteExterne"
+              name="specialite_externe"
+              placeholder="Spécialité"
+            />
+          </div>
+        </div>
+
+        <div
+          *ngIf="selectedFormation === 'MPGL' || selectedFormation === 'MPDS'"
+          class="formation-block"
+        >
+          <h3>Informations spécifiques MP GL / MP DS</h3>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Etablissement d'origine</label>
+              <input
+                type="text"
+                [(ngModel)]="mpGlDs.etablissementOrigine"
+                name="mpglds_etablissement_origine"
+                placeholder="Ex: ISIMM, Monastir ; ISIMA, Mahdia ; ISSAT, Sousse"
+              />
+            </div>
+            <div class="form-group">
+              <label>Diplôme (profil)</label>
+              <select [(ngModel)]="mpGlDs.diplomeReference" name="mpglds_diplome_reference">
+                <option value="">Sélectionner le profil</option>
+                <option value="Licence en Informatique : GL & SI">
+                  Licence en Informatique : GL & SI
+                </option>
+                <option value="Licence en Informatique de Gestion : BI">
+                  Licence en Informatique de Gestion : BI
+                </option>
+              </select>
+            </div>
+          </div>
+          <p class="note-text">
+            Exemples attendus: Etablissement d'origine (ISIMM, Monastir ; ISIMA, Mahdia ; ISSAT,
+            Sousse...) et Diplôme (Licence en Informatique : GL & SI, Licence en Informatique de
+            Gestion : BI).
+          </p>
+        </div>
+
+        <div class="table-like" *ngFor="let d of diplomes; let i = index">
+          <input type="text" [(ngModel)]="d.intitule" [name]="'dip_int_' + i" readonly />
+          <input
+            type="text"
+            [(ngModel)]="d.etablissement"
+            [name]="'dip_eta_' + i"
+            placeholder="Établissement"
+          />
+          <input type="text" [(ngModel)]="d.annee" [name]="'dip_ann_' + i" placeholder="Année" />
+          <button type="button" class="btn-mini" (click)="removeDiplomeRow(i)">Supprimer</button>
+        </div>
+        <button type="button" class="btn-outline" (click)="addDiplomeRow()">
+          + Ajouter diplôme
+        </button>
+      </div>
+
+      <div *ngIf="currentStep === 3" class="step-panel">
+        <h2>Informations Licence</h2>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Session de réussite</label>
+            <select [(ngModel)]="academic.commun.session" name="session_reussite">
+              <option value="principale">Session principale</option>
+              <option value="controle">Session de contrôle / rattrapage</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Nombre de redoublements</label>
+            <input
+              type="number"
+              [(ngModel)]="academic.commun.redoublements"
+              name="nbr_redoublements"
+            />
+          </div>
+        </div>
+
+        <div *ngIf="selectedFormation === 'MPGL'" class="formation-block">
+          <h3>Mastère Professionnel en Génie logiciel (GL)</h3>
+          <div class="grid-3">
+            <div class="form-group">
+              <label>Moyenne 1ère année</label>
+              <input type="number" step="0.01" [(ngModel)]="academic.glDs.moy1" name="gl_m1" />
+            </div>
+            <div class="form-group">
+              <label>Moyenne 2ème année</label>
+              <input type="number" step="0.01" [(ngModel)]="academic.glDs.moy2" name="gl_m2" />
+            </div>
+            <div class="form-group">
+              <label>Moyenne 3ème année</label>
+              <input type="number" step="0.01" [(ngModel)]="academic.glDs.moy3" name="gl_m3" />
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="selectedFormation === 'MPDS'" class="formation-block">
+          <h3>Mastère Professionnel en sciences de données (DS)</h3>
+          <div class="grid-3">
+            <div class="form-group">
+              <label>Moyenne 1ère année</label>
+              <input type="number" step="0.01" [(ngModel)]="academic.glDs.moy1" name="ds_m1" />
+            </div>
+            <div class="form-group">
+              <label>Moyenne 2ème année</label>
+              <input type="number" step="0.01" [(ngModel)]="academic.glDs.moy2" name="ds_m2" />
+            </div>
+            <div class="form-group">
+              <label>Moyenne 3ème année</label>
+              <input type="number" step="0.01" [(ngModel)]="academic.glDs.moy3" name="ds_m3" />
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="selectedFormation === 'MP3I'" class="formation-block">
+          <h3>Mastère Professionnel 3I</h3>
+          <div class="grid-4">
+            <div class="form-group">
+              <label>Moy. Bac</label>
+              <input type="number" step="0.01" [(ngModel)]="academic.i3.moyBac" name="i3_bac" />
+            </div>
+            <div class="form-group">
+              <label>Moy. L1</label>
+              <input type="number" step="0.01" [(ngModel)]="academic.i3.moyL1" name="i3_l1" />
+            </div>
+            <div class="form-group">
+              <label>Moy. L2</label>
+              <input type="number" step="0.01" [(ngModel)]="academic.i3.moyL2" name="i3_l2" />
+            </div>
+            <div class="form-group">
+              <label>Moy. L3</label>
+              <input type="number" step="0.01" [(ngModel)]="academic.i3.moyL3" name="i3_l3" />
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="selectedFormation === 'MRGL'" class="formation-block">
+          <h3>Mastère Recherche GL (MRGL)</h3>
+          <div class="form-group">
+            <label>Parcours</label>
+            <select [(ngModel)]="mrglParcours" name="mrgl_parcours">
+              <option value="licence">Titulaire d'une Licence</option>
+              <option value="maitrise">Titulaire d'une Maîtrise</option>
+            </select>
+          </div>
+
+          <div *ngIf="mrglParcours === 'licence'" class="grid-4">
+            <div class="form-group">
+              <label>Moy_1ère_Année</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrglLicence.moy1"
+                name="mrgl_lic_m1"
+              />
+            </div>
+            <div class="form-group">
+              <label>Moy_2ème_Année</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrglLicence.moy2"
+                name="mrgl_lic_m2"
+              />
+            </div>
+            <div class="form-group">
+              <label>Moy_3ème_Année</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrglLicence.moy3"
+                name="mrgl_lic_m3"
+              />
+            </div>
+            <div class="form-group">
+              <label>Moy Bac</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrglLicence.moyBac"
+                name="mrgl_lic_bac"
+              />
+            </div>
+            <div class="form-group">
+              <label>Note Math Bac</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrglLicence.noteMathBac"
+                name="mrgl_lic_math"
+              />
+            </div>
+            <div class="form-group">
+              <label>Bonus Langue</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrglLicence.bonusLangue"
+                name="mrgl_lic_langue"
+              />
+            </div>
+            <div class="form-group">
+              <label>Bonus Année Diplôme</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrglLicence.bonusAnneeDiplome"
+                name="mrgl_lic_bonus_annee"
+              />
+            </div>
+          </div>
+
+          <div *ngIf="mrglParcours === 'maitrise'" class="grid-4">
+            <div class="form-group">
+              <label>Moy_1ère_Année</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrglMaitrise.moy1"
+                name="mrgl_mai_m1"
+              />
+            </div>
+            <div class="form-group">
+              <label>Moy_2ème_Année</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrglMaitrise.moy2"
+                name="mrgl_mai_m2"
+              />
+            </div>
+            <div class="form-group">
+              <label>Moy_3ème_Année</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrglMaitrise.moy3"
+                name="mrgl_mai_m3"
+              />
+            </div>
+            <div class="form-group">
+              <label>Moy_4ème_Année</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrglMaitrise.moy4"
+                name="mrgl_mai_m4"
+              />
+            </div>
+            <div class="form-group">
+              <label>Moy Bac</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrglMaitrise.moyBac"
+                name="mrgl_mai_bac"
+              />
+            </div>
+            <div class="form-group">
+              <label>Note Math Bac</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrglMaitrise.noteMathBac"
+                name="mrgl_mai_math"
+              />
+            </div>
+            <div class="form-group">
+              <label>Bonus Langue</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrglMaitrise.bonusLangue"
+                name="mrgl_mai_langue"
+              />
+            </div>
+          </div>
+          <p class="note-text">
+            Remarque: La moyenne du bac et la note de math sont celles de la session principale.
+          </p>
+        </div>
+
+        <div *ngIf="selectedFormation === 'MRMI'" class="formation-block">
+          <h3>Mastère Recherche en micro-électronique et instrumentation</h3>
+          <div class="form-group">
+            <label>Choisir le cas</label>
+            <select [(ngModel)]="mrmiParcours" name="mrmi_parcours">
+              <option value="cas1">Cas 1: Titulaires de licence</option>
+              <option value="cas2">Cas 2: Réussite en 1ère année ingénieur</option>
+            </select>
+          </div>
+
+          <div *ngIf="mrmiParcours === 'cas1'" class="grid-4">
+            <p class="note-text full-width">
+              الإجازة الأساسية في الإلكترونيك والكهروتقنية والآلية / TIC : RIoT / القياسات و
+              الأدواتية.
+            </p>
+            <div class="form-group">
+              <label>Moy.Bac</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrmiCas1.moyBac"
+                name="mrmi1_bac"
+              />
+            </div>
+            <div class="form-group">
+              <label>Moy.L1</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrmiCas1.moyL1"
+                name="mrmi1_l1"
+              />
+            </div>
+            <div class="form-group">
+              <label>Moy.L2</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrmiCas1.moyL2"
+                name="mrmi1_l2"
+              />
+            </div>
+            <div class="form-group">
+              <label>Moy.L3</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrmiCas1.moyL3"
+                name="mrmi1_l3"
+              />
+            </div>
+            <p class="note-text full-width">
+              Un seul redoublement est toléré (plus d'un redoublement: dossier écarté).
+            </p>
+          </div>
+
+          <div *ngIf="mrmiParcours === 'cas2'" class="grid-3">
+            <p class="note-text full-width">
+              النجاح خلال السنة أولى مهندس اختصاص إلكترونيك/الأدواتية أو اختصاص مكافئ.
+            </p>
+            <div class="form-group">
+              <label>Moyenne ING1</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrmiCas2.moyIng1"
+                name="mrmi2_ing1"
+              />
+            </div>
+            <div class="form-group">
+              <label>S (Malus contrôle)</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrmiCas2.sMalus"
+                name="mrmi2_s"
+              />
+            </div>
+            <div class="form-group">
+              <label>PR (Pénalité redoublement)</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.mrmiCas2.prPenalite"
+                name="mrmi2_pr"
+              />
+            </div>
+            <label class="checkbox-line full-width">
+              <input
+                type="checkbox"
+                [(ngModel)]="academic.mrmiCas2.equivalence80"
+                name="mrmi2_eq80"
+              />
+              Je confirme que 80% du cursus ingénieur est équivalent au cursus exigé.
+            </label>
+          </div>
+        </div>
+
+        <div
+          *ngIf="selectedFormation === 'ING_INFO_GL' || selectedFormation === 'ING_EM'"
+          class="formation-block"
+        >
+          <h3>Ingénieur (Informatique/GL ou Electronique/Microélectronique)</h3>
+          <div class="form-group">
+            <label>Choisir le cas</label>
+            <select [(ngModel)]="ingParcours" name="ing_parcours">
+              <option value="cas1">Cas 1: Cycle préparatoire intégré ISIMM</option>
+              <option value="cas2">Cas 2: 3ème année licence (LMD)</option>
+            </select>
+          </div>
+
+          <div *ngIf="ingParcours === 'cas1'" class="grid-4">
+            <div class="form-group">
+              <label>Moyenne année 1</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.ingCas1.moy1"
+                name="ing1_moy1"
+              />
+            </div>
+            <div class="form-group">
+              <label>Session année 1</label
+              ><select [(ngModel)]="academic.ingCas1.sessionAnnee1" name="ing1_session1">
+                <option value="principale">Principale</option>
+                <option value="controle">Contrôle</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Moyenne année 2</label
+              ><input
+                type="number"
+                step="0.01"
+                [(ngModel)]="academic.ingCas1.moy2"
+                name="ing1_moy2"
+              />
+            </div>
+            <div class="form-group">
+              <label>Session année 2</label
+              ><select [(ngModel)]="academic.ingCas1.sessionAnnee2" name="ing1_session2">
+                <option value="principale">Principale</option>
+                <option value="controle">Contrôle</option>
+              </select>
+            </div>
+          </div>
+
+          <div *ngIf="ingParcours === 'cas2'" class="grid-5">
+            <div class="form-group">
+              <label>M1</label
+              ><input type="number" step="0.01" [(ngModel)]="academic.ingCas2.m1" name="ing2_m1" />
+            </div>
+            <div class="form-group">
+              <label>M2</label
+              ><input type="number" step="0.01" [(ngModel)]="academic.ingCas2.m2" name="ing2_m2" />
+            </div>
+            <div class="form-group">
+              <label>M3</label
+              ><input type="number" step="0.01" [(ngModel)]="academic.ingCas2.m3" name="ing2_m3" />
+            </div>
+            <div class="form-group">
+              <label>R1</label
+              ><input type="number" step="0.01" [(ngModel)]="academic.ingCas2.r1" name="ing2_r1" />
+            </div>
+            <div class="form-group">
+              <label>R2</label
+              ><input type="number" step="0.01" [(ngModel)]="academic.ingCas2.r2" name="ing2_r2" />
+            </div>
+          </div>
+          <p class="note-text">
+            Formule cas 2: 0.5 * (2M1 + 2M2 + M3) + 50 * (1 - R1) + 50 * (1 - R2)
+          </p>
+        </div>
+      </div>
+
+      <div *ngIf="currentStep === 4" class="step-panel">
+        <h2>Synthèse et validation</h2>
+        <p>
+          Proof imprimé: ce résumé final regroupe toutes les informations saisies dans le processus
+          de préinscription.
+        </p>
+        <div class="summary-box">
+          <p><strong>Prénom:</strong> {{ personal.prenom }}</p>
+          <p><strong>Nom:</strong> {{ personal.nom }}</p>
+          <p><strong>Email:</strong> {{ personal.email }}</p>
+          <p><strong>Téléphone:</strong> {{ personal.telephone }}</p>
+          <p><strong>CIN:</strong> {{ personal.cin }}</p>
+          <p><strong>Formation:</strong> {{ getSelectedFormationLabel() }}</p>
+          <p><strong>Diplôme:</strong> {{ selectedDiplome || '-' }}</p>
+          <p><strong>Diplômes saisis:</strong> {{ diplomes.length }}</p>
+          <div class="summary-grid">
+            <p *ngFor="let item of getSyntheseAcademiqueLines()">
+              <strong>{{ item.label }}:</strong> {{ item.value }}
+            </p>
+          </div>
+        </div>
+        <label class="checkbox-line">
+          <input type="checkbox" [(ngModel)]="confirmation" name="accepter_confirmation" />
+          Accepter: je confirme que les informations sont correctes.
+        </label>
+        <p style="color: #c62828; font-weight: 600; margin-top: 0.75rem">
+          Vous devez accepter que les informations saisies sont correctes. Sinon, votre candidature
+          est rejetée.
+        </p>
+      </div>
+
+      <footer class="step-actions">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="
+            router.navigate(['/candidat/dashboard'], {
+              queryParams: { view: 'offres-inscription' },
+            })
+          "
+        >
+          Retour dashboard
+        </button>
+        <button
+          type="button"
+          class="btn-outline"
+          [disabled]="currentStep === 1"
+          (click)="previousStep()"
+        >
+          Précédent
+        </button>
+        <button type="button" class="btn-primary" *ngIf="currentStep < 4" (click)="nextStep()">
+          Suivant
+        </button>
+        <button type="button" class="btn-secondary" *ngIf="currentStep === 4" (click)="cancel()">
+          Annuler
+        </button>
+        <button
+          type="button"
+          class="btn-primary"
+          *ngIf="currentStep === 4"
+          [disabled]="isSubmitting || !confirmation"
+          (click)="submitFinalCandidature()"
+        >
+          {{ isSubmitting ? 'Soumission...' : 'Soumettre candidature' }}
+        </button>
+      </footer>
+    </section>
+  </div>
+</div>

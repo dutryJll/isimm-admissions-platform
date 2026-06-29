@@ -1,0 +1,198 @@
+<div class="profile-page">
+  <div class="profile-header">
+    <div class="header-overlay"></div>
+    <div class="header-content">
+      <div class="avatar-large">
+        {{ currentUser?.email?.charAt(0)?.toUpperCase() || 'U' }}
+      </div>
+      <h1>{{ currentUser?.username }}</h1>
+      <p class="user-email">{{ currentUser?.email }}</p>
+      <span class="role-badge-modern">{{ getRoleLabel(currentUser?.role) }}</span>
+    </div>
+  </div>
+
+  <div class="tabs-container">
+    <button class="tab" [class.active]="activeTab === 'info'" (click)="activeTab = 'info'">
+      <span>👤</span> Informations
+    </button>
+    <button class="tab" [class.active]="activeTab === 'security'" (click)="activeTab = 'security'">
+      <span>🔐</span> Sécurité
+    </button>
+  </div>
+
+  <div class="profile-content-modern">
+    <div *ngIf="successMessage" class="alert-modern success">
+      <span class="alert-icon">✓</span>
+      <p>{{ successMessage }}</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert-modern error">
+      <span class="alert-icon">✕</span>
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <div *ngIf="activeTab === 'info'" class="tab-content">
+      <form (ngSubmit)="onSubmit()" class="modern-form">
+        <div class="form-section-modern">
+          <h2 class="section-title-modern">
+            <span class="icon-modern">👤</span>
+            Informations personnelles
+          </h2>
+
+          <div class="form-grid-modern">
+            <div class="input-group-modern">
+              <label>Prénom</label>
+              <input
+                type="text"
+                [(ngModel)]="profile.first_name"
+                name="first_name"
+                placeholder="Votre prénom"
+                required
+              />
+            </div>
+
+            <div class="input-group-modern">
+              <label>Nom</label>
+              <input
+                type="text"
+                [(ngModel)]="profile.last_name"
+                name="last_name"
+                placeholder="Votre nom"
+                required
+              />
+            </div>
+
+            <div class="input-group-modern">
+              <label>CIN</label>
+              <input
+                type="text"
+                [(ngModel)]="profile.cin"
+                name="cin"
+                placeholder="12345678"
+                maxlength="8"
+              />
+            </div>
+
+            <div class="input-group-modern">
+              <label>Téléphone</label>
+              <input
+                type="tel"
+                [(ngModel)]="profile.telephone"
+                name="telephone"
+                placeholder="+216 12 345 678"
+              />
+            </div>
+
+            <div class="input-group-modern">
+              <label>Date de naissance</label>
+              <input type="date" [(ngModel)]="profile.date_naissance" name="date_naissance" />
+            </div>
+
+            <div class="input-group-modern disabled">
+              <label>Email</label>
+              <input type="email" [value]="profile.email" disabled />
+              <small>L'email ne peut pas être modifié</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section-modern">
+          <h2 class="section-title-modern">
+            <span class="icon-modern">📍</span>
+            Adresse
+          </h2>
+
+          <div class="input-group-modern full-width">
+            <label>Adresse complète</label>
+            <textarea
+              [(ngModel)]="profile.adresse"
+              name="adresse"
+              rows="3"
+              placeholder="Votre adresse complète"
+            ></textarea>
+          </div>
+
+          <div class="form-grid-modern">
+            <div class="input-group-modern">
+              <label>Ville</label>
+              <input type="text" [(ngModel)]="profile.ville" name="ville" placeholder="Monastir" />
+            </div>
+
+            <div class="input-group-modern">
+              <label>Code postal</label>
+              <input
+                type="text"
+                [(ngModel)]="profile.code_postal"
+                name="code_postal"
+                placeholder="5000"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="actions-modern">
+          <button type="button" class="btn-modern secondary" [routerLink]="['/dashboard']">
+            Annuler
+          </button>
+          <button type="submit" class="btn-modern primary" [disabled]="isLoading">
+            <span>💾</span> Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div *ngIf="activeTab === 'security'" class="tab-content">
+      <form (ngSubmit)="changePassword()" class="modern-form">
+        <div class="form-section-modern">
+          <h2 class="section-title-modern">
+            <span class="icon-modern">🔐</span>
+            Changer le mot de passe
+          </h2>
+
+          <div class="form-grid-modern">
+            <div class="input-group-modern full-width">
+              <label>Ancien mot de passe</label>
+              <input
+                type="password"
+                [(ngModel)]="passwordData.old_password"
+                name="old_password"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
+            <div class="input-group-modern">
+              <label>Nouveau mot de passe</label>
+              <input
+                type="password"
+                [(ngModel)]="passwordData.new_password"
+                name="new_password"
+                placeholder="••••••••"
+                minlength="8"
+                required
+              />
+              <small>Minimum 8 caractères</small>
+            </div>
+
+            <div class="input-group-modern">
+              <label>Confirmer le mot de passe</label>
+              <input
+                type="password"
+                [(ngModel)]="passwordData.confirm_password"
+                name="confirm_password"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="actions-modern">
+          <button type="submit" class="btn-modern primary">
+            <span>🔐</span> Changer le mot de passe
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

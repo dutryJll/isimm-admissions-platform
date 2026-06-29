@@ -1,0 +1,384 @@
+<div class="dossier-analysis-page">
+  <div class="analysis-container">
+    <header class="analysis-header">
+      <div class="analysis-header-top">
+        <button class="btn-back-dashboard" (click)="goToDashboard()">
+          <i class="fas fa-arrow-left"></i>
+          Retour au dashboard
+        </button>
+      </div>
+      <h1>Analyse professionnelle des dossiers déposés</h1>
+      <p>
+        Contrôle structuré des pièces du dépôt dossier, vérification OCR/IA et décision de
+        conformité avant passage à l'étape suivante.
+      </p>
+
+      <div class="kpi-grid">
+        <article class="kpi-card">
+          <small>Dossiers en attente</small>
+          <strong>{{ totalDossiers }}</strong>
+        </article>
+        <article class="kpi-card">
+          <small>Analyses lancées (session)</small>
+          <strong>{{ analyzedCount }}</strong>
+        </article>
+        <article class="kpi-card" [class.kpi-alert]="lastAnomalyCount > 0">
+          <small>Anomalies dernier diagnostic</small>
+          <strong>{{ lastAnomalyCount }}</strong>
+        </article>
+      </div>
+
+      <div *ngIf="hasDirectAccess" class="direct-access-banner">
+        <div>
+          <small>Vue ciblée</small>
+          <strong>{{ directAccessLabel }}</strong>
+        </div>
+        <p>
+          La page ouvre directement ce dossier en mode analyse commission, même s'il n'apparaît pas
+          dans la file filtrée actuelle.
+        </p>
+      </div>
+    </header>
+
+    <!-- Messages d'erreur/succès -->
+    <div *ngIf="errorMessage" class="alert alert-error">❌ {{ errorMessage }}</div>
+    <div *ngIf="requiresLogin" class="auth-help-box">
+      <p>Votre session n'est plus valide. Reconnectez-vous pour continuer.</p>
+      <button type="button" class="btn-reconnect" (click)="reconnect()">
+        <i class="fas fa-sign-in-alt"></i>
+        Se reconnecter
+      </button>
+    </div>
+    <div *ngIf="successMessage" class="alert alert-success">✅ {{ successMessage }}</div>
+
+    <div class="analysis-layout">
+      <!-- 📌 COLONNE GAUCHE : Liste des dossiers -->
+      <aside class="dossiers-list-panel">
+        <div class="panel-header">
+          <h2>Dossiers à contrôler ({{ candidaturesList.length }})</h2>
+          <button class="btn-refresh" (click)="loadCandidatures()" [disabled]="isLoading">
+            <i class="fas fa-sync-alt" [class.spinning]="isLoading"></i>
+            Actualiser
+          </button>
+        </div>
+
+        <div class="panel-filters">
+          <input
+            type="text"
+            placeholder="Rechercher candidat, email, id..."
+            [(ngModel)]="searchTerm"
+          />
+          <select [(ngModel)]="selectedMasterFilter">
+            <option value="all">Tous les masters</option>
+            <option value="ingenieur">Cycle Ingénieur</option>
+            <option *ngFor="let m of uniqueMasters" [value]="m">{{ m }}</option>
+          </select>
+        </div>
+
+        <div class="dossiers-list" *ngIf="!isLoading && filteredCandidatures.length > 0">
+          <div
+            class="dossier-item"
+            *ngFor="let candidature of filteredCandidatures"
+            [class.active]="selectedCandidature?.id === candidature.id"
+            (click)="selectCandidature(candidature)"
+          >
+            <div class="dossier-item-head">
+              <strong>{{ candidature.candidat_nom }}</strong>
+              <span class="dossier-score" *ngIf="candidature.score">
+                Score: {{ candidature.score | number: '1.2-2' }}
+              </span>
+            </div>
+            <div class="dossier-item-meta">
+              <small>Master: {{ candidature.master_nom }}</small>
+              <small>Email: {{ candidature.email }}</small>
+            </div>
+            <div class="dossier-item-date">
+              <small>Déposé: {{ candidature.date_depot_dossier | date: 'dd/MM/yyyy HH:mm' }}</small>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="isLoading" class="loading-placeholder">
+          <app-skeleton-loader variant="table" [rows]="6"></app-skeleton-loader>
+        </div>
+
+        <div *ngIf="!isLoading && filteredCandidatures.length === 0" class="empty-state">
+          <p>Aucun dossier ne correspond aux filtres actuels.</p>
+        </div>
+      </aside>
+
+      <!-- 📌 COLONNE DROITE : Analyse OCR détaillée -->
+      <main class="analysis-panel">
+        <div *ngIf="!selectedCandidature" class="empty-analysis">
+          <i class="fas fa-inbox"></i>
+          <p>Sélectionnez un dossier pour démarrer l'analyse documentaire.</p>
+        </div>
+
+        <div *ngIf="selectedCandidature" class="analysis-content">
+          <!-- Header candidature -->
+          <div class="candidature-header">
+            <div class="candidature-info">
+              <h3>{{ selectedCandidature.candidat_nom }}</h3>
+              <p>
+                Master: <strong>{{ selectedCandidature.master_nom }}</strong>
+              </p>
+              <p>
+                Email: <strong>{{ selectedCandidature.email }}</strong>
+              </p>
+            </div>
+            <div class="candidature-meta">
+              <span class="status-badge">{{ selectedCandidature.statut }}</span>
+            </div>
+          </div>
+
+          <div class="analysis-summary-grid">
+            <article class="summary-card status-card" [ngClass]="'tone-' + documentStatusTone">
+              <div class="summary-card-head">
+                <small>Statut documentaire global</small>
+                <span class="summary-chip">{{ documentStatusLabel }}</span>
+              </div>
+              <strong>{{ selectedDocumentsCount }}/{{ requiredDocuments.length }}</strong>
+              <p>Pièces renseignées dans le dépôt dossier pour cette candidature.</p>
+              <div class="summary-progress-bar">
+                <span [style.width.%]="documentCompletionRate"></span>
+              </div>
+            </article>
+
+            <article class="summary-card score-card" [ngClass]="'tone-' + globalComplianceTone">
+              <div class="summary-card-head">
+                <small>Score de conformité global</small>
+                <span class="summary-chip">{{ globalComplianceLabel }}</span>
+              </div>
+              <div class="score-row">
+                <strong>{{ globalComplianceScore }}%</strong>
+                <span>Consolidé à partir des pièces, de l OCR et des anomalies.</span>
+              </div>
+              <div class="summary-progress-bar emphasized">
+                <span [style.width.%]="globalComplianceScore"></span>
+              </div>
+            </article>
+
+            <article class="summary-card timeline-card">
+              <div class="summary-card-head">
+                <small>Timeline d audit</small>
+                <span class="summary-chip neutral">{{ auditTimeline.length }} étapes</span>
+              </div>
+              <div class="timeline-list">
+                <div
+                  class="timeline-step"
+                  *ngFor="let step of auditTimeline"
+                  [class.done]="step.state === 'done'"
+                  [class.current]="step.state === 'current'"
+                >
+                  <span class="timeline-marker"></span>
+                  <div class="timeline-content">
+                    <strong>{{ step.title }}</strong>
+                    <p>{{ step.description }}</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <!-- Configuration formulaire test OCR -->
+          <div class="form-config-section">
+            <h4>Plan de contrôle du dépôt dossier</h4>
+            <p class="info-text">
+              Vérifiez les pièces exigées, puis comparez les informations déclarées avec les
+              extractions OCR pour établir un diagnostic fiable.
+            </p>
+
+            <div class="quick-actions">
+              <button type="button" class="btn-chip" (click)="preloadConsistentData()">
+                Pré-remplir scénario cohérent
+              </button>
+              <button type="button" class="btn-chip warning" (click)="preloadAnomalyData()">
+                Pré-remplir scénario avec anomalies
+              </button>
+              <button type="button" class="btn-chip neutral" (click)="resetSimulation()">
+                Réinitialiser
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>CIN</label>
+                <input type="text" [(ngModel)]="formulaireSimulation.cin" placeholder="12345678" />
+              </div>
+
+              <div class="form-group">
+                <label>Moyenne générale</label>
+                <input
+                  type="number"
+                  [(ngModel)]="formulaireSimulation.moyenne_generale"
+                  placeholder="15.50"
+                  step="0.01"
+                />
+              </div>
+            </div>
+
+            <div class="document-checklist">
+              <h5>Pièces attendues dans le dépôt dossier</h5>
+              <div class="document-grid">
+                <label class="document-item" *ngFor="let document of requiredDocuments">
+                  <input
+                    type="checkbox"
+                    [checked]="isDocumentChecked(document.key)"
+                    (change)="toggleDocument(document.key, $any($event.target).checked)"
+                  />
+                  <span class="document-label">{{ document.label }}</span>
+                  <span class="document-status ok" *ngIf="isDocumentChecked(document.key)">
+                    déclaré
+                  </span>
+                  <span class="document-status alert" *ngIf="isDocumentMissing(document.key)">
+                    manquant OCR
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Lignes déclarées vs extraites pour comparaison -->
+            <div class="lines-comparison">
+              <div class="lines-column">
+                <h5>Données déclarées (relevés/diplômes)</h5>
+                <div class="lines-list">
+                  <div
+                    class="line-item"
+                    *ngFor="let line of formulaireSimulation.declared_lines; let i = index"
+                  >
+                    <input
+                      type="text"
+                      [(ngModel)]="formulaireSimulation.declared_lines[i]"
+                      placeholder="Ligne déclarée..."
+                    />
+                    <button class="btn-remove" (click)="supprimerLigneDeclaree(i)">✕</button>
+                  </div>
+                  <button class="btn-add-line" (click)="ajouterLigneDeclaree()">
+                    + Ajouter ligne
+                  </button>
+                </div>
+              </div>
+
+              <div class="lines-column">
+                <h5>Données extraites par OCR (du PDF)</h5>
+                <div class="lines-list">
+                  <div
+                    class="line-item"
+                    *ngFor="let line of formulaireSimulation.extracted_lines; let i = index"
+                  >
+                    <input
+                      type="text"
+                      [(ngModel)]="formulaireSimulation.extracted_lines[i]"
+                      placeholder="Ligne extraite..."
+                    />
+                    <button class="btn-remove" (click)="supprimerLigneExtractee(i)">✕</button>
+                  </div>
+                  <button class="btn-add-line" (click)="ajouterLigneExtractee()">
+                    + Ajouter ligne
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bouton analyse -->
+            <div class="analysis-action">
+              <button class="btn-analyze" (click)="lancerAnalyseOCR()" [disabled]="isAnalyzing">
+                <i class="fas fa-brain"></i>
+                {{ isAnalyzing ? 'Analyse en cours...' : 'Lancer analyse OCR/IA' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Résultat diagnostic OCR -->
+          <div class="diagnostic-section" *ngIf="ocrDiagnostic">
+            <h4>Résultat du diagnostic OCR</h4>
+
+            <!-- Score de confiance -->
+            <div class="confiance-block" [ngClass]="getConfianceClass(ocrDiagnostic.confiance)">
+              <div class="confiance-label">Confiance OCR</div>
+              <div class="confiance-value">{{ ocrDiagnostic.confiance }}%</div>
+              <div class="confiance-bar">
+                <div class="confiance-fill" [style.width.%]="ocrDiagnostic.confiance"></div>
+              </div>
+            </div>
+
+            <!-- Décision principale -->
+            <div
+              class="decision-block"
+              [ngClass]="
+                ocrDiagnostic.decision === 'auto_valide' ? 'decision-auto' : 'decision-manual'
+              "
+            >
+              <h5>
+                <i
+                  class="fas"
+                  [ngClass]="
+                    ocrDiagnostic.decision === 'auto_valide'
+                      ? 'fa-check-circle'
+                      : 'fa-exclamation-triangle'
+                  "
+                ></i>
+                {{
+                  ocrDiagnostic.decision === 'auto_valide'
+                    ? 'Auto-validé ✅'
+                    : 'Révision manuelle requise ⚠️'
+                }}
+              </h5>
+              <p>
+                Module: {{ ocrDiagnostic.module }} | Provider: {{ ocrDiagnostic.external_provider }}
+              </p>
+            </div>
+
+            <!-- Anomalies détectées -->
+            <div
+              class="anomalies-block"
+              *ngIf="ocrDiagnostic.anomalies && ocrDiagnostic.anomalies.length > 0"
+            >
+              <h5>🚨 Anomalies détectées ({{ ocrDiagnostic.anomalies.length }})</h5>
+              <div class="anomalies-list">
+                <div class="anomaly-card" *ngFor="let anomaly of ocrDiagnostic.anomalies">
+                  <div class="anomaly-type">{{ formatAnomalyType(anomaly.type) }}</div>
+                  <div class="anomaly-message">{{ anomaly.message }}</div>
+                  <div class="anomaly-details" *ngIf="anomaly.saisi || anomaly.officiel">
+                    <small><strong>Saisi:</strong> {{ anomaly.saisi }}</small>
+                    <small><strong>Officiel:</strong> {{ anomaly.officiel }}</small>
+                  </div>
+                  <div class="anomaly-details" *ngIf="anomaly.declared || anomaly.extracted">
+                    <small><strong>Déclaré:</strong> {{ anomaly.declared }}</small>
+                    <small><strong>Extrait:</strong> {{ anomaly.extracted }}</small>
+                  </div>
+                  <div class="anomaly-details" *ngIf="anomaly.manquants">
+                    <small><strong>Manquants:</strong> {{ anomaly.manquants.join(', ') }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="no-anomalies"
+              *ngIf="!ocrDiagnostic.anomalies || ocrDiagnostic.anomalies.length === 0"
+            >
+              <p>✅ Aucune anomalie détectée - Dossier cohérent</p>
+            </div>
+
+            <!-- Actions post-diagnostic -->
+            <div class="diagnostic-actions">
+              <button
+                class="btn-validate"
+                (click)="validerDossier()"
+                [disabled]="!ocrDiagnostic.validation_auto"
+              >
+                <i class="fas fa-check"></i>
+                Valider le dossier
+              </button>
+              <button class="btn-review" (click)="demanderRevisionManuelle()">
+                <i class="fas fa-user-check"></i>
+                Demander révision manuelle
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>

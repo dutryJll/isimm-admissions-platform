@@ -1,0 +1,255 @@
+<div class="consulter-candidatures-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div>
+        <h1>Consulter les candidatures</h1>
+        <p>Liste complète des candidatures reçues</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters-section">
+    <div class="filters-content">
+      <div class="filter-group">
+        <label>
+          <i class="fas fa-graduation-cap"></i>
+          Type
+        </label>
+        <select [(ngModel)]="filtres.type" (change)="appliquerFiltres()">
+          <option value="">Tous</option>
+          <option value="master">Masters</option>
+          <option value="ingenieur">Cycle Ingénieur</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>
+          <i class="fas fa-flag"></i>
+          Statut
+        </label>
+        <select [(ngModel)]="filtres.statut" (change)="appliquerFiltres()">
+          <option value="">Tous</option>
+          <option value="en_cours">En cours</option>
+          <option value="validee">Validée</option>
+          <option value="rejetee">Rejetée</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>
+          <i class="fas fa-search"></i>
+          Rechercher
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="filtres.recherche"
+          (input)="appliquerFiltres()"
+          placeholder="Nom, CIN, email..."
+        />
+      </div>
+
+      <button class="btn-reset" (click)="resetFiltres()">
+        <i class="fas fa-redo"></i>
+        Réinitialiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistiques rapides -->
+  <div class="quick-stats">
+    <div class="quick-stat">
+      <span class="stat-label">Total</span>
+      <span class="stat-value">{{ candidaturesFiltrees.length }}</span>
+    </div>
+    <div class="quick-stat">
+      <span class="stat-label">Masters</span>
+      <span class="stat-value">{{ countByType('master') }}</span>
+    </div>
+    <div class="quick-stat">
+      <span class="stat-label">Ingénieurs</span>
+      <span class="stat-value">{{ countByType('ingenieur') }}</span>
+    </div>
+    <div class="quick-stat">
+      <span class="stat-label">Validées</span>
+      <span class="stat-value">{{ countByStatut('validee') }}</span>
+    </div>
+  </div>
+
+  <div class="content-container" *ngIf="selectedCandidature; else listMode">
+    <div class="detail-card">
+      <h2>Détails de la candidature #{{ selectedCandidature.id }}</h2>
+      <p>
+        <strong>Candidat:</strong>
+        {{ selectedCandidature.first_name }} {{ selectedCandidature.last_name }}
+      </p>
+      <p><strong>Email:</strong> {{ selectedCandidature.email }}</p>
+      <p><strong>CIN:</strong> {{ selectedCandidature.cin }}</p>
+      <p>
+        <strong>Type:</strong>
+        {{ selectedCandidature.type_candidature === 'master' ? 'Master' : 'Ingénieur' }}
+      </p>
+      <p><strong>Spécialité:</strong> {{ selectedCandidature.specialite || '-' }}</p>
+      <p><strong>Score:</strong> {{ selectedCandidature.score || '--' }} pts</p>
+      <p><strong>Statut:</strong> {{ selectedCandidature.statut }}</p>
+
+      <button class="btn-back-list" (click)="retourListe()">
+        <i class="fas fa-arrow-left"></i>
+        Retour à la liste
+      </button>
+    </div>
+  </div>
+
+  <div class="content-container" *ngIf="detailRequested && !selectedCandidature">
+    <div class="detail-card">
+      <h2>Candidature introuvable</h2>
+      <p>L'identifiant demandé n'existe pas dans la liste actuelle.</p>
+      <button class="btn-back-list" (click)="retourListe()">
+        <i class="fas fa-arrow-left"></i>
+        Retour à la liste
+      </button>
+    </div>
+  </div>
+
+  <!-- Table des candidatures -->
+  <ng-template #listMode>
+    <div class="content-container">
+      <div class="table-container mat-table-shell">
+        <table mat-table [dataSource]="candidaturesFiltrees" class="candidatures-mat-table">
+          <ng-container matColumnDef="ranking">
+            <th mat-header-cell *matHeaderCellDef>#</th>
+            <td mat-cell *matCellDef="let candidature; let i = index">
+              <span class="ranking-pill">{{ i + 1 }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="candidate">
+            <th mat-header-cell *matHeaderCellDef>Candidat</th>
+            <td mat-cell *matCellDef="let candidature">
+              <div class="candidat-cell">
+                <div class="avatar">{{ getFullName(candidature).slice(0, 2).toUpperCase() }}</div>
+                <div>
+                  <strong>{{ getFullName(candidature) }}</strong>
+                  <small>{{ candidature.email }}</small>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="cin">
+            <th mat-header-cell *matHeaderCellDef>CIN</th>
+            <td mat-cell *matCellDef="let candidature">{{ candidature.cin }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let candidature">
+              <span
+                class="badge"
+                [class.badge-master]="candidature.type_candidature === 'master'"
+                [class.badge-ingenieur]="candidature.type_candidature === 'ingenieur'"
+              >
+                {{ candidature.type_candidature === 'master' ? 'Master' : 'Ingénieur' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="speciality">
+            <th mat-header-cell *matHeaderCellDef>Vœux / Spécialité</th>
+            <td mat-cell *matCellDef="let candidature">
+              <ng-container
+                *ngIf="candidature.type_candidature === 'master'; else ingenieurSpecialite"
+              >
+                <div class="voeux-list">
+                  <small *ngFor="let voeu of candidature.voeux">{{ voeu }}</small>
+                </div>
+              </ng-container>
+              <ng-template #ingenieurSpecialite>{{ candidature.specialite }}</ng-template>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="score">
+            <th mat-header-cell *matHeaderCellDef>Score</th>
+            <td mat-cell *matCellDef="let candidature">
+              <span
+                class="score-badge"
+                [class.excellent]="(candidature.score ?? 0) >= 16"
+                [class.bien]="(candidature.score ?? 0) >= 14 && (candidature.score ?? 0) < 16"
+                [class.passable]="(candidature.score ?? 0) < 14"
+              >
+                {{ candidature.score || '--' }} pts
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Statut</th>
+            <td mat-cell *matCellDef="let candidature">
+              <span class="statut-badge" [class]="'badge-' + candidature.statut">
+                {{ candidature.statut }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let candidature">
+              <div class="actions-cell">
+                <button
+                  mat-icon-button
+                  class="btn-icon btn-view"
+                  (click)="voirDetails(candidature)"
+                  matTooltip="Voir détails"
+                  aria-label="Voir détails"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  class="btn-icon btn-accept"
+                  (click)="accepter(candidature)"
+                  matTooltip="Accepter"
+                  aria-label="Accepter"
+                >
+                  <mat-icon>check_circle</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  class="btn-icon btn-reject"
+                  (click)="refuser(candidature)"
+                  matTooltip="Refuser"
+                  aria-label="Refuser"
+                >
+                  <mat-icon>cancel</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  class="btn-icon btn-dossier"
+                  (click)="voirDossier(candidature)"
+                  matTooltip="Voir dossier"
+                  aria-label="Voir dossier"
+                >
+                  <mat-icon>folder_open</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+
+        <div *ngIf="candidaturesFiltrees.length === 0 && !loading" class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <p>Aucune candidature trouvée</p>
+        </div>
+      </div>
+
+      <div *ngIf="loading" class="empty-state">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Chargement des candidatures...</p>
+      </div>
+    </div>
+  </ng-template>
+</div>

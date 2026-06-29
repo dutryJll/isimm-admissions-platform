@@ -1,0 +1,62 @@
+<div class="dlg-overlay" *ngIf="active" (click)="onCancel()">
+  <div class="dlg-card" (click)="$event.stopPropagation()" [class]="'variant-' + (active.variant || 'info')">
+    <header class="dlg-header">
+      <span class="dlg-icon">
+        <i class="fas" [ngClass]="variantIcon(active.variant)"></i>
+      </span>
+      <h3 class="dlg-title">{{ active.title }}</h3>
+      <button
+        *ngIf="active.kind !== 'alert'"
+        type="button"
+        class="dlg-close"
+        (click)="onCancel()"
+        aria-label="Fermer"
+      >
+        <i class="fas fa-xmark"></i>
+      </button>
+    </header>
+
+    <div class="dlg-body">
+      <p class="dlg-message" *ngIf="active.message">{{ active.message }}</p>
+
+      <ng-container *ngIf="active.kind === 'prompt'">
+        <select
+          *ngIf="active.options && active.options.length"
+          class="dlg-select"
+          [(ngModel)]="inputValue"
+          (keyup.enter)="onConfirm()"
+        >
+          <option value="" disabled>Sélectionner…</option>
+          <option *ngFor="let opt of active.options" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+        <input
+          *ngIf="!active.options || !active.options.length"
+          class="dlg-input"
+          [type]="active.inputType || 'text'"
+          [placeholder]="active.inputPlaceholder || ''"
+          [(ngModel)]="inputValue"
+          (keyup.enter)="onConfirm()"
+        />
+      </ng-container>
+    </div>
+
+    <footer class="dlg-footer">
+      <button
+        *ngIf="active.kind !== 'alert'"
+        type="button"
+        class="dlg-btn dlg-btn-cancel"
+        (click)="onCancel()"
+      >
+        {{ active.cancelLabel || 'Annuler' }}
+      </button>
+      <button
+        type="button"
+        class="dlg-btn dlg-btn-ok"
+        [class.dlg-btn-danger]="active.variant === 'danger'"
+        (click)="onConfirm()"
+      >
+        {{ active.okLabel || 'OK' }}
+      </button>
+    </footer>
+  </div>
+</div>

@@ -1,0 +1,22 @@
+{% extends "notifications/candidature_base.html" %}
+
+{% block specific_content %}
+<div class="info-box" style="background: #e8f5e9; border-left-color: #4caf50;">
+    <p style="margin: 0; color: #2e7d32;">
+        <strong>✅ Candidature soumise</strong> - Votre candidature a été soumise avec succès.
+    </p>
+</div>
+
+<p>Votre candidature au programme <strong>{{ master_nom }}</strong> a été soumise avec succès.</p>
+
+<p><strong>Numéro de candidature:</strong> {{ candidature_numero }}</p>
+
+<p><strong>Prochaines étapes:</strong></p>
+<ol>
+    <li>Votre dossier sera examiné par notre commission pédagogique</li>
+    <li>Vous serez notifié des résultats de la présélection</li>
+    <li>Si vous êtes présélectionné, vous devrez déposer votre dossier numérique</li>
+</ol>
+
+<p>Vous pouvez consulter l'état de votre candidature depuis votre espace candidat à tout moment.</p>
+{% endblock %}

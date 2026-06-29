@@ -1,0 +1,149 @@
+<div class="gestion-commission-page">
+  <div class="page-header">
+    <div class="header-copy">
+      <p class="eyebrow">Administration</p>
+      <h1>Gestion des Responsables</h1>
+      <p class="subtitle">Administration des responsables de commission</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-back" (click)="retourDashboard()">Retour au dashboard</button>
+      <button class="btn-add" (click)="ouvrirModal()">Ajouter un responsable</button>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table class="membres-table">
+      <thead>
+        <tr>
+          <th>Nom complet</th>
+          <th>Email</th>
+          <th>Spécialité</th>
+          <th>Grade</th>
+          <th>Rôle</th>
+          <th>Statut</th>
+          <th>Date création</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let membre of membres" [class.suspendu]="membre.statut === 'suspendu'">
+          <td data-label="Nom complet">
+            <strong class="person-name">{{ membre.first_name }} {{ membre.last_name }}</strong>
+          </td>
+          <td data-label="Email" class="cell-email">{{ membre.email }}</td>
+          <td data-label="Spécialité">{{ membre.specialite }}</td>
+          <td data-label="Grade">{{ membre.grade }}</td>
+          <td data-label="Rôle">
+            <span class="badge" [class.responsable]="membre.role === 'responsable_commission'">
+              Responsable
+            </span>
+          </td>
+          <td data-label="Statut">
+            <span
+              class="statut-badge"
+              [class.actif]="membre.statut === 'actif'"
+              [class.suspendu]="membre.statut === 'suspendu'"
+            >
+              {{ membre.statut }}
+            </span>
+          </td>
+          <td data-label="Date création">{{ membre.date_creation | date: 'dd/MM/yyyy' }}</td>
+          <td data-label="Actions" class="actions-cell">
+            <button class="btn-kebab" (click)="toggleActionsMenu(membre.id, $event)">⋮</button>
+
+            <div
+              class="kebab-menu"
+              *ngIf="showActionsMenu === membre.id"
+              [ngStyle]="actionsMenuStyle"
+            >
+              <button class="menu-item edit" (click)="editerMembre(membre)">
+                <span class="menu-icon">✏️</span>
+                <span>Modifier</span>
+              </button>
+              <button class="menu-item assign" (click)="designerResponsable(membre)">
+                <span class="menu-icon">👤</span>
+                <span>Designer responsable</span>
+              </button>
+              <button class="menu-item close-mandat" (click)="cloturerMandat(membre)">
+                <span class="menu-icon">📋</span>
+                <span>Clôturer mandat</span>
+              </button>
+              <div class="menu-divider"></div>
+              <button class="menu-item suspend" (click)="suspendreMembre(membre)">
+                <span class="menu-icon">{{ membre.statut === 'actif' ? '⏸️' : '▶️' }}</span>
+                <span>{{ membre.statut === 'actif' ? 'Suspendre' : 'Activer' }}</span>
+              </button>
+              <button class="menu-item delete" (click)="supprimerMembre(membre)">
+                <span class="menu-icon">🗑️</span>
+                <span>Supprimer</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- MODAL AJOUT/MODIFICATION -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="fermerModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2>{{ isEditMode ? 'Modifier le responsable' : 'Ajouter un responsable' }}</h2>
+
+      <form (ngSubmit)="isEditMode ? sauvegarderModification() : ajouterMembre()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Prénom *</label>
+            <input type="text" [(ngModel)]="nouveauMembre.first_name" name="first_name" required />
+          </div>
+
+          <div class="form-group">
+            <label>Nom *</label>
+            <input type="text" [(ngModel)]="nouveauMembre.last_name" name="last_name" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" [(ngModel)]="nouveauMembre.email" name="email" required />
+        </div>
+
+        <div class="form-group">
+          <label>Spécialité *</label>
+          <select [(ngModel)]="nouveauMembre.specialite" name="specialite" required>
+            <option value="">-- Sélectionner --</option>
+            <option *ngFor="let spec of specialites" [value]="spec">{{ spec }}</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Grade *</label>
+            <select [(ngModel)]="nouveauMembre.grade" name="grade" required>
+              <option *ngFor="let grade of grades" [value]="grade">{{ grade }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Rôle *</label>
+            <select [(ngModel)]="nouveauMembre.role" name="role" required>
+              <option value="responsable_commission">Responsable Commission</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="info-box" *ngIf="!isEditMode">
+          <i class="fas fa-info-circle"></i>
+          <p>Un email sera automatiquement envoyé avec les identifiants de connexion</p>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="fermerModal()">Annuler</button>
+          <button type="submit" class="btn-submit">
+            {{ isEditMode ? 'Enregistrer' : 'Ajouter et envoyer email' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,97 @@
+<div class="login-commission-page">
+  <button class="btn-back" (click)="goBack()">← {{ 'login.com.back' | translate }}</button>
+
+  <div class="login-card">
+    <div class="header-mark">{{ 'login.com.mark' | translate }}</div>
+    <div class="header-icon" aria-hidden="true">
+      <i class="fas fa-users"></i>
+    </div>
+    <h2>{{ 'login.com.title' | translate }}</h2>
+    <p class="subtitle">{{ 'login.com.subtitle' | translate }}</p>
+
+    <div class="entry-hints">
+      <span>{{ 'login.com.hint.eval' | translate }}</span>
+      <span>{{ 'login.com.hint.rank' | translate }}</span>
+      <span>{{ 'login.com.hint.valid' | translate }}</span>
+    </div>
+
+    <div class="info-box">
+      <i class="fas fa-info-circle"></i>
+      <p>{{ 'login.com.info' | translate }}</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage | translate }}
+    </div>
+
+    <form (ngSubmit)="onLogin()">
+      <div class="form-group">
+        <label>{{ 'login.com.username.label' | translate }}</label>
+        <input
+          type="text"
+          [(ngModel)]="username"
+          name="username"
+          [placeholder]="'login.com.username.placeholder' | translate"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'login.com.password.label' | translate }}</label>
+        <input
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          [placeholder]="'login.com.password.placeholder' | translate"
+          required
+        />
+      </div>
+
+      <div class="forgot-row">
+        <button type="button" class="btn-forgot" (click)="openForgot()">Mot de passe oublié ?</button>
+      </div>
+
+      <button type="submit" class="btn-login" [disabled]="isLoading">
+        {{ isLoading ? ('login.com.loading' | translate) : ('login.com.submit' | translate) }}
+      </button>
+    </form>
+
+    <div class="help-box">
+      <p>{{ 'login.com.help.title' | translate }}</p>
+      <p class="help-text">
+        {{ 'login.com.help.text' | translate }} <strong>admin@isimm.tn</strong>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Forgot password modal ── -->
+<div class="fp-overlay" *ngIf="showForgotModal" (click)="closeForgot()">
+  <div class="fp-modal" (click)="$event.stopPropagation()">
+    <button class="fp-close" (click)="closeForgot()">×</button>
+
+    <div class="fp-icon">
+      <i class="fas fa-lock"></i>
+    </div>
+    <h3>Réinitialiser le mot de passe</h3>
+
+    <ng-container *ngIf="!resetSent">
+      <p class="fp-desc">Saisissez votre adresse e-mail. Vous recevrez un lien de réinitialisation.</p>
+      <div *ngIf="resetError" class="alert alert-danger">{{ resetError }}</div>
+      <input type="email" [(ngModel)]="resetEmail" name="resetEmail"
+             placeholder="votre@email.com" class="fp-input"/>
+      <button class="btn-login fp-send" (click)="sendPasswordReset()" [disabled]="isResetting">
+        {{ isResetting ? 'Envoi…' : 'Envoyer le lien' }}
+      </button>
+    </ng-container>
+
+    <ng-container *ngIf="resetSent">
+      <div class="fp-success">
+        <i class="fas fa-check-circle"></i>
+        <p>Un lien de réinitialisation a été envoyé à <strong>{{ resetEmail }}</strong>.</p>
+        <p>Vérifiez votre boîte de réception.</p>
+      </div>
+      <button class="btn-login fp-send" (click)="closeForgot()">Fermer</button>
+    </ng-container>
+  </div>
+</div>

@@ -1,0 +1,61 @@
+<div class="candidatures-list">
+  <div id="bulk-bar" class="bulk-bar show">
+    <div id="bulk-text" class="bulk-text">{{ selectedIds.length }} candidat(s) sélectionné(s)</div>
+    <div class="bulk-actions">
+      <button class="btn" (click)="consultMass()">Consulter en masse</button>
+      <button class="btn" (click)="downloadZip()">Télécharger ZIP</button>
+      <button class="btn" (click)="markAllAsRead()">Lire tous</button>
+    </div>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th><input type="checkbox" [checked]="isAllSelected" (change)="toggleSelectAll()" /></th>
+        <th>Nom</th>
+        <th>Spécialité</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let c of candidatures">
+        <td>
+          <input
+            type="checkbox"
+            [checked]="selectedIds.indexOf(c.id) !== -1"
+            (change)="toggleSelect(c.id)"
+          />
+        </td>
+        <td>{{ c.nom_complet || c.candidat_nom }}</td>
+        <td>{{ c.specialite }}</td>
+        <td>
+          <button class="btn btn-secondary" (click)="consultCandidate(c.id)">Consulter</button>
+          <button class="btn btn-primary" (click)="openAvisModal(c)">Donner Avis</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Modal Donner Avis -->
+  <div class="modal" *ngIf="showAvisModal">
+    <div class="modal-content">
+      <h3>Donner un avis pour {{ currentCandidature?.nom_complet || currentCandidature?.candidat_nom }}</h3>
+      <label>
+        <input type="radio" name="avis" [(ngModel)]="avisValue" [value]="true" /> Favorable
+      </label>
+      <label>
+        <input type="radio" name="avis" [(ngModel)]="avisValue" [value]="false" /> Défavorable
+      </label>
+
+      <div *ngIf="avisValue === false">
+        <textarea [(ngModel)]="avisArgument" placeholder="Argumentation (obligatoire pour défavorable)"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn" (click)="closeAvisModal()">Annuler</button>
+        <button class="btn btn-primary" (click)="submitAvis()">Envoyer</button>
+      </div>
+      <div class="error" *ngIf="avisError">{{ avisError }}</div>
+    </div>
+  </div>
+</div>

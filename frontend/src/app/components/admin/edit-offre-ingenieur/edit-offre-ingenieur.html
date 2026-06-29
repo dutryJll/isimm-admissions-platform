@@ -1,0 +1,52 @@
+<div class="offre-edit-page">
+  <div class="offre-edit-card">
+    <div class="card-header">
+      <button type="button" class="btn-back" (click)="goBack()">Retour</button>
+      <div>
+        <p class="eyebrow">Gestion des Parcours Ingénieur</p>
+        <h1>
+          {{ isCreateMode ? 'Ajouter un Parcours Ingénieur' : 'Modifier un Parcours Ingénieur' }}
+        </h1>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="banner info">Chargement des informations...</div>
+    <div *ngIf="errorMessage" class="banner error">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="banner success">{{ successMessage }}</div>
+
+    <form *ngIf="!isLoading" (ngSubmit)="saveOffre()" class="offre-form">
+      <label>
+        Nom du Parcours *
+        <input type="text" [(ngModel)]="offreForm.titre" name="titre" required />
+      </label>
+
+      <div class="grid-two">
+        <label>
+          Type *
+          <input type="text" value="Ingénieur" readonly />
+        </label>
+      </div>
+
+      <div class="grid-two">
+        <label>
+          Nombre de places *
+          <input type="number" [(ngModel)]="offreForm.places" name="places" required />
+        </label>
+      </div>
+
+      <div class="grid-two">
+        <label>
+          Date limite *
+          <input type="date" [(ngModel)]="offreForm.date_limite" name="date_limite" required />
+        </label>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn-secondary" (click)="goBack()">Annuler</button>
+        <button type="submit" class="btn-primary" [disabled]="isSaving">
+          {{ isSaving ? 'Enregistrement...' : isCreateMode ? 'Ajouter' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

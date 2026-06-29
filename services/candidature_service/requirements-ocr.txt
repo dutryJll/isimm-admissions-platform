@@ -1,0 +1,18 @@
+# OCR Requirements — Req-3 (pdfplumber + pytesseract)
+# Installation: pip install -r requirements-ocr.txt
+
+# Extraction texte PDF (prioritaire — rapide et exact)
+pdfplumber>=0.10.0
+
+# OCR image fallback (si PDF scanné)
+pytesseract>=0.3.10
+pdf2image>=1.16.3
+Pillow>=9.0.0
+
+# IMPORTANT — Windows uniquement:
+# 1. Télécharger Tesseract-OCR :
+#    https://github.com/UB-Mannheim/tesseract/wiki
+#    Installer dans: C:\Program Files\Tesseract-OCR\
+#
+# 2. Configuré dans ocr_service.py ligne 54:
+#    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'

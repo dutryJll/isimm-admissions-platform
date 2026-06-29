@@ -1,0 +1,181 @@
+<div class="gerer-inscriptions-page">
+  <div class="page-header">
+    <div class="header-content">
+      <button class="btn-back" [routerLink]="['/commission/dashboard']">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div>
+        <h1>Gérer les Inscriptions</h1>
+        <p>Consulter, importer paiements et gérer les candidats inscrits</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions-bar">
+    <div class="actions-content">
+      <label>Sélectionner Master:</label>
+      <select [(ngModel)]="selectedMasterId" (change)="chargerInscriptions()">
+        <option *ngFor="let master of masters" [value]="master.id">{{ master.nom }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="tabs-section">
+    <div class="tabs">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'finalisee'"
+        (click)="changerOnglet('finalisee')"
+      >
+        Inscriptions Finalisées ({{ inscritsFinalises.length }})
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'incomplete'"
+        (click)="changerOnglet('incomplete')"
+      >
+        Inscriptions Incomplètes ({{ inscritsIncomplete.length }})
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isImporting" class="loading-indicator">
+    <i class="fas fa-spinner fa-spin"></i>
+    <span>{{ importProgress }}</span>
+  </div>
+
+  <div class="actions-bar" *ngIf="!isImporting">
+    <div class="actions-content">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          [(ngModel)]="recherche"
+          (input)="filtrerInscrits()"
+          placeholder="Rechercher par CIN, nom, email..."
+        />
+      </div>
+
+      <input
+        #fileInput
+        (change)="onFileSelected($event)"
+        type="file"
+        accept=".xlsx,.xls"
+        style="display: none"
+      />
+
+      <div class="action-buttons">
+        <button class="btn-action btn-import" (click)="ouvrirImportExcel()">
+          <i class="fas fa-file-excel"></i>
+          Importer Excel
+        </button>
+        <button class="btn-action btn-export" (click)="exporterCSV()">
+          <i class="fas fa-file-csv"></i>
+          Exporter CSV
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-container">
+    <div class="table-wrapper">
+      <div *ngIf="!isImporting && inscritsFiltres.length === 0" class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <h3>Aucun inscrit</h3>
+      </div>
+
+      <table class="inscrits-table" *ngIf="!isImporting && inscritsFiltres.length > 0">
+        <colgroup>
+          <col style="width: 140px" />
+          <col style="width: 28%" />
+          <col style="width: 220px" />
+          <col style="width: 240px" />
+          <col style="width: 170px" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>N° Candidature</th>
+            <th>Nom &amp; Prénom</th>
+            <th>N° Inscription Universitaire</th>
+            <th>Attestation de paiement</th>
+            <th>Statut Final</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let inscrit of inscritsFiltres" [class.selected]="inscrit.selected">
+            <td class="code-cell">INS-{{ selectedMasterId }}-{{ inscrit.id }}</td>
+            <td class="name-cell">
+              <strong>{{ inscrit.prenom }} {{ inscrit.nom }}</strong>
+            </td>
+            <td class="code-cell">{{ inscrit.cin }}</td>
+            <td>
+              <button
+                class="pdf-button"
+                (click)="voirDetails(inscrit)"
+                title="Voir l'attestation PDF"
+              >
+                <i class="fas fa-file-pdf"></i>
+                <span>Voir le PDF</span>
+              </button>
+            </td>
+            <td>
+              <span
+                class="statut-badge"
+                [style.background-color]="getStatutColor(inscrit.statut_paiement)"
+              >
+                {{ getStatutPaiementLabel(inscrit.statut_paiement) }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bulk-actions" *ngIf="hasSelection() && !isImporting">
+      <div class="bulk-info">
+        <i class="fas fa-check-square"></i>
+        <span>{{ countSelected() }} élément(s) sélectionné(s)</span>
+      </div>
+      <div class="bulk-buttons">
+        <button class="btn-bulk btn-email" (click)="envoyerEmailSelection()">
+          <i class="fas fa-envelope"></i>
+          Envoyer email
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showModalDetails" (click)="fermerModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Détails du candidat</h3>
+      <button class="btn-close" (click)="fermerModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" *ngIf="inscritSelectionne">
+      <div class="details-grid">
+        <div class="detail-item">
+          <span class="label">Nom complet</span
+          ><span class="value">{{ inscritSelectionne.prenom }} {{ inscritSelectionne.nom }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">CIN</span><span class="value">{{ inscritSelectionne.cin }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Email</span><span class="value">{{ inscritSelectionne.email }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Téléphone</span
+          ><span class="value">{{ inscritSelectionne.telephone || 'N/A' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Statut</span
+          ><span class="value">{{ inscritSelectionne.statut }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="fermerModal()">Fermer</button>
+    </div>
+  </div>
+</div>

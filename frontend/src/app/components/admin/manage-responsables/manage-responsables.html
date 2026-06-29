@@ -1,0 +1,200 @@
+<div class="responsables-container">
+  <!-- Header -->
+  <div class="responsables-header">
+    <button class="btn-back" (click)="goBack()">← Retour</button>
+    <h1>👥 Gestion des Responsables</h1>
+    <p>Ajouter ou supprimer des responsables de commission</p>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <span>✅ {{ successMessage }}</span>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-error">
+    <span>❌ {{ errorMessage }}</span>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content-wrapper">
+    <!-- Add Responsable Section -->
+    <div class="add-section">
+      <button (click)="toggleAddForm()" class="btn btn-primary">
+        <span *ngIf="!showAddForm">+ Ajouter un responsable</span>
+        <span *ngIf="showAddForm">✕ Annuler</span>
+      </button>
+
+      <div *ngIf="showAddForm" class="add-form-box">
+        <h2>Ajouter un nouveau responsable</h2>
+
+        <form [formGroup]="addForm" (ngSubmit)="onSubmitAdd()" class="form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Prénom *</label>
+              <input
+                type="text"
+                formControlName="first_name"
+                placeholder="Ex: Ahmed"
+                class="form-control"
+                [class.is-invalid]="isFieldInvalid('first_name')"
+              />
+              <small class="error-text" *ngIf="isFieldInvalid('first_name')">
+                {{ getFieldError('first_name') }}
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label>Nom *</label>
+              <input
+                type="text"
+                formControlName="last_name"
+                placeholder="Ex: Ben Ali"
+                class="form-control"
+                [class.is-invalid]="isFieldInvalid('last_name')"
+              />
+              <small class="error-text" *ngIf="isFieldInvalid('last_name')">
+                {{ getFieldError('last_name') }}
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label>Email *</label>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="responsable@isimm.tn"
+                class="form-control"
+                [class.is-invalid]="isFieldInvalid('email')"
+              />
+              <small class="error-text" *ngIf="isFieldInvalid('email')">
+                {{ getFieldError('email') }}
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label>Mot de passe *</label>
+              <input
+                type="password"
+                formControlName="password"
+                placeholder="Minimum 8 caractères"
+                class="form-control"
+                [class.is-invalid]="isFieldInvalid('password')"
+              />
+              <small class="error-text" *ngIf="isFieldInvalid('password')">
+                {{ getFieldError('password') }}
+              </small>
+            </div>
+          </div>
+
+          <button type="submit" [disabled]="isSubmitting || !addForm.valid" class="btn btn-success">
+            <span *ngIf="!isSubmitting">✓ Créer le responsable</span>
+            <span *ngIf="isSubmitting">⏳ Création en cours...</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="search-section">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="🔍 Chercher par nom ou email..."
+        class="search-input"
+      />
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading">⏳ Chargement des responsables...</div>
+
+    <!-- Responsables List -->
+    <div *ngIf="!isLoading && responsablesList.length > 0" class="responsables-list">
+      <h2>Responsables actifs ({{ filteredResponsables.length }})</h2>
+
+      <div class="table-responsive">
+        <table class="responsables-table">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let responsable of filteredResponsables" class="responsable-row">
+              <td class="name-cell">
+                <span class="responsable-name">
+                  {{ responsable.first_name }} {{ responsable.last_name }}
+                </span>
+              </td>
+              <td class="email-cell">
+                {{ responsable.email }}
+              </td>
+              <td class="status-cell">
+                <span
+                  class="status-badge"
+                  [class.active]="responsable.is_active"
+                  [class.inactive]="!responsable.is_active"
+                >
+                  {{ responsable.is_active ? '✓ Actif' : '✕ Inactif' }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button
+                  (click)="openDeleteConfirm(responsable)"
+                  class="btn btn-danger btn-small"
+                  [disabled]="deleteConfirmId === responsable.id"
+                >
+                  🗑️ Supprimer
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && responsablesList.length === 0" class="empty-state">
+      <p>Aucun responsable trouvé.</p>
+      <button (click)="toggleAddForm()" class="btn btn-primary">
+        + Créer le premier responsable
+      </button>
+    </div>
+
+    <!-- No Results -->
+    <div
+      *ngIf="!isLoading && responsablesList.length > 0 && filteredResponsables.length === 0"
+      class="no-results"
+    >
+      <p>Aucun responsable ne correspond à votre recherche.</p>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div *ngIf="deleteConfirmId" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Confirmer la suppression</h2>
+          <button class="modal-close" (click)="cancelDelete()">✕</button>
+        </div>
+        <div class="modal-body">
+          <p>
+            Êtes-vous sûr de vouloir supprimer <strong>{{ deleteConfirmName }}</strong> ?
+          </p>
+          <p class="warning-text">⚠️ Cette action est irréversible.</p>
+        </div>
+        <div class="modal-footer">
+          <button (click)="cancelDelete()" class="btn btn-secondary">Annuler</button>
+          <button (click)="confirmDelete()" [disabled]="isSubmitting" class="btn btn-danger">
+            <span *ngIf="!isSubmitting">✓ Supprimer</span>
+            <span *ngIf="isSubmitting">Suppression...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+<p>language-selector works!</p>
+<div class="language-selector">
+  <button class="lang-btn" [class.active]="currentLanguage === 'fr'" (click)="setLanguage('fr')">
+    FR
+  </button>
+  <span class="separator">|</span>
+  <button class="lang-btn" [class.active]="currentLanguage === 'en'" (click)="setLanguage('en')">
+    EN
+  </button>
+</div>

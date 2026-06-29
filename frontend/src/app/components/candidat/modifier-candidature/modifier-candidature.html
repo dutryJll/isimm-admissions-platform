@@ -1,0 +1,601 @@
+<!-- Loading state -->
+<div class="mc-loading" *ngIf="isLoading">
+  <div class="mc-spinner"></div>
+  <p>Chargement de votre candidature…</p>
+</div>
+
+<!-- Page -->
+<div class="mc-page" *ngIf="!isLoading">
+
+  <!-- ── TOP BAR ── -->
+  <header class="mc-topbar">
+    <div class="mc-topbar__inner">
+      <a routerLink="/candidat/dashboard" [queryParams]="{view: 'candidatures'}" class="mc-topbar__back">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Mes candidatures
+      </a>
+      <div class="mc-topbar__title">
+        <span class="mc-topbar__icon">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+               viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </span>
+        <div>
+          <h1>Modifier la candidature</h1>
+          <span class="mc-topbar__sub">{{ candidatureMasterNom }} — {{ candidatureAnnee }}</span>
+        </div>
+      </div>
+      <div class="mc-topbar__meta">
+        <span class="mc-badge mc-badge--ref">Réf : {{ candidatureRef }}</span>
+        <span class="mc-badge" [ngClass]="{
+          'mc-badge--success': candidatureStatut === 'accepte' || candidatureStatut === 'acceptée',
+          'mc-badge--warning': candidatureStatut === 'soumis' || candidatureStatut === 'en_attente',
+          'mc-badge--info':    candidatureStatut === 'en_cours'
+        }">{{ candidatureStatut }}</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── STEPPER ── -->
+  <nav class="mc-stepper">
+    <div class="mc-stepper__inner">
+      <button *ngFor="let s of steps"
+              class="mc-step"
+              [class.mc-step--active]="currentStep === s"
+              [class.mc-step--done]="stepProgress[s] && currentStep !== s"
+              (click)="goStep(s)">
+        <span class="mc-step__num">
+          <svg *ngIf="stepProgress[s] && currentStep !== s" width="14" height="14" fill="none"
+               stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span *ngIf="!(stepProgress[s] && currentStep !== s)">{{ s }}</span>
+        </span>
+        <span class="mc-step__label">{{ stepLabels[s] }}</span>
+        <span class="mc-step__connector" *ngIf="s < 2"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <div class="mc-body">
+    <div class="mc-content">
+
+      <!-- ══════════ STEP 1 — Infos personnelles ══════════ -->
+      <section class="mc-card" *ngIf="currentStep === 1">
+        <div class="mc-card__head">
+          <span class="mc-card__icon mc-card__icon--blue">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>
+          <h2>Informations personnelles</h2>
+          <span class="mc-card__badge mc-card__badge--readonly">Lecture seule — depuis votre profil</span>
+        </div>
+
+        <p class="mc-info-note">
+          Ces informations sont extraites de votre profil. Pour les modifier, rendez-vous dans les paramètres de votre compte.
+        </p>
+
+        <div class="mc-field-group">
+          <h3 class="mc-field-group__title">Identité</h3>
+          <div class="mc-grid mc-grid--2">
+            <div class="mc-field">
+              <label>Nom</label>
+              <input type="text" [(ngModel)]="formNom" readonly class="mc-input mc-input--readonly"/>
+            </div>
+            <div class="mc-field">
+              <label>Prénom</label>
+              <input type="text" [(ngModel)]="formPrenom" readonly class="mc-input mc-input--readonly"/>
+            </div>
+            <div class="mc-field">
+              <label>CIN</label>
+              <input type="text" [(ngModel)]="formCin" readonly class="mc-input mc-input--readonly" placeholder="—"/>
+            </div>
+            <div class="mc-field">
+              <label>Date de naissance</label>
+              <input type="text" [(ngModel)]="formDateNaissance" readonly class="mc-input mc-input--readonly" placeholder="—"/>
+            </div>
+            <div class="mc-field">
+              <label>Genre</label>
+              <input type="text" [(ngModel)]="formGenre" readonly class="mc-input mc-input--readonly"/>
+            </div>
+            <div class="mc-field">
+              <label>Nationalité</label>
+              <input type="text" [(ngModel)]="formNationalite" readonly class="mc-input mc-input--readonly"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="mc-field-group">
+          <h3 class="mc-field-group__title">Coordonnées</h3>
+          <div class="mc-grid mc-grid--2">
+            <div class="mc-field">
+              <label>Email</label>
+              <input type="email" [(ngModel)]="formEmail" readonly class="mc-input mc-input--readonly"/>
+            </div>
+            <div class="mc-field">
+              <label>Téléphone</label>
+              <input type="text" [(ngModel)]="formTelephone" readonly class="mc-input mc-input--readonly" placeholder="—"/>
+            </div>
+            <div class="mc-field mc-field--full">
+              <label>Adresse</label>
+              <input type="text" [(ngModel)]="formAdresse" readonly class="mc-input mc-input--readonly" placeholder="—"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="mc-actions">
+          <button class="mc-btn mc-btn--primary" (click)="nextStep()">
+            Suivant
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- ══════════ STEP 2 — Diplôme & Formation ══════════ -->
+      <section class="mc-card" *ngIf="currentStep === 2">
+        <div class="mc-card__head">
+          <span class="mc-card__icon mc-card__icon--orange">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          </span>
+          <h2>Diplôme & Formation</h2>
+        </div>
+
+        <!-- Établissement -->
+        <div class="mc-field-group">
+          <h3 class="mc-field-group__title">Type d'établissement</h3>
+          <div class="mc-etab-row">
+            <button class="mc-etab-btn" [class.mc-etab-btn--active]="typeCandidat === 'isimm'"
+                    (click)="selectEtab('isimm')">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+              ISIMM (interne)
+            </button>
+            <button class="mc-etab-btn" [class.mc-etab-btn--active]="typeCandidat === 'externe'"
+                    (click)="selectEtab('externe')">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/>
+              </svg>
+              Autre établissement
+            </button>
+          </div>
+          <div class="mc-field" *ngIf="typeCandidat === 'externe'">
+            <label>Nom de l'établissement</label>
+            <input type="text" [(ngModel)]="etablissement" class="mc-input" placeholder="Ex : FSM, FSS, ENIT…"/>
+          </div>
+          <div class="mc-field" *ngIf="typeCandidat === 'isimm'">
+            <label>Établissement</label>
+            <input type="text" [(ngModel)]="etablissement" readonly class="mc-input mc-input--readonly"/>
+          </div>
+        </div>
+
+        <!-- Diplôme -->
+        <div class="mc-field-group">
+          <h3 class="mc-field-group__title">Diplôme obtenu</h3>
+          <div class="mc-grid mc-grid--2">
+            <div class="mc-field">
+              <label>Nature du diplôme</label>
+              <select [(ngModel)]="natureDiplome" (change)="onNatureDiplomeChange()" class="mc-input">
+                <option value="licence-lmd">Licence LMD</option>
+                <option value="licence-ar">Licence Ancien Régime</option>
+                <option value="maitrise">Maîtrise</option>
+                <option value="ingenieur">Diplôme d'Ingénieur</option>
+              </select>
+            </div>
+            <div class="mc-field">
+              <label>Spécialité</label>
+              <select [(ngModel)]="specialiteDiplome" class="mc-input">
+                <option value="">— Sélectionnez —</option>
+                <option *ngFor="let s of availableSpecialites" [value]="s">{{ s }}</option>
+              </select>
+            </div>
+            <div class="mc-field">
+              <label>Mention</label>
+              <select [(ngModel)]="mention" class="mc-input">
+                <option value="Très bien">Très bien</option>
+                <option value="Bien">Bien</option>
+                <option value="Assez bien">Assez bien</option>
+                <option value="Passable">Passable</option>
+              </select>
+            </div>
+            <div class="mc-field">
+              <label>Année d'obtention</label>
+              <select [(ngModel)]="anneeObtention" class="mc-input">
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Moyennes -->
+        <div class="mc-field-group">
+          <h3 class="mc-field-group__title">Moyennes académiques</h3>
+          <div class="mc-grid mc-grid--3">
+            <div class="mc-field">
+              <label>Moy. L1</label>
+              <input type="number" [(ngModel)]="moyenneL1" (input)="recalcScore()"
+                     min="0" max="20" step="0.01" class="mc-input" placeholder="0.00"/>
+            </div>
+            <div class="mc-field">
+              <label>Moy. L2</label>
+              <input type="number" [(ngModel)]="moyenneL2" (input)="recalcScore()"
+                     min="0" max="20" step="0.01" class="mc-input" placeholder="0.00"/>
+            </div>
+            <div class="mc-field">
+              <label>Moy. L3</label>
+              <input type="number" [(ngModel)]="moyenneL3" (input)="recalcScore()"
+                     min="0" max="20" step="0.01" class="mc-input" placeholder="0.00"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bac -->
+        <div class="mc-field-group">
+          <h3 class="mc-field-group__title">Baccalauréat</h3>
+          <div class="mc-grid mc-grid--3">
+            <div class="mc-field">
+              <label>Moyenne générale Bac</label>
+              <input type="number" [(ngModel)]="moyenneBac"
+                     min="0" max="20" step="0.01" class="mc-input" placeholder="0.00"/>
+            </div>
+            <div class="mc-field">
+              <label>Note Mathématiques</label>
+              <input type="number" [(ngModel)]="noteMathBac"
+                     min="0" max="20" step="0.01" class="mc-input" placeholder="0.00"/>
+            </div>
+            <div class="mc-field">
+              <label>Note Français</label>
+              <input type="number" [(ngModel)]="noteFrancaisBac" (input)="recalcScore()"
+                     min="0" max="20" step="0.01" class="mc-input" placeholder="0.00"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Parcours -->
+        <div class="mc-field-group">
+          <h3 class="mc-field-group__title">Parcours académique</h3>
+          <div class="mc-grid mc-grid--2">
+            <div class="mc-field">
+              <label>Nb. redoublements</label>
+              <div class="mc-counter">
+                <button class="mc-counter__btn" (click)="changeNum('nbRedoublements', -1)">−</button>
+                <span class="mc-counter__val">{{ nbRedoublements }}</span>
+                <button class="mc-counter__btn" (click)="changeNum('nbRedoublements', 1)">+</button>
+              </div>
+            </div>
+            <div class="mc-field">
+              <label>Nb. sessions supplémentaires</label>
+              <div class="mc-counter">
+                <button class="mc-counter__btn" (click)="changeNum('nbSessions', -1)">−</button>
+                <span class="mc-counter__val">{{ nbSessions }}</span>
+                <button class="mc-counter__btn" (click)="changeNum('nbSessions', 1)">+</button>
+              </div>
+            </div>
+            <div class="mc-field mc-field--full">
+              <label>Certification en langue</label>
+              <select [(ngModel)]="certificationLangue" (change)="recalcScore()" class="mc-input">
+                <option value="none">Aucune certification</option>
+                <option value="b2">B2 ou supérieur (DELF, DALF, IELTS, TOEFL…)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Score preview -->
+        <div class="mc-score-box" *ngIf="computedScore !== null">
+          <div class="mc-score-box__left">
+            <span class="mc-score-box__label">Score estimé</span>
+            <span class="mc-score-box__val">{{ computedScore | number:'1.2-2' }}</span>
+          </div>
+          <div class="mc-score-box__formula">{{ scoreFormula }}</div>
+        </div>
+
+        <div class="mc-actions">
+          <button class="mc-btn mc-btn--ghost" (click)="prevStep()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+            Précédent
+          </button>
+          <button class="mc-btn mc-btn--save" (click)="saveDraft()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Sauvegarder brouillon
+          </button>
+          <!-- BOUTON SOUMETTRE TOUJOURS ACTIF (étapes Vœux/Documents supprimées) -->
+          <button class="mc-btn mc-btn--submit" (click)="openConfirm()"
+                  [disabled]="isSaving">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            {{ isSaving ? 'Enregistrement…' : 'Soumettre les modifications' }}
+          </button>
+        </div>
+      </section>
+
+      <!-- ══════════ STEP 3 — Vœux & Motivation ══════════ -->
+      <section class="mc-card" *ngIf="currentStep === 3">
+        <div class="mc-card__head">
+          <span class="mc-card__icon mc-card__icon--green">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          </span>
+          <h2>Vœux & Motivation</h2>
+        </div>
+
+        <div class="mc-info-note mc-info-note--blue">
+          Classez vos vœux par ordre de préférence. Le 1er vœu est prioritaire.
+        </div>
+
+        <!-- Vœux -->
+        <div class="mc-field-group">
+          <h3 class="mc-field-group__title">Choix de parcours</h3>
+
+          <div class="mc-voeu">
+            <span class="mc-voeu__num mc-voeu__num--1">1</span>
+            <div class="mc-voeu__body">
+              <label>1er vœu (prioritaire)</label>
+              <select class="mc-input" [(ngModel)]="voeu1">
+                <option value="">— Aucun —</option>
+                <option *ngFor="let opt of parcourOpts" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="mc-voeu">
+            <span class="mc-voeu__num mc-voeu__num--2">2</span>
+            <div class="mc-voeu__body">
+              <label>2e vœu</label>
+              <select class="mc-input" [(ngModel)]="voeu2">
+                <option value="">— Aucun —</option>
+                <option *ngFor="let opt of parcourOpts" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="mc-voeu">
+            <span class="mc-voeu__num mc-voeu__num--3">3</span>
+            <div class="mc-voeu__body">
+              <label>3e vœu</label>
+              <select class="mc-input" [(ngModel)]="voeu3">
+                <option value="">— Aucun —</option>
+                <option *ngFor="let opt of parcourOpts" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Motivation -->
+        <div class="mc-field-group">
+          <h3 class="mc-field-group__title">Lettre de motivation <span class="mc-optional">(optionnel)</span></h3>
+          <div class="mc-field">
+            <textarea [(ngModel)]="motivation" rows="6" class="mc-input mc-input--textarea"
+                      placeholder="Expliquez votre motivation pour intégrer ce programme…"></textarea>
+            <span class="mc-char-count">{{ motivation.length }} / 1000</span>
+          </div>
+        </div>
+
+        <div class="mc-actions">
+          <button class="mc-btn mc-btn--ghost" (click)="prevStep()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+            Précédent
+          </button>
+          <button class="mc-btn mc-btn--primary" (click)="nextStep()">
+            Suivant
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- ══════════ STEP 4 — Documents ══════════ -->
+      <section class="mc-card" *ngIf="currentStep === 4">
+        <div class="mc-card__head">
+          <span class="mc-card__icon mc-card__icon--purple">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </span>
+          <h2>Documents justificatifs</h2>
+        </div>
+
+        <p class="mc-info-note">
+          Formats acceptés : PDF, JPG, PNG. Taille maximale : 5 Mo par fichier.
+        </p>
+
+        <div class="mc-docs-grid">
+          <!-- Diplôme -->
+          <div class="mc-doc-card">
+            <div class="mc-doc-card__icon mc-doc-card__icon--blue">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+              </svg>
+            </div>
+            <div class="mc-doc-card__body">
+              <h4>Diplôme / Relevé de notes</h4>
+              <p>Relevé officiel ou attestation de réussite</p>
+              <div class="mc-doc-card__uploaded" *ngIf="uploadedNames['diplome']">
+                <svg width="14" height="14" fill="none" stroke="#10b981" stroke-width="3" viewBox="0 0 24 24">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                {{ uploadedNames['diplome'] }}
+              </div>
+            </div>
+            <label class="mc-upload-btn">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" (change)="handleUpload($event, 'diplome')" hidden/>
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              {{ uploadedNames['diplome'] ? 'Remplacer' : 'Choisir' }}
+            </label>
+          </div>
+
+          <!-- Photo -->
+          <div class="mc-doc-card">
+            <div class="mc-doc-card__icon mc-doc-card__icon--green">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+            </div>
+            <div class="mc-doc-card__body">
+              <h4>Photo d'identité</h4>
+              <p>Photo récente, fond blanc, format passeport</p>
+              <div class="mc-doc-card__uploaded" *ngIf="uploadedNames['photo']">
+                <svg width="14" height="14" fill="none" stroke="#10b981" stroke-width="3" viewBox="0 0 24 24">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                {{ uploadedNames['photo'] }}
+              </div>
+            </div>
+            <label class="mc-upload-btn">
+              <input type="file" accept=".jpg,.jpeg,.png" (change)="handleUpload($event, 'photo')" hidden/>
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              {{ uploadedNames['photo'] ? 'Remplacer' : 'Choisir' }}
+            </label>
+          </div>
+        </div>
+
+        <!-- Alert si non modifiable -->
+        <div class="mc-alert mc-alert--warning" *ngIf="candidature && !candidature.peut_modifier">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          Cette candidature ne peut plus être modifiée (délai expiré ou statut verrouillé).
+        </div>
+
+        <div class="mc-actions">
+          <button class="mc-btn mc-btn--ghost" (click)="prevStep()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+            Précédent
+          </button>
+          <button class="mc-btn mc-btn--save" (click)="saveDraft()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Sauvegarder brouillon
+          </button>
+          <button class="mc-btn mc-btn--submit" (click)="openConfirm()"
+                  [disabled]="isSaving || !candidature?.peut_modifier">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            {{ isSaving ? 'Enregistrement…' : 'Soumettre les modifications' }}
+          </button>
+        </div>
+      </section>
+
+    </div><!-- /mc-content -->
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="mc-sidebar">
+
+      <!-- Résumé candidature -->
+      <div class="mc-scard">
+        <h3 class="mc-scard__title">Résumé</h3>
+        <div class="mc-scard__row">
+          <span class="mc-scard__lbl">Master</span>
+          <span class="mc-scard__val">{{ candidatureMasterNom }}</span>
+        </div>
+        <div class="mc-scard__row">
+          <span class="mc-scard__lbl">Référence</span>
+          <span class="mc-scard__val mc-mono">{{ candidatureRef }}</span>
+        </div>
+        <div class="mc-scard__row">
+          <span class="mc-scard__lbl">Année</span>
+          <span class="mc-scard__val">{{ candidatureAnnee }}</span>
+        </div>
+        <div class="mc-scard__row">
+          <span class="mc-scard__lbl">Statut</span>
+          <span class="mc-badge mc-badge--warning">{{ candidatureStatut }}</span>
+        </div>
+        <div class="mc-scard__row" *ngIf="dateLimit !== '—'">
+          <span class="mc-scard__lbl">Date limite</span>
+          <span class="mc-scard__val mc-scard__val--red">{{ dateLimit }}</span>
+        </div>
+      </div>
+
+      <!-- Score -->
+      <div class="mc-scard mc-scard--score" *ngIf="computedScore !== null">
+        <h3 class="mc-scard__title">Score estimé</h3>
+        <div class="mc-score-dial">
+          <span class="mc-score-dial__val">{{ computedScore | number:'1.2-2' }}</span>
+          <span class="mc-score-dial__max">/ 28</span>
+        </div>
+        <div class="mc-score-breakdown">
+          <div class="mc-score-row">
+            <span>Moy. générale (MG)</span><strong>{{ scoreMG | number:'1.2-2' }}</strong>
+          </div>
+          <div class="mc-score-row">
+            <span>Bonus nb. réd. (BNR)</span><strong>{{ scoreBNR }}</strong>
+          </div>
+          <div class="mc-score-row">
+            <span>Bonus sessions (BSP)</span><strong>{{ scoreBSP }}</strong>
+          </div>
+          <div class="mc-score-row">
+            <span>Bonus langue (BL)</span><strong>{{ scoreBL }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progression -->
+      <div class="mc-scard">
+        <h3 class="mc-scard__title">Progression</h3>
+        <div class="mc-progress-bar">
+          <div class="mc-progress-bar__fill" [style.width.%]="formProgress"></div>
+        </div>
+        <span class="mc-progress-pct">{{ formProgress }}%</span>
+        <ul class="mc-checklist">
+          <li [class.mc-checklist__item--done]="stepProgress[1]">
+            <span class="mc-check-icon"></span> Informations personnelles
+          </li>
+          <li [class.mc-checklist__item--done]="stepProgress[2]">
+            <span class="mc-check-icon"></span> Diplôme & Formation
+          </li>
+          <li [class.mc-checklist__item--done]="stepProgress[3]">
+            <span class="mc-check-icon"></span> Vœux & Motivation
+          </li>
+          <li [class.mc-checklist__item--done]="stepProgress[4]">
+            <span class="mc-check-icon"></span> Documents
+          </li>
+        </ul>
+      </div>
+
+    </aside>
+  </div><!-- /mc-body -->
+
+</div><!-- /mc-page -->
+
+<!-- ── CONFIRM MODAL ── -->
+<div class="mc-modal-overlay" *ngIf="showConfirmModal" (click)="closeConfirm()">
+  <div class="mc-modal" (click)="$event.stopPropagation()">
+    <div class="mc-modal__icon">
+      <svg width="32" height="32" fill="none" stroke="#185FA5" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    </div>
+    <h3>Confirmer les modifications</h3>
+    <p>Voulez-vous enregistrer et soumettre les modifications de votre candidature ?</p>
+    <div class="mc-modal__actions">
+      <button class="mc-btn mc-btn--ghost" (click)="closeConfirm()">Annuler</button>
+      <button class="mc-btn mc-btn--submit" (click)="confirmSubmit()" [disabled]="isSaving">
+        {{ isSaving ? 'En cours…' : 'Confirmer' }}
+      </button>
+    </div>
+  </div>
+</div>

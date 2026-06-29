@@ -1,0 +1,4106 @@
+<div class="dashboard-candidat">
+  <aside class="sidebar">
+    <div class="logo-section">
+      <div class="sidebar-brand-row">
+        <img src="/ISIMM_LOGO.png" alt="ISIMM" class="sidebar-logo-img"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
+        <span class="sidebar-logo-fallback" style="display:none">ISIMM</span>
+        <div
+          class="sidebar-avatar-mini"
+          (click)="switchView('profil')"
+          title="Mon Profil"
+        >
+          <span class="avatar-role-emoji">🎓</span>
+        </div>
+      </div>
+      <p class="sidebar-user-name">{{ currentUser?.first_name }} {{ currentUser?.last_name }}</p>
+      <p class="user-role">
+        Espace Candidat
+        <span
+          class="ws-indicator"
+          [ngClass]="{
+            online: socketConnectionStatus === ConnectionStatus.CONNECTED,
+            connecting: socketConnectionStatus === ConnectionStatus.CONNECTING,
+            offline: socketConnectionStatus !== ConnectionStatus.CONNECTED,
+          }"
+          [title]="socketConnectionStatus"
+        ></span>
+      </p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a
+        class="nav-item"
+        [class.active]="currentView === 'dashboard'"
+        (click)="switchView('dashboard')"
+      >
+        <i class="fas fa-home"></i>
+        <span>Tableau de bord</span>
+      </a>
+
+      <a class="nav-item" [class.active]="currentView === 'profil'" (click)="switchView('profil')">
+        <i class="fas fa-user"></i>
+        <span>Mon Profil</span>
+      </a>
+
+      <a
+        class="nav-item"
+        *ngIf="actionPermissions.preinscription"
+        [class.active]="currentView === 'offres-inscription'"
+        (click)="switchView('offres-inscription')"
+      >
+        <i class="fas fa-door-open"></i>
+        <span>Préinscription</span>
+      </a>
+
+      <a
+        class="nav-item"
+        *ngIf="actionPermissions.consultationCandidature"
+        [class.active]="currentView === 'candidatures'"
+        (click)="switchView('candidatures')"
+      >
+        <i class="fas fa-file-alt"></i>
+        <span>Candidatures</span>
+      </a>
+
+      <a
+        class="nav-item"
+        *ngIf="actionPermissions.consultationDossier || actionPermissions.depotDossier"
+        [class.active]="currentView === 'mon-dossier'"
+        (click)="switchView('mon-dossier')"
+      >
+        <i class="fas fa-folder"></i>
+        <span>Dossiers de candidature</span>
+      </a>
+
+      <a
+        class="nav-item"
+        *ngIf="actionPermissions.consultationCandidature"
+        [class.active]="currentView === 'inscription'"
+        (click)="switchView('inscription')"
+      >
+        <i class="fas fa-credit-card"></i>
+        <span>Inscription en ligne</span>
+      </a>
+
+      <a
+        class="nav-item"
+        *ngIf="actionPermissions.suiviCandidature"
+        [class.active]="currentView === 'suivi'"
+        (click)="switchView('suivi')"
+      >
+        <i class="fas fa-route"></i>
+        <span>Suivi de candidature</span>
+      </a>
+
+      <a
+        class="nav-item"
+        *ngIf="actionPermissions.suiviCandidature"
+        [class.active]="currentView === 'historique'"
+        (click)="switchView('historique')"
+      >
+        <i class="fas fa-history"></i>
+        <span>Historique</span>
+      </a>
+
+      <a
+        class="nav-item"
+        *ngIf="actionPermissions.deposerReclamation"
+        [class.active]="currentView === 'reclamations'"
+        (click)="switchView('reclamations')"
+      >
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Réclamation</span>
+      </a>
+
+      <a
+        class="nav-item"
+        [class.active]="currentView === 'notifications'"
+        (click)="switchView('notifications')"
+      >
+        <i class="fas fa-bell"></i>
+        <span>Notifications</span>
+        <span class="badge-count" *ngIf="notificationsNonLues > 0">{{ notificationsNonLues }}</span>
+      </a>
+
+      <div class="nav-divider"></div>
+
+      <a class="nav-item logout" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Déconnexion</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <p>{{ currentUser?.first_name }} {{ currentUser?.last_name }}</p>
+      <small>{{ currentUser?.email }}</small>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="content-header">
+      <div class="ch-inner">
+        <div class="ch-left">
+          <span class="ch-role-badge">🎓 Espace Candidat</span>
+          <h1 class="content-title">{{ getViewTitle() }}</h1>
+        </div>
+        <div class="header-actions">
+          <span class="header-date">{{ currentDate | date: 'EEEE d MMMM yyyy' }}</span>
+          <div class="header-user-chip" (click)="switchView('profil')">
+            <span class="ch-user-emoji">🎓</span>
+            <span class="header-user-name">{{ currentUser?.first_name }} {{ currentUser?.last_name }}</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div *ngIf="currentView === 'dashboard'" class="view-content">
+      <div class="alert-bar" *ngIf="showAlert && nextDeadlineCandidature && !countdown.expired">
+        <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <div style="flex:1">
+          <div class="countdown-row">
+            <div class="cd-cell">
+              <div class="cd-num">{{ formatNumber(countdown.days) }}</div>
+              <div class="cd-lbl">Jours</div>
+            </div>
+            <div class="cd-cell">
+              <div class="cd-num">{{ formatNumber(countdown.hours) }}</div>
+              <div class="cd-lbl">Heures</div>
+            </div>
+            <div class="cd-cell">
+              <div class="cd-num">{{ formatNumber(countdown.minutes) }}</div>
+              <div class="cd-lbl">Minutes</div>
+            </div>
+            <div class="cd-cell">
+              <div class="cd-num">{{ formatNumber(countdown.seconds) }}</div>
+              <div class="cd-lbl">Secondes</div>
+            </div>
+          </div>
+          <div class="alert-text">
+            Délai dossier — <strong>{{ nextDeadlineCandidature.master_nom }}</strong> :
+            <strong>{{ nextDeadlineCandidature.date_limite_modification | date:'d MMMM yyyy' }}</strong>
+            — finalisez vos actions avant expiration.
+          </div>
+        </div>
+        <button class="btn-close-alert" (click)="showAlert = false" aria-label="Fermer">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="2" y1="2" x2="12" y2="12"></line>
+            <line x1="12" y1="2" x2="2" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card" (click)="sendPrompt('Voir mes candidatures')">
+          <div class="stat-icon si-blue">
+            <svg viewBox="0 0 16 16" fill="none" stroke="#185FA5" stroke-width="1.5">
+              <path d="M4 1h6l4 4v10H4V1z"></path>
+              <path d="M10 1v4h4"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="stat-num">{{ mesCandidatures.length }}</div>
+            <div class="stat-lbl">Candidatures</div>
+          </div>
+        </div>
+
+        <div class="stat-card" (click)="sendPrompt('Voir les candidatures en attente')">
+          <div class="stat-icon si-amber">
+            <svg viewBox="0 0 16 16" fill="none" stroke="#BA7517" stroke-width="1.5">
+              <circle cx="8" cy="8" r="6"></circle>
+              <path d="M8 5v3l2 2"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="stat-num">{{ countByStatut('en_attente') }}</div>
+            <div class="stat-lbl">En attente</div>
+          </div>
+        </div>
+
+        <div class="stat-card" (click)="sendPrompt('Voir mes dossiers de candidature')">
+          <div class="stat-icon si-teal">
+            <svg viewBox="0 0 16 16" fill="none" stroke="#0F6E56" stroke-width="1.5">
+              <path d="M2 13V5l6-3 6 3v8l-6 2-6-2z"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="stat-num">{{ dossiersCandidature.length }}</div>
+            <div class="stat-lbl">Dossiers</div>
+          </div>
+        </div>
+
+        <div class="stat-card" (click)="sendPrompt('Voir mes notifications non lues')">
+          <div class="stat-icon si-purple">
+            <svg viewBox="0 0 16 16" fill="none" stroke="#534AB7" stroke-width="1.5">
+              <path d="M8 2a5 5 0 015 5v3l1 2H2l1-2V7a5 5 0 015-5z"></path>
+              <path d="M6 13a2 2 0 004 0"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="stat-num">{{ notificationsNonLues }}</div>
+            <div class="stat-lbl">Notifications</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">Notifications récentes</div>
+          <div
+            class="notif-list"
+            *ngIf="notificationsCandidat.length > 0; else dashboardNotificationsEmpty"
+          >
+            <div
+              class="notif-item"
+              *ngFor="let notification of notificationsCandidat.slice(0, 3)"
+              [class.unread]="!notification.lue"
+              (click)="switchView('notifications')"
+            >
+              <div class="notif-dot" [class.read]="notification.lue"></div>
+              <div class="notif-content">
+                <div class="notif-title">{{ notification.titre }}</div>
+                <div class="notif-sub">{{ notification.message }}</div>
+              </div>
+              <div class="notif-time">
+                {{ notification.date | date: 'dd/MM HH:mm' }}
+              </div>
+            </div>
+          </div>
+          <ng-template #dashboardNotificationsEmpty>
+            <div class="empty-notifications-state">
+              <strong>Aucune notification pour le moment.</strong>
+              <p>Les alertes de candidature, de dossier et de statut apparaîtront ici.</p>
+            </div>
+          </ng-template>
+        </div>
+
+        <div class="deadline-card">
+          <div class="card-title" style="margin-bottom: 0.6rem">Dates importantes</div>
+
+          <!-- Candidatures with upcoming deadlines -->
+          <ng-container *ngIf="getUpcomingDeadlines().length > 0; else noDeadlines">
+            <div class="deadline-row" *ngFor="let dl of getUpcomingDeadlines()">
+              <div class="dl-left">
+                <div class="dl-dot" [style.background]="dl.color"></div>
+                <div>
+                  <div class="dl-name">{{ dl.label }}</div>
+                  <div class="dl-date">{{ dl.date | date:'d MMMM yyyy, HH:mm' }}</div>
+                </div>
+              </div>
+              <span class="dl-badge"
+                [class.dlb-hot]="dl.daysLeft <= 3"
+                [class.dlb-warn]="dl.daysLeft > 3 && dl.daysLeft <= 10"
+                [class.dlb-ok]="dl.daysLeft > 10">
+                {{ dl.daysLeft === 0 ? "Aujourd'hui" : dl.daysLeft + ' j' }}
+              </span>
+            </div>
+          </ng-container>
+
+          <ng-template #noDeadlines>
+            <div class="dl-empty">
+              <svg viewBox="0 0 20 20" fill="none" stroke="#94a3b8" stroke-width="1.5" width="24" height="24">
+                <rect x="2" y="3" width="16" height="15" rx="2"/>
+                <line x1="7" y1="1" x2="7" y2="5"/><line x1="13" y1="1" x2="13" y2="5"/>
+                <line x1="2" y1="8" x2="18" y2="8"/>
+              </svg>
+              <span>Aucune date limite à venir.</span>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="currentView === 'profil'" class="view-content">
+      <div class="profile-shell">
+        <div class="profile-hero-card">
+          <div class="profile-avatar">
+            <img
+              *ngIf="avatarPreview || profileData.avatar_url || currentUser?.avatar_url"
+              [src]="avatarPreview || profileData.avatar_url || currentUser?.avatar_url"
+              alt="Avatar"
+            />
+            <span *ngIf="!(avatarPreview || profileData.avatar_url || currentUser?.avatar_url)">
+              {{ (profileData.first_name || currentUser?.first_name || '?').charAt(0) }}
+              {{ (profileData.last_name || currentUser?.last_name || '?').charAt(0) }}
+            </span>
+          </div>
+          <div class="profile-avatar-actions">
+            <button type="button" class="btn-link-inline" (click)="changePhoto()">
+              Modifier la photo
+            </button>
+            <input
+              type="file"
+              id="avatarFileInput"
+              accept="image/*"
+              style="display: none"
+              (change)="onAvatarFileSelected($event)"
+            />
+          </div>
+          <div class="profile-hero-text">
+            <h2>{{ profileData.first_name }} {{ profileData.last_name }}</h2>
+            <p>{{ profileData.email }}</p>
+            <span class="profile-role-chip">Espace Candidat</span>
+          </div>
+        </div>
+
+        <div class="section-card profile-form-card">
+          <h2>Informations personnelles</h2>
+          <form (ngSubmit)="updateProfile()">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Prénom *</label>
+                <input
+                  type="text"
+                  [(ngModel)]="profileData.first_name"
+                  name="first_name"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Nom *</label>
+                <input type="text" [(ngModel)]="profileData.last_name" name="last_name" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" [value]="profileData.email" readonly class="readonly" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Numéro de téléphone</label>
+                <input
+                  type="tel"
+                  [(ngModel)]="profileData.phone"
+                  name="phone"
+                  placeholder="(+216) 00 000 000"
+                />
+              </div>
+              <div class="form-group">
+                <label>Adresse</label>
+                <input
+                  type="text"
+                  [(ngModel)]="profileData.address"
+                  name="address"
+                  placeholder="Adresse postale"
+                />
+              </div>
+            </div>
+
+            <details class="profile-collapse">
+              <summary>Centres d'intérêt</summary>
+              <div class="profile-collapse-body form-group">
+                <label>Centres d'intérêt académiques</label>
+                <input type="text" name="academic_interests" placeholder="IA, Data, Web..." />
+              </div>
+            </details>
+
+            <details class="profile-collapse">
+              <summary>Cursus Académique</summary>
+              <div class="profile-collapse-body form-row">
+                <div class="form-group">
+                  <label>Dernier Diplôme</label>
+                  <input type="text" [(ngModel)]="profileData.diplome_last" name="diplome_last" />
+                </div>
+                <div class="form-group">
+                  <label>Établissement</label>
+                  <input type="text" [(ngModel)]="profileData.etablissement" name="etablissement" />
+                </div>
+              </div>
+              <div class="profile-collapse-body form-row">
+                <div class="form-group">
+                  <label>Année du Bac</label>
+                  <input type="text" [(ngModel)]="profileData.annee_bac" name="annee_bac" />
+                </div>
+                <div class="form-group">
+                  <label>Moyenne Générale</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="profileData.moyenne_generale"
+                    name="moyenne_generale"
+                  />
+                </div>
+              </div>
+            </details>
+
+            <details class="profile-collapse">
+              <summary>Sécurité & Compte</summary>
+              <div class="profile-collapse-body form-group">
+                <label>Changer le mot de passe</label>
+                <div class="form-row">
+                  <div class="form-group">
+                    <input
+                      type="password"
+                      [(ngModel)]="passwordForm.current_password"
+                      name="current_password"
+                      placeholder="Ancien mot de passe"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <input
+                      type="password"
+                      [(ngModel)]="passwordForm.new_password"
+                      name="new_password"
+                      placeholder="Nouveau mot de passe"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <input
+                      type="password"
+                      [(ngModel)]="passwordForm.confirm_password"
+                      name="confirm_password"
+                      placeholder="Confirmer le mot de passe"
+                    />
+                  </div>
+                </div>
+                <div style="margin-top: 8px">
+                  <button type="button" class="btn-primary" (click)="changePassword()">
+                    Changer le mot de passe
+                  </button>
+                </div>
+              </div>
+              <div class="profile-collapse-body form-group" style="margin-top: 8px">
+                <label>Authentification à deux facteurs</label>
+                <div style="display: flex; gap: 8px; align-items: center; margin-top: 8px">
+                  <button type="button" class="btn-outline" (click)="toggleTwoFactor()">
+                    {{ twoFactorEnabled ? 'Désactiver' : 'Activer' }}
+                  </button>
+                  <span class="twofa-status"
+                    >Status: {{ twoFactorEnabled ? 'Activée' : 'Désactivée' }}</span
+                  >
+                </div>
+              </div>
+            </details>
+
+            <details class="profile-collapse">
+              <summary>Informations facultatives</summary>
+              <div class="profile-collapse-body form-group">
+                <label>Notes complémentaires</label>
+                <textarea name="optional_notes" rows="3"></textarea>
+              </div>
+            </details>
+
+            <div class="profile-actions">
+              <button type="submit" class="btn-primary">Valider le profil</button>
+              <button type="button" class="btn-outline" (click)="profileData = { ...currentUser }">
+                Annuler
+              </button>
+            </div>
+          </form>
+          <button class="floating-save btn-primary" type="button" (click)="updateProfile()">
+            Enregistrer les modifications
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="currentView === 'offres-inscription'" class="view-content">
+      <div class="section-card">
+        <div class="section-header-export">
+          <h2>Préinscription</h2>
+        </div>
+
+        <div class="offres-hero">
+          <div class="offres-hero-content">
+            <p class="offres-kicker">Admission 2026</p>
+            <h2 style="color: #ffffff;">Appels d'inscription - Masters et Cycle Ingénieur</h2>
+            <p class="offres-subtitle">
+              Choisissez votre parcours, consultez le statut d'ouverture et postulez en quelques
+              clics.
+            </p>
+          </div>
+          <div class="offres-hero-stats">
+            <div class="hero-stat">
+              <span class="hero-stat-value">{{ offresInscription.length }}</span>
+              <span class="hero-stat-label">Offres total</span>
+            </div>
+            <div class="hero-stat">
+              <span class="hero-stat-value">{{ mastersRecherche().length }}</span>
+              <span class="hero-stat-label">Masters recherche</span>
+            </div>
+            <div class="hero-stat">
+              <span class="hero-stat-value">{{ mastersProfessionnels().length }}</span>
+              <span class="hero-stat-label">Masters pro</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="offres-category">
+          <div class="category-head">
+            <h3 class="category-title"><i class="fas fa-flask"></i> Masters Recherche</h3>
+            <span class="category-count">{{ mastersRecherche().length }} offres</span>
+          </div>
+          <div class="offres-grid">
+            <div class="offre-card recherche" *ngFor="let offre of mastersRecherche()">
+              <div class="offre-header recherche">
+                <div class="offre-badge">Parcours Recherche</div>
+                <div class="offre-status" [ngClass]="offre.statut">
+                  {{ offre.statut === 'ouvert' ? 'OUVERT' : 'FERMe' }}
+                </div>
+              </div>
+              <div class="offre-body">
+                <h4>{{ offre.titre }}</h4>
+                <p class="offre-description">{{ offre.description }}</p>
+                <div
+                  class="offre-specialites-demandees"
+                  *ngIf="getSpecialitesDemandeesForOffre(offre).length > 0"
+                >
+                  <div class="specialites-demandees-title">
+                    <i class="fas fa-list-alt"></i> Spécialités demandées
+                  </div>
+                  <ul>
+                    <li *ngFor="let s of getSpecialitesDemandeesForOffre(offre)">{{ s }}</li>
+                  </ul>
+                </div>
+                <div class="offre-info">
+                  <div class="info-item">
+                    <i class="fas fa-calendar-alt"></i
+                    ><span>Limite : {{ offre.date_limite | date: 'dd/MM/yyyy' }}</span>
+                  </div>
+                  <div class="info-item">
+                    <i class="fas fa-users"></i><span>Capacite d'accueil : {{ offre.places }}</span>
+                  </div>
+                </div>
+                <div class="offre-info" *ngIf="offre.document_officiel_pdf_url">
+                  <div class="info-item">
+                    <i class="fas fa-file-pdf"></i>
+                    <a
+                      [href]="offre.document_officiel_pdf_url"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      PDF officiel signe
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <div class="offre-actions">
+                <button class="btn-secondary" type="button" (click)="ouvrirDetailOffre(offre)">
+                  <i class="fas fa-eye"></i>
+                  Detail
+                </button>
+                <button
+                  class="btn-postuler"
+                  [class.btn-blocked]="isPostulerBloque(offre) && !dejaCandidature(offre.id)"
+                  [disabled]="!actionPermissions.preinscription || isPostulerBloque(offre)"
+                  [title]="
+                    limiteVoeuxAtteinte && !dejaCandidature(offre.id) && offre.statut !== 'ferme'
+                      ? 'Limite de 3 vœux Masters atteinte. Annulez une candidature avant d\'en créer une nouvelle.'
+                      : ''
+                  "
+                  (click)="postulerOffre(offre)"
+                >
+                  <i class="fas fa-paper-plane"></i>
+                  {{ getLibellePostuler(offre) }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="offres-category">
+          <div class="category-head">
+            <h3 class="category-title"><i class="fas fa-briefcase"></i> Masters Professionnels</h3>
+            <span class="category-count">{{ mastersProfessionnels().length }} offres</span>
+          </div>
+          <div class="offres-grid">
+            <div class="offre-card professionnel" *ngFor="let offre of mastersProfessionnels()">
+              <div class="offre-header professionnel">
+                <div class="offre-badge">Parcours Professionnel</div>
+                <div class="offre-status" [ngClass]="offre.statut">
+                  {{ offre.statut === 'ouvert' ? 'OUVERT' : 'FERMe' }}
+                </div>
+              </div>
+              <div class="offre-body">
+                <h4>{{ offre.titre }}</h4>
+                <p class="offre-description">{{ offre.description }}</p>
+                <div
+                  class="offre-specialites-demandees"
+                  *ngIf="getSpecialitesDemandeesForOffre(offre).length > 0"
+                >
+                  <div class="specialites-demandees-title">
+                    <i class="fas fa-list-alt"></i> Spécialités demandées
+                  </div>
+                  <ul>
+                    <li *ngFor="let s of getSpecialitesDemandeesForOffre(offre)">{{ s }}</li>
+                  </ul>
+                </div>
+                <div class="offre-info">
+                  <div class="info-item">
+                    <i class="fas fa-calendar-alt"></i
+                    ><span>Limite : {{ offre.date_limite | date: 'dd/MM/yyyy' }}</span>
+                  </div>
+                  <div class="info-item">
+                    <i class="fas fa-users"></i><span>Capacite d'accueil : {{ offre.places }}</span>
+                  </div>
+                </div>
+                <div class="offre-info" *ngIf="offre.document_officiel_pdf_url">
+                  <div class="info-item">
+                    <i class="fas fa-file-pdf"></i>
+                    <a
+                      [href]="offre.document_officiel_pdf_url"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      PDF officiel signe
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <div class="offre-actions">
+                <button class="btn-secondary" type="button" (click)="ouvrirDetailOffre(offre)">
+                  <i class="fas fa-eye"></i>
+                  Detail
+                </button>
+                <button
+                  class="btn-postuler"
+                  [class.btn-blocked]="isPostulerBloque(offre) && !dejaCandidature(offre.id)"
+                  [disabled]="!actionPermissions.preinscription || isPostulerBloque(offre)"
+                  [title]="
+                    limiteVoeuxAtteinte && !dejaCandidature(offre.id) && offre.statut !== 'ferme'
+                      ? 'Limite de 3 vœux Masters atteinte. Annulez une candidature avant d\'en créer une nouvelle.'
+                      : ''
+                  "
+                  (click)="postulerOffre(offre)"
+                >
+                  <i class="fas fa-paper-plane"></i>
+                  {{ getLibellePostuler(offre) }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="offres-category">
+          <div class="category-head">
+            <h3 class="category-title"><i class="fas fa-laptop-code"></i> Cycle d'Ingenieur</h3>
+            <span class="category-count">{{ cyclesIngenieur().length }} offre</span>
+          </div>
+          <div class="offres-grid cycle-grid">
+            <div class="offre-card cycle-ingenieur" *ngFor="let offre of cyclesIngenieur()">
+              <div class="offre-header cycle-ingenieur">
+                <div class="offre-badge">Cycle 3 ans</div>
+                <div class="offre-status" [ngClass]="offre.statut">
+                  {{ offre.statut === 'ouvert' ? 'OUVERT' : 'FERMe' }}
+                </div>
+              </div>
+              <div class="offre-body">
+                <h4>{{ offre.titre }}</h4>
+                <p class="offre-specialite">Specialite : {{ offre.specialite }}</p>
+                <p class="offre-description">{{ offre.description }}</p>
+                <div
+                  class="offre-specialites-demandees"
+                  *ngIf="getSpecialitesDemandeesForOffre(offre).length > 0"
+                >
+                  <div class="specialites-demandees-title">
+                    <i class="fas fa-list-alt"></i> Spécialités demandées
+                  </div>
+                  <ul>
+                    <li *ngFor="let s of getSpecialitesDemandeesForOffre(offre)">{{ s }}</li>
+                  </ul>
+                </div>
+                <div class="offre-info" *ngIf="offre.document_officiel_pdf_url">
+                  <div class="info-item">
+                    <i class="fas fa-file-pdf"></i>
+                    <a
+                      [href]="offre.document_officiel_pdf_url"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      PDF officiel signe
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <div class="offre-actions">
+                <button class="btn-secondary" type="button" (click)="ouvrirDetailOffre(offre)">
+                  <i class="fas fa-eye"></i>
+                  Detail
+                </button>
+                <button
+                  class="btn-postuler"
+                  [class.btn-blocked]="isPostulerBloque(offre) && !dejaCandidature(offre.id)"
+                  [disabled]="!actionPermissions.preinscription || isPostulerBloque(offre)"
+                  [title]="
+                    limiteVoeuxAtteinte && !dejaCandidature(offre.id) && offre.statut !== 'ferme'
+                      ? 'Limite de 3 vœux Masters atteinte. Annulez une candidature avant d\'en créer une nouvelle.'
+                      : ''
+                  "
+                  (click)="postulerOffre(offre)"
+                >
+                  <i class="fas fa-paper-plane"></i>
+                  {{ getLibellePostuler(offre) }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MODAL DÉTAIL PARCOURS ══ -->
+    <div class="offre-detail-overlay" *ngIf="showOffreDetailModal" (click)="fermerDetailModal()">
+      <div class="offre-detail-modal" (click)="$event.stopPropagation()">
+        <div class="offre-detail-header">
+          <div class="offre-detail-header-left">
+            <img src="/assets/images/logo-isimm.png" alt="ISIMM" class="modal-logo" />
+            <div>
+              <p class="modal-institution">Institut Supérieur de l'Informatique et des Mathématiques de Monastir</p>
+              <h2 class="modal-title">{{ selectedOffreDetail?.titre }}</h2>
+            </div>
+          </div>
+          <button class="btn-close-modal" (click)="fermerDetailModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="offre-detail-body">
+
+          <!-- ── MP-GL ── -->
+          <ng-container *ngIf="currentOffreDetailCode === 'mpgl'">
+            <div class="parcours-section">
+              <div class="parcours-badge mpgl">Mastère Professionnel — Génie Logiciel (MP-GL)</div>
+              <p class="parcours-intro">La direction de l'ISIMM annonce l'ouverture des candidatures pour l'inscription en première année du Mastère Professionnel en <strong>Génie Logiciel</strong> pour l'année universitaire 2025-2026.</p>
+              <h3 class="section-label"><i class="fas fa-table"></i> Capacités d'accueil & Calendrier</h3>
+              <div class="detail-table-wrap">
+                <table class="detail-table">
+                  <thead><tr><th>Capacité totale</th><th>Établissement</th><th>Capacité</th><th>Diplôme requis</th><th>Dates importantes</th></tr></thead>
+                  <tbody>
+                    <tr><td rowspan="2">35</td><td>ISIMM</td><td>30</td><td>Licence en Sciences de l'Informatique</td><td>Inscription en ligne jusqu'au <strong>22 juillet 2025</strong></td></tr>
+                    <tr><td>Autres établissements</td><td>05</td><td>Licence en Sciences de l'Informatique ou Informatique de Gestion</td><td>Annonce présélection : <strong>28 juillet 2025</strong><br/>Dépôt dossier numérique : <strong>28–31 juillet 2025</strong><br/>Admis : <strong>08 août 2025</strong></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <h3 class="section-label"><i class="fas fa-calculator"></i> Calcul du Score</h3>
+              <div class="score-formula-card">
+                <p class="formula"><strong>Score = M.G + B.N.R + B.S.P</strong></p>
+                <div class="score-rows">
+                  <div class="score-row"><span class="score-component">M.G (Moyenne Générale)</span><span class="score-detail">Moyenne des 3 années de Licence : (M1 + M2 + M3) / 3</span></div>
+                  <div class="score-row"><span class="score-component">B.N.R (Bonus Non-Redoublement)</span><span class="score-detail">0 redoublement : +5 pts | 1 redoublement : +3 pts | ≥ 2 : 0 pt</span></div>
+                  <div class="score-row"><span class="score-component">B.S.P (Bonus Session Principale)</span><span class="score-detail">0 rattrapage : +3 pts | 1 rattrapage : +2 pts | ≥ 2 : 0 pt</span></div>
+                </div>
+              </div>
+              <h3 class="section-label"><i class="fas fa-folder-open"></i> Composition du dossier</h3>
+              <ul class="dossier-list">
+                <li><i class="fas fa-check-circle"></i> Formulaire de candidature (joint à l'avis)</li>
+                <li><i class="fas fa-check-circle"></i> Fiche de candidature imprimée et signée</li>
+                <li><i class="fas fa-check-circle"></i> CV d'une page (adresse, tél., e-mail obligatoires)</li>
+                <li><i class="fas fa-check-circle"></i> Copies certifiées de tous les diplômes (Bac inclus)</li>
+                <li><i class="fas fa-check-circle"></i> Relevés de notes de toutes les années universitaires et du Bac</li>
+                <li><i class="fas fa-check-circle"></i> Justificatifs de report ou réorientation (si applicable)</li>
+              </ul>
+              <div class="dossier-note"><i class="fas fa-info-circle"></i> Tous les documents doivent être fusionnés en <strong>un seul fichier PDF</strong>.</div>
+            </div>
+          </ng-container>
+
+          <!-- ── MP-DS ── -->
+          <ng-container *ngIf="currentOffreDetailCode === 'mpds'">
+            <div class="parcours-section">
+              <div class="parcours-badge mpds">Mastère Professionnel — Sciences des Données (MP-DS)</div>
+              <p class="parcours-intro">La direction de l'ISIMM annonce l'ouverture des candidatures pour l'inscription en première année du Mastère Professionnel en <strong>Sciences des Données</strong> pour l'année universitaire 2025-2026.</p>
+              <h3 class="section-label"><i class="fas fa-table"></i> Capacités d'accueil & Calendrier</h3>
+              <div class="detail-table-wrap">
+                <table class="detail-table">
+                  <thead><tr><th>Capacité totale</th><th>Établissement</th><th>Capacité</th><th>Diplôme requis</th><th>Dates importantes</th></tr></thead>
+                  <tbody>
+                    <tr><td rowspan="4">35</td><td rowspan="2">ISIMM</td><td>10</td><td>Licence en Mathématiques Appliquées (ou équivalent)</td><td>Inscription en ligne jusqu'au <strong>22 juillet 2025</strong></td></tr>
+                    <tr><td>19</td><td>Licence en Sciences de l'Informatique (ou équivalent)</td><td>Présélection : <strong>28 juillet 2025</strong></td></tr>
+                    <tr><td rowspan="2">Autres établissements</td><td>02</td><td>Licence en Mathématiques Appliquées (ou équivalent)</td><td>Dépôt numérique : <strong>28–31 juillet 2025</strong></td></tr>
+                    <tr><td>04</td><td>Licence en Sciences de l'Informatique (ou équivalent)</td><td>Admis : <strong>08 août 2025</strong></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <h3 class="section-label"><i class="fas fa-calculator"></i> Calcul du Score</h3>
+              <div class="score-formula-card">
+                <p class="formula"><strong>Score = M.G + B.N.R + B.S.P</strong></p>
+                <div class="score-rows">
+                  <div class="score-row"><span class="score-component">M.G (Moyenne Générale)</span><span class="score-detail">(M1 + M2 + M3) / 3</span></div>
+                  <div class="score-row"><span class="score-component">B.N.R</span><span class="score-detail">0 redoublement : +5 pts | 1 : +3 pts | ≥ 2 : 0 pt</span></div>
+                  <div class="score-row"><span class="score-component">B.S.P</span><span class="score-detail">0 rattrapage : +3 pts | 1 : +2 pts | ≥ 2 : 0 pt</span></div>
+                </div>
+              </div>
+              <h3 class="section-label"><i class="fas fa-folder-open"></i> Composition du dossier</h3>
+              <ul class="dossier-list">
+                <li><i class="fas fa-check-circle"></i> Formulaire de candidature (joint à l'avis)</li>
+                <li><i class="fas fa-check-circle"></i> Fiche de candidature imprimée et signée</li>
+                <li><i class="fas fa-check-circle"></i> CV d'une page (adresse, tél., e-mail)</li>
+                <li><i class="fas fa-check-circle"></i> Copie certifiée conforme de la CIN ou du passeport</li>
+                <li><i class="fas fa-check-circle"></i> Copies certifiées de tous les diplômes (Bac inclus)</li>
+                <li><i class="fas fa-check-circle"></i> Relevés de notes de toutes les années universitaires et du Bac</li>
+              </ul>
+            </div>
+          </ng-container>
+
+          <!-- ── MP-3I ── -->
+          <ng-container *ngIf="currentOffreDetailCode === 'mp3i'">
+            <div class="parcours-section">
+              <div class="parcours-badge mp3i">Mastère Professionnel — Instrumentation Industrielle (MP-3I)</div>
+              <p class="parcours-intro">La direction de l'ISIMM annonce l'ouverture des candidatures pour l'inscription en première année du Mastère Professionnel en <strong>Génie des Instruments Industriels</strong> pour l'année universitaire 2025-2026.</p>
+              <h3 class="section-label"><i class="fas fa-table"></i> Capacités d'accueil & Calendrier</h3>
+              <div class="detail-table-wrap">
+                <table class="detail-table">
+                  <thead><tr><th>Capacité totale</th><th>Établissement</th><th>Capacité</th><th>Diplôme requis</th><th>Dates importantes</th></tr></thead>
+                  <tbody>
+                    <tr><td rowspan="4">25</td><td rowspan="3">ISIMM</td><td>08</td><td>Licence EEA – Spécialité MIM</td><td>Inscription jusqu'au <strong>20 juillet 2025</strong></td></tr>
+                    <tr><td>06</td><td>Licence EEA – Spécialité SE</td><td>Présélection : <strong>28 juillet 2025</strong></td></tr>
+                    <tr><td>06</td><td>Licence TIC</td><td>Dépôt dossier : <strong>28–31 juillet 2025</strong></td></tr>
+                    <tr><td>Autres</td><td>05</td><td>Licence Mesures & Instrumentation / EEA / Génie Électrique</td><td>Admis : <strong>08 août 2025</strong></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <h3 class="section-label"><i class="fas fa-calculator"></i> Calcul du Score</h3>
+              <div class="score-formula-card">
+                <p class="formula"><strong>Score = M.P + M.R + M.C</strong></p>
+                <div class="score-rows">
+                  <div class="score-row"><span class="score-component">M.P (Moyenne Pondérée)</span><span class="score-detail">(2×Bac) + (1.5×L1) + (1×L2) + (0.5×L3)</span></div>
+                  <div class="score-row"><span class="score-component">M.R (Malus Redoublement)</span><span class="score-detail">−1 point par redoublement</span></div>
+                  <div class="score-row"><span class="score-component">M.C (Malus Session Contrôle)</span><span class="score-detail">−1 point par réussite en session de contrôle</span></div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- ── MR-GL ── -->
+          <ng-container *ngIf="currentOffreDetailCode === 'mrgl'">
+            <div class="parcours-section">
+              <div class="parcours-badge mrgl">Mastère Recherche — Génie Logiciel (MR-GL)</div>
+              <p class="parcours-intro">La direction de l'ISIMM annonce l'ouverture des candidatures pour l'inscription en première année du Mastère de Recherche en <strong>Sciences de l'Informatique : Génie Logiciel</strong> pour l'année universitaire 2025-2026.</p>
+              <h3 class="section-label"><i class="fas fa-table"></i> Capacités d'accueil</h3>
+              <div class="detail-table-wrap">
+                <table class="detail-table">
+                  <thead><tr><th>Établissement</th><th>Diplôme</th><th>Places</th></tr></thead>
+                  <tbody>
+                    <tr><td rowspan="2">ISIMM (Internes)</td><td>Licence en Informatique</td><td>19</td></tr>
+                    <tr><td>Maîtrise en Informatique</td><td>30</td></tr>
+                    <tr><td rowspan="2">Autres Établissements</td><td>Licence en Informatique ou Informatique de Gestion</td><td>60</td></tr>
+                    <tr><td>Maîtrise en Informatique ou Informatique de Gestion</td><td>02</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <h3 class="section-label"><i class="fas fa-calculator"></i> Calcul du Score (Titulaires de Licence)</h3>
+              <div class="score-formula-card">
+                <p class="formula"><strong>Score = 1,5×M1 + 2×M2 + M3 + B_NR + B_SP + (M_Bac + N_Math_Bac − 20)/2 + B_L + B_AD</strong></p>
+                <div class="score-rows">
+                  <div class="score-row"><span class="score-component">B_NR (Non-Redoublement)</span><span class="score-detail">0 redoublement : +5 | 1 : +1,5 | &gt;1 : 0</span></div>
+                  <div class="score-row"><span class="score-component">B_SP (Session Principale)</span><span class="score-detail">0 contrôle : +3 | 1 : +1 | &gt;1 : 0</span></div>
+                  <div class="score-row"><span class="score-component">B_L (Langue)</span><span class="score-detail">Note Fr Bac ≥ 12 OU Note Ang ≥ 12 OU Certif. B2 : +1</span></div>
+                  <div class="score-row"><span class="score-component">B_AD (Année Diplôme)</span><span class="score-detail">2025/2023 : +4 | 2022/2021/2020 : +2</span></div>
+                </div>
+              </div>
+              <h3 class="section-label"><i class="fas fa-folder-open"></i> Composition du dossier</h3>
+              <ul class="dossier-list">
+                <li><i class="fas fa-check-circle"></i> Demande de candidature au Mastère</li>
+                <li><i class="fas fa-check-circle"></i> Formulaire imprimé depuis le site (signé)</li>
+                <li><i class="fas fa-check-circle"></i> CV d'une page (adresse, tél., e-mail)</li>
+                <li><i class="fas fa-check-circle"></i> Copie de la CIN</li>
+                <li><i class="fas fa-check-circle"></i> Copies certifiées de tous les diplômes (Bac inclus)</li>
+                <li><i class="fas fa-check-circle"></i> Relevés de notes de toutes les années et du Bac</li>
+              </ul>
+            </div>
+          </ng-container>
+
+          <!-- ── MR-MI ── -->
+          <ng-container *ngIf="currentOffreDetailCode === 'mrmi'">
+            <div class="parcours-section">
+              <div class="parcours-badge mrmi">Mastère Recherche — Microélectronique & Instrumentation (MR-MI)</div>
+              <p class="parcours-intro">La direction de l'ISIMM annonce l'ouverture des candidatures pour l'inscription en première année du Mastère de Recherche en <strong>Microélectronique et Instrumentation</strong> pour l'année universitaire 2025-2026.</p>
+              <h3 class="section-label"><i class="fas fa-table"></i> Capacités d'accueil</h3>
+              <div class="detail-table-wrap">
+                <table class="detail-table">
+                  <thead><tr><th>Année</th><th>Établissement</th><th>Diplôme requis</th><th>Places</th></tr></thead>
+                  <tbody>
+                    <tr><td>M1</td><td>ISIMM (Internes)</td><td>Licence EEA, MIM ou TIC (Réseaux et IoT)</td><td>15</td></tr>
+                    <tr><td>M1</td><td>Autres (Externes)</td><td>Licence Électronique, Automatique ou Mesures & Instrumentation</td><td>08</td></tr>
+                    <tr><td>M2</td><td>ISIMM ou Autres</td><td>Réussite en 1ère année cycle ingénieur (Électronique/Instrumentation)</td><td>03</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <h3 class="section-label"><i class="fas fa-calculator"></i> Calcul du Score (M1)</h3>
+              <div class="score-formula-card">
+                <p class="formula"><strong>Score = M.P + M.R + M.C</strong></p>
+                <div class="score-rows">
+                  <div class="score-row"><span class="score-component">M.P (Moyenne Pondérée)</span><span class="score-detail">(0,5×Bac) + (1×L1) + (1,5×L2) + (2×L3)</span></div>
+                  <div class="score-row"><span class="score-component">M.R (Malus Redoublement)</span><span class="score-detail">−4 pts par redoublement (1 seul toléré)</span></div>
+                  <div class="score-row"><span class="score-component">M.C (Malus Contrôle)</span><span class="score-detail">L1 : −1 | L2 : −1,5 | L3 : −2</span></div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- ── ING-GL ── -->
+          <ng-container *ngIf="currentOffreDetailCode === 'ing_info_gl'">
+            <div class="parcours-section">
+              <div class="parcours-badge ing-gl">Cycle Ingénieur — Génie Logiciel (ING-GL)</div>
+              <p class="parcours-intro">Concours sur dossiers pour l'entrée en cycle de formation d'ingénieurs à l'ISIMM en spécialité <strong>Génie Logiciel</strong> pour l'année universitaire 2025-2026.</p>
+              <h3 class="section-label"><i class="fas fa-users"></i> Places disponibles</h3>
+              <div class="detail-table-wrap">
+                <table class="detail-table">
+                  <thead><tr><th>Spécialité</th><th>Internes (Prépa ISIMM)</th><th>Externes (Licence Scientifique)</th></tr></thead>
+                  <tbody>
+                    <tr><td>Génie Logiciel (Informatique)</td><td>52</td><td>13</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <h3 class="section-label"><i class="fas fa-calculator"></i> Critères de sélection</h3>
+              <div class="score-formula-card">
+                <p class="formula-sub"><strong>Étudiants Prépa (Internes) :</strong> Score = M2 + B1 + B2</p>
+                <div class="score-rows">
+                  <div class="score-row"><span class="score-component">B1</span><span class="score-detail">Admis session principale 1ère année : +2 | rattrapage : +1,5</span></div>
+                  <div class="score-row"><span class="score-component">B2</span><span class="score-detail">Admis session principale 2ème année : +2 | rattrapage : +1,5</span></div>
+                </div>
+                <p class="formula-sub mt-2"><strong>Étudiants Licence (Externes) :</strong></p>
+                <p class="formula">Score = 0,5×(2M1+2M2+M3) + 50×(1−R1) + 50×(1−R2)</p>
+              </div>
+              <h3 class="section-label"><i class="fas fa-info-circle"></i> Envoi & Délais</h3>
+              <div class="dossier-note"><i class="fas fa-envelope"></i> Envoi obligatoire par <strong>courrier rapide</strong> à : ISIMM — Route de la Corniche — BP 223 — 5000 Monastir.<br/>Date limite : <strong>Vendredi 8 août 2025</strong> (cachet de la poste).</div>
+            </div>
+          </ng-container>
+
+          <!-- ── ING-EM ── -->
+          <ng-container *ngIf="currentOffreDetailCode === 'ing_em'">
+            <div class="parcours-section">
+              <div class="parcours-badge ing-em">Cycle Ingénieur — Électronique / Microélectronique</div>
+              <p class="parcours-intro">Concours sur dossiers pour l'entrée en cycle de formation d'ingénieurs à l'ISIMM en spécialité <strong>Électronique et Microélectronique</strong> pour l'année universitaire 2025-2026.</p>
+              <div class="dossier-note"><i class="fas fa-info-circle"></i> Consultez le site officiel <a href="https://www.isimm.rnu.tn" target="_blank">www.isimm.rnu.tn</a> pour les détails complets de ce parcours.</div>
+            </div>
+          </ng-container>
+
+          <!-- ── Générique ── -->
+          <ng-container *ngIf="currentOffreDetailCode === 'generic'">
+            <div class="parcours-section">
+              <p class="parcours-intro">{{ selectedOffreDetail?.description }}</p>
+              <div *ngIf="selectedOffreDetail?.date_limite" class="dossier-note">
+                <i class="fas fa-calendar-alt"></i> Date limite : <strong>{{ selectedOffreDetail?.date_limite | date: 'dd MMMM yyyy' }}</strong>
+              </div>
+            </div>
+          </ng-container>
+
+        </div>
+
+        <div class="offre-detail-footer">
+          <button type="button" class="btn-outline" (click)="fermerDetailModal()">Fermer</button>
+          <button
+            type="button"
+            class="btn-postuler"
+            [disabled]="!actionPermissions.preinscription || selectedOffreDetail?.statut === 'ferme' || dejaCandidature(selectedOffreDetail?.id || 0)"
+            (click)="postulerOffre(selectedOffreDetail!); fermerDetailModal()"
+          >
+            <i class="fas fa-paper-plane"></i>
+            {{ selectedOffreDetail?.statut === 'ferme' ? 'Fermée' : dejaCandidature(selectedOffreDetail?.id || 0) ? 'Déjà candidaté' : 'Postuler' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="currentView === 'candidatures'" class="view-content">
+      <div class="cc-shell">
+
+        <!-- Page header -->
+        <div class="cc-page-header">
+          <div>
+            <div class="cc-eyebrow">Mon Espace · Candidatures</div>
+            <h2 class="cc-page-title"><i class="fas fa-file-alt"></i> Mes Candidatures</h2>
+            <p class="cc-page-sub">Vue segmentée par parcours, avec suivi du statut, dossier et score.</p>
+          </div>
+          <button class="cc-btn-new" *ngIf="actionPermissions.preinscription" (click)="nouvelleCandidature()">
+            <i class="fas fa-plus"></i> Nouvelle candidature
+          </button>
+        </div>
+
+        <!-- Stats row -->
+        <div class="cc-stats-row">
+          <div class="cc-stat-card">
+            <div class="cc-stat-bar cc-bar-blue"></div>
+            <div><div class="cc-stat-val">{{ candidatureTotalCount }}</div><div class="cc-stat-lbl">Total</div></div>
+          </div>
+          <div class="cc-stat-card">
+            <div class="cc-stat-bar cc-bar-warn"></div>
+            <div><div class="cc-stat-val cc-val-warn">{{ candidaturePendingCount }}</div><div class="cc-stat-lbl">En attente</div></div>
+          </div>
+          <div class="cc-stat-card">
+            <div class="cc-stat-bar cc-bar-ok"></div>
+            <div><div class="cc-stat-val cc-val-ok">{{ candidatureValidatedCount }}</div><div class="cc-stat-lbl">Validées</div></div>
+          </div>
+        </div>
+
+        <!-- Type tabs -->
+        <div class="cc-type-tabs">
+          <button class="cc-type-tab" [class.active]="candidatureTabIndex === 0" (click)="candidatureTabIndex = 0">
+            Master <span class="cc-tab-count">{{ candidaturesMaster().length }}</span>
+          </button>
+          <button class="cc-type-tab" [class.active]="candidatureTabIndex === 1" (click)="candidatureTabIndex = 1">
+            Ingénieur <span class="cc-tab-count">{{ candidaturesIngenieur().length }}</span>
+          </button>
+        </div>
+
+        <!-- Filter bar + view toggle -->
+        <div class="cc-filter-bar">
+          <span class="cc-filter-label">Année universitaire</span>
+          <select class="cc-filter-select" [(ngModel)]="selectedAcademicYear">
+            <option value="">Toutes les années</option>
+            <option *ngFor="let year of candidaturesYears" [value]="year">{{ year }}</option>
+          </select>
+          <button class="cc-btn-reset" type="button" (click)="selectedAcademicYear = ''">↺ Réinitialiser</button>
+          <div class="cc-view-toggle">
+            <button class="cc-view-btn" type="button" [class.active]="candidatureViewMode === 'cards'" (click)="candidatureViewMode = 'cards'" title="Vue cartes">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/>
+                <rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/>
+              </svg>
+            </button>
+            <button class="cc-view-btn" type="button" [class.active]="candidatureViewMode === 'table'" (click)="candidatureViewMode = 'table'" title="Vue tableau">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="1" y="1" width="12" height="12" rx="1"/>
+                <line x1="1" y1="5" x2="13" y2="5"/><line x1="1" y1="9" x2="13" y2="9"/>
+                <line x1="5" y1="1" x2="5" y2="13"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- === CARDS VIEW === -->
+        <ng-container *ngIf="candidatureViewMode === 'cards'">
+
+          <!-- Master cards -->
+          <div *ngIf="candidatureTabIndex === 0">
+            <div *ngIf="candidaturesMaster().length === 0" class="cc-empty">
+              <i class="fas fa-folder-open cc-empty-icon"></i>
+              <div class="cc-empty-title">Aucune candidature Master</div>
+              <div class="cc-empty-sub">Vous n'avez pas encore soumis de candidature pour ce parcours.</div>
+            </div>
+            <div *ngFor="let candidature of candidaturesMaster()" class="cc-cand-card"
+              [class.cc-card-warn]="hasMissingPieces(candidature)">
+              <div class="cc-cand-head">
+                <div>
+                  <span class="cc-type-badge cc-badge-master">MASTER</span>
+                  <div class="cc-cand-title">{{ candidature.master_nom }}</div>
+                  <div class="cc-cand-chips">
+                    <span class="cc-chip cc-chip-year"><i class="fas fa-calendar-alt"></i> {{ candidature.annee_universitaire || currentAcademicYear() }}</span>
+                    <span class="cc-chip" [ngClass]="'cc-chip-status-' + (candidature.statut || 'soumis')">{{ getStatutLabel(candidature.statut) }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="status-stepper">
+                <div class="status-step"
+                  *ngFor="let step of getCandidatureStatusStepper(candidature); let si = index"
+                  [class.done]="si < getCandidatureStatusIndex(candidature)"
+                  [class.current]="si === getCandidatureStatusIndex(candidature)">
+                  <span class="status-step-dot">
+                    <i class="fas fa-check" *ngIf="si < getCandidatureStatusIndex(candidature)" style="font-size:9px"></i>
+                    <span *ngIf="si >= getCandidatureStatusIndex(candidature)">{{ si + 1 }}</span>
+                  </span>
+                  <span class="status-step-label">{{ step }}</span>
+                </div>
+              </div>
+              <div class="cc-cand-grid">
+                <div class="cc-grid-cell">
+                  <div class="cc-grid-lbl"><i class="fas fa-hashtag"></i> N° Candidature</div>
+                  <div class="cc-grid-val cc-mono">{{ candidature.numero }}</div>
+                </div>
+                <div class="cc-grid-cell">
+                  <div class="cc-grid-lbl"><i class="fas fa-calendar"></i> Date soumission</div>
+                  <div class="cc-grid-val">{{ candidature.date_soumission | date:'dd/MM/yyyy' }}</div>
+                </div>
+                <div class="cc-grid-cell">
+                  <div class="cc-grid-lbl"><i class="fas fa-folder-open"></i> Dépôt dossier</div>
+                  <div class="cc-grid-val" [class.cc-val-danger]="hasMissingPieces(candidature)">
+                    {{ candidature.dossier_depose ? '✓ Complet' : 'Incomplet' }}
+                  </div>
+                  <button type="button" class="cc-link" *ngIf="actionPermissions.depotDossier" (click)="ouvrirDepotDossier(candidature)">Voir les pièces</button>
+                </div>
+                <div class="cc-grid-cell">
+                  <div class="cc-grid-lbl"><i class="fas fa-medal"></i> Score &amp; Classement</div>
+                  <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+                    <span class="cc-score-bubble" [class.filled]="candidature.score">{{ candidature.score || '–' }}</span>
+                    <span style="font-size:12px;color:#64748B">{{ candidature.classement || '–' }}/{{ candidature.total_candidats || '–' }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="cc-cand-footer">
+                <span class="cc-foot-note" [class.warn]="hasMissingPieces(candidature)">
+                  {{ hasMissingPieces(candidature) ? '⚠ Dossier à compléter avant validation' : 'Dossier en cours de traitement' }}
+                </span>
+                <div class="cc-cand-actions">
+                  <button type="button" class="cc-act-btn cc-act-recap" (click)="voirRecapitulatif(candidature)"><i class="fas fa-file-alt"></i> Récapitulatif</button>
+                  <button type="button" class="cc-act-btn cc-act-edit"
+                    (click)="modifierCandidature(candidature)">
+                    <i class="fas fa-pen"></i> Modifier
+                  </button>
+                  <button type="button" class="cc-act-btn cc-act-follow" (click)="suivreCandidature(candidature)"><i class="fas fa-chart-line"></i> Suivre</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ingénieur cards -->
+          <div *ngIf="candidatureTabIndex === 1">
+            <div *ngIf="candidaturesIngenieur().length === 0" class="cc-empty">
+              <i class="fas fa-folder-open cc-empty-icon"></i>
+              <div class="cc-empty-title">Aucune candidature Ingénieur</div>
+              <div class="cc-empty-sub">Vous n'avez pas encore soumis de candidature pour ce parcours.</div>
+            </div>
+            <div *ngFor="let candidature of candidaturesIngenieur()" class="cc-cand-card"
+              [class.cc-card-warn]="hasMissingPieces(candidature)">
+              <div class="cc-cand-head">
+                <div>
+                  <span class="cc-type-badge cc-badge-ing">INGÉNIEUR</span>
+                  <div class="cc-cand-title">{{ candidature.master_nom }}</div>
+                  <div class="cc-cand-chips">
+                    <span class="cc-chip cc-chip-year"><i class="fas fa-calendar-alt"></i> {{ candidature.annee_universitaire || currentAcademicYear() }}</span>
+                    <span class="cc-chip" [ngClass]="'cc-chip-status-' + (candidature.statut || 'soumis')">{{ getStatutLabel(candidature.statut) }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="status-stepper">
+                <div class="status-step" *ngFor="let step of getCandidatureStatusStepper(candidature); let si = index"
+                  [class.done]="si < getCandidatureStatusIndex(candidature)"
+                  [class.current]="si === getCandidatureStatusIndex(candidature)">
+                  <span class="status-step-dot">
+                    <i class="fas fa-check" *ngIf="si < getCandidatureStatusIndex(candidature)" style="font-size:9px"></i>
+                    <span *ngIf="si >= getCandidatureStatusIndex(candidature)">{{ si + 1 }}</span>
+                  </span>
+                  <span class="status-step-label">{{ step }}</span>
+                </div>
+              </div>
+              <div class="cc-cand-grid">
+                <div class="cc-grid-cell">
+                  <div class="cc-grid-lbl"><i class="fas fa-hashtag"></i> N° Candidature</div>
+                  <div class="cc-grid-val cc-mono">{{ candidature.numero }}</div>
+                </div>
+                <div class="cc-grid-cell">
+                  <div class="cc-grid-lbl"><i class="fas fa-calendar"></i> Date soumission</div>
+                  <div class="cc-grid-val">{{ candidature.date_soumission | date:'dd/MM/yyyy' }}</div>
+                </div>
+                <div class="cc-grid-cell">
+                  <div class="cc-grid-lbl"><i class="fas fa-folder-open"></i> Dépôt dossier</div>
+                  <div class="cc-grid-val" [class.cc-val-danger]="hasMissingPieces(candidature)">{{ candidature.dossier_depose ? '✓ Complet' : 'Incomplet' }}</div>
+                  <button type="button" class="cc-link" *ngIf="actionPermissions.depotDossier" (click)="ouvrirDepotDossier(candidature)">Voir les pièces</button>
+                </div>
+                <div class="cc-grid-cell">
+                  <div class="cc-grid-lbl"><i class="fas fa-medal"></i> Score &amp; Classement</div>
+                  <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+                    <span class="cc-score-bubble" [class.filled]="candidature.score">{{ candidature.score || '–' }}</span>
+                    <span style="font-size:12px;color:#64748B">{{ candidature.classement || '–' }}/{{ candidature.total_candidats || '–' }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="cc-cand-footer">
+                <span class="cc-foot-note" [class.warn]="hasMissingPieces(candidature)">
+                  {{ hasMissingPieces(candidature) ? '⚠ Dossier à compléter avant validation' : 'Dossier en cours de traitement' }}
+                </span>
+                <div class="cc-cand-actions">
+                  <button type="button" class="cc-act-btn cc-act-recap" (click)="voirRecapitulatif(candidature)"><i class="fas fa-file-alt"></i> Récapitulatif</button>
+                  <button type="button" class="cc-act-btn cc-act-edit"
+                    (click)="modifierCandidature(candidature)">
+                    <i class="fas fa-pen"></i> Modifier
+                  </button>
+                  <button type="button" class="cc-act-btn cc-act-follow" (click)="suivreCandidature(candidature)"><i class="fas fa-chart-line"></i> Suivre</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </ng-container>
+
+        <!-- === TABLE VIEW === -->
+        <div *ngIf="candidatureViewMode === 'table'" class="cc-table-outer">
+          <table class="cc-table">
+            <thead>
+              <tr>
+                <th>Parcours</th>
+                <th>N° Candidature</th>
+                <th>Année</th>
+                <th>Date</th>
+                <th>Étape</th>
+                <th>Dossier</th>
+                <th>Score</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let candidature of (candidatureTabIndex === 0 ? candidaturesMaster() : candidaturesIngenieur())">
+                <tr>
+                  <td>
+                    <div class="cc-tbl-type" [class.cc-ttype-master]="candidatureTabIndex === 0" [class.cc-ttype-ing]="candidatureTabIndex === 1">
+                      {{ candidatureTabIndex === 0 ? 'MASTER' : 'INGÉNIEUR' }}
+                    </div>
+                    <div class="cc-tbl-name">{{ candidature.master_nom }}</div>
+                  </td>
+                  <td><span class="cc-tbl-num">{{ candidature.numero }}</span></td>
+                  <td><span class="cc-tbl-year">{{ candidature.annee_universitaire || currentAcademicYear() }}</span></td>
+                  <td style="font-size:12px;color:#64748B;font-family:monospace">{{ candidature.date_soumission | date:'dd/MM/yyyy' }}</td>
+                  <td><span class="cc-step-tag">Étape {{ getCandidatureStatusIndex(candidature) + 1 }}/{{ getCandidatureStatusStepper(candidature).length }}</span></td>
+                  <td>
+                    <span [class.cc-dos-ok]="candidature.dossier_depose" [class.cc-dos-ko]="!candidature.dossier_depose">
+                      {{ candidature.dossier_depose ? '✓ Complet' : 'Incomplet' }}
+                    </span>
+                  </td>
+                  <td style="text-align:center">
+                    <span class="cc-score-sm" [class.filled]="candidature.score">{{ candidature.score || '–' }}</span>
+                  </td>
+                  <td>
+                    <span class="cc-chip" [ngClass]="'cc-chip-status-' + (candidature.statut || 'soumis')">{{ getStatutLabel(candidature.statut) }}</span>
+                  </td>
+                  <td>
+                    <div class="cc-tbl-actions" style="position:relative">
+                      <button type="button" class="kebab-btn" aria-label="Actions"
+                              (click)="$event.stopPropagation(); toggleActionMenu(candidature.id)">
+                        <i class="fas fa-ellipsis-v"></i>
+                      </button>
+                      <div class="actions-dropdown-menu" *ngIf="openActionMenuId === candidature.id"
+                           (click)="$event.stopPropagation()">
+                        <button type="button" class="menu-item" (click)="voirRecapitulatif(candidature); closeActionMenu()">
+                          <i class="fas fa-file-alt"></i><span>Récapitulatif</span>
+                        </button>
+                        <button type="button" class="menu-item" (click)="suivreCandidature(candidature); closeActionMenu()">
+                          <i class="fas fa-chart-line"></i><span>Suivre</span>
+                        </button>
+                        <button type="button" class="menu-item"
+                                [class.disabled]="!canModifyCandidature(candidature)"
+                                [disabled]="!canModifyCandidature(candidature)"
+                                (click)="modifierCandidature(candidature)">
+                          <i class="fas fa-pen"></i>
+                          <span>{{ canModifyCandidature(candidature) ? 'Modifier' : 'Modifier (expiré)' }}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+              <tr *ngIf="(candidatureTabIndex === 0 ? candidaturesMaster() : candidaturesIngenieur()).length === 0">
+                <td colspan="9" class="cc-tbl-empty">Aucune candidature à afficher.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <div *ngIf="currentView === 'mon-dossier'" class="view-content">
+      <div class="section-card">
+        <div class="dc-ph">
+          <div class="dc-ph-eyebrow">Mon Espace · Dossiers</div>
+          <div class="dc-ph-title"><i class="fas fa-folder-open"></i> Dossiers de Candidature</div>
+          <p class="dc-ph-sub">Consultez et gérez vos dossiers via leur numéro lié à la candidature.</p>
+        </div>
+        <div class="section-header-export">
+          <h2 style="display:none"><i class="fas fa-folder-open"></i> Dossiers de candidature</h2>
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="validateMenuSection('mon-dossier', $event)"
+          >
+            <i class="fas fa-check"></i> Valider
+          </button>
+        </div>
+        <p>Consultez vos dossiers via leur numéro lié à la candidature</p>
+
+        <!-- Guard : dépôt bloqué si statut insuffisant -->
+        <div class="depot-locked-banner" *ngIf="!canDeposerDossier">
+          <i class="fas fa-lock"></i>
+          <div>
+            <strong>Dépôt de dossier non disponible</strong>
+            <p>Le dépôt de pièces est accessible uniquement lorsque votre candidature est <strong>Présélectionnée</strong> ou en statut <strong>En attente de dossier</strong>.</p>
+          </div>
+        </div>
+
+        <!-- ★ Req-Dépôt — Sélecteur de vœux (2+ candidatures présélectionnées) -->
+        <div
+          *ngIf="modeAffichageDossiers === 'selecteur' && !candidatureDepotActive"
+          class="voeux-selecteur"
+        >
+          <div class="selecteur-header">
+            <div class="selecteur-icon">🎉</div>
+            <div>
+              <div class="selecteur-title">
+                Félicitations ! Vous êtes présélectionné(e) pour
+                {{ candidaturesEligiblesDepot.length }} parcours.
+              </div>
+              <div class="selecteur-subtitle">
+                Choisissez pour quel parcours déposer vos documents. Vous pouvez déposer pour chaque
+                parcours séparément.
+              </div>
+            </div>
+          </div>
+
+          <div class="voeux-cards">
+            <div
+              class="voeu-card-depot"
+              *ngFor="let c of candidaturesEligiblesDepot"
+              (click)="choisirVoeuPourDepot(c)"
+            >
+              <div class="voeu-rang-badge">
+                <span *ngIf="c.choix_priorite === 1">🥇</span>
+                <span *ngIf="c.choix_priorite === 2">🥈</span>
+                <span *ngIf="c.choix_priorite === 3">🥉</span>
+                Vœu {{ c.choix_priorite }}
+              </div>
+              <div class="voeu-details">
+                <div class="voeu-master-nom">{{ c.master_nom }}</div>
+                <div class="voeu-candidature-num">{{ c.numero }}</div>
+              </div>
+              <div class="voeu-statut-col">
+                <span class="statut-badge statut-preselectionne">✓ Présélectionné</span>
+              </div>
+              <div class="voeu-action">Déposer →</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ★ Req-Dépôt — Barre retour quand un vœu est actif -->
+        <div *ngIf="candidatureDepotActive" class="retour-bar">
+          <button class="btn-retour" (click)="retourSelecteurVoeux()">← Changer de vœu</button>
+          <span class="voeu-actif-info">
+            <i class="fas fa-folder-open"></i>
+            {{ candidatureDepotActive.master_nom }}
+            — Vœu {{ candidatureDepotActive.choix_priorite }}
+          </span>
+        </div>
+
+        <div class="dossier-toolbar">
+          <span *ngIf="selectedDossierNumber" class="selected-dossier-badge">
+            Dossier sélectionné: {{ selectedDossierNumber }}
+          </span>
+          <button *ngIf="selectedDossierNumber" class="btn-doc" (click)="resetSelectionDossier()">
+            Voir tous les dossiers
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table class="documents-table">
+            <thead>
+              <tr>
+                <th>N° Dossier</th>
+                <th>N° Candidature</th>
+                <th>Master</th>
+                <th>Statut</th>
+                <th>Date de soumission</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let dossier of dossiersAffiches()">
+                <td>
+                  <strong>{{ dossier.numero_dossier }}</strong>
+                </td>
+                <td>{{ dossier.numero_candidature }}</td>
+                <td>{{ dossier.master_nom }}</td>
+                <td>
+                  <span
+                    class="doc-statut"
+                    [class.depose]="dossier.dossier_depose"
+                    [class.non-depose]="!dossier.dossier_depose"
+                  >
+                    {{ dossier.dossier_depose ? 'Déposé' : 'Non déposé' }}
+                  </span>
+                </td>
+                <td>
+                  {{
+                    dossier.date_soumission ? (dossier.date_soumission | date: 'dd/MM/yyyy') : '-'
+                  }}
+                </td>
+                <td>
+                  <button
+                    class="btn-doc"
+                    (click)="ouvrirDossierDepuisTable(dossier.numero_dossier)"
+                  >
+                    <i class="fas fa-folder-open"></i> Ouvrir
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="voeux-panel" *ngIf="shouldShowPreferenceForm()">
+          <div class="voeux-panel-header">
+            <div>
+              <p class="dossier-eyebrow">Choix de voeux</p>
+              <h3>Classez vos masters par ordre de préférence</h3>
+              <p>
+                Remplacez la lecture du dossier par une sélection claire des voeux 1, 2 et 3. Les
+                choix doivent rester différents et sont enregistrés avec votre dossier.
+              </p>
+            </div>
+            <div *ngIf="selectedDossierNumber" class="selected-dossier-controls">
+              <span class="selected-dossier-badge"
+                >Dossier sélectionné: {{ selectedDossierNumber }}</span
+              >
+              <button type="button" class="btn-close-dossier" (click)="resetSelectionDossier()">
+                Fermer le dossier
+              </button>
+            </div>
+          </div>
+
+          <div class="voeux-grid">
+            <article class="voeux-card">
+              <div class="voeux-card-top">
+                <span class="voeux-index">01</span>
+                <div>
+                  <h4>Voeu 1</h4>
+                  <small>Premier choix de master</small>
+                </div>
+              </div>
+              <label>Choisir le master préféré</label>
+              <select [(ngModel)]="dossierPreferenceForm.choix_1" name="pref_choix_1">
+                <option value="">Sélectionner</option>
+                <option *ngFor="let opt of getPreferenceMasterOptions()" [value]="opt.value">
+                  {{ opt.value.toUpperCase() }} — {{ opt.label }}
+                </option>
+              </select>
+            </article>
+
+            <article class="voeux-card">
+              <div class="voeux-card-top">
+                <span class="voeux-index">02</span>
+                <div>
+                  <h4>Voeu 2</h4>
+                  <small>Deuxième choix de master</small>
+                </div>
+              </div>
+              <label>Choisir le second master</label>
+              <select [(ngModel)]="dossierPreferenceForm.choix_2" name="pref_choix_2">
+                <option value="">Sélectionner</option>
+                <option *ngFor="let opt of getPreferenceMasterOptions()" [value]="opt.value">
+                  {{ opt.value.toUpperCase() }} — {{ opt.label }}
+                </option>
+              </select>
+            </article>
+
+            <article class="voeux-card">
+              <div class="voeux-card-top">
+                <span class="voeux-index">03</span>
+                <div>
+                  <h4>Voeu 3</h4>
+                  <small>Troisième choix de master</small>
+                </div>
+              </div>
+              <label>Choisir le troisième master</label>
+              <select [(ngModel)]="dossierPreferenceForm.choix_3" name="pref_choix_3">
+                <option value="">Sélectionner</option>
+                <option *ngFor="let opt of getPreferenceMasterOptions()" [value]="opt.value">
+                  {{ opt.value.toUpperCase() }} — {{ opt.label }}
+                </option>
+              </select>
+            </article>
+          </div>
+
+          <div class="voeux-panel-footer">
+            <div class="voeux-hint">
+              <i class="fas fa-info-circle"></i>
+              <span>Les voeux 1, 2 et 3 doivent être distincts avant l'enregistrement.</span>
+            </div>
+            <button type="button" class="btn-primary" (click)="submitDossierPreferenceForm()">
+              Enregistrer les voeux
+            </button>
+          </div>
+        </div>
+
+        <!-- ══ DOSSIER OUVERT — expérience inline ══ -->
+        <section class="dossier-opened-experience" *ngIf="selectedDossierNumber">
+          <!-- Header avec progress bar -->
+          <header class="dossier-opened-header">
+            <div class="dossier-opened-title-row">
+              <div>
+                <p class="dossier-eyebrow">Dossier ouvert</p>
+                <h3>{{ selectedDossierNumber }}</h3>
+                <p class="dossier-master-hint">
+                  Déposez toutes les pièces obligatoires pour finaliser
+                </p>
+              </div>
+              <span
+                class="pct-pill"
+                [style.background]="completionPercent === 100 ? '#E1F5EE' : '#FAEEDA'"
+                [style.color]="completionPercent === 100 ? '#0F6E56' : '#854F0B'"
+              >
+                {{ completionPercent }}%
+              </span>
+            </div>
+            <div class="completude-track">
+              <div
+                class="completude-fill"
+                [style.width.%]="completionPercent"
+                [style.background]="
+                  completionPercent === 100
+                    ? 'linear-gradient(90deg,#059669,#10b981)'
+                    : completionPercent > 0
+                      ? 'linear-gradient(90deg,#f59e0b,#fbbf24)'
+                      : '#e2e8f0'
+                "
+              ></div>
+            </div>
+            <div class="completude-meta">
+              <span> <span class="dot dot-success"></span> {{ documentsValides }} validé(s) </span>
+              <span>
+                <span class="dot dot-warn"></span>
+                {{ documentsTotaux - documentsValides }} manquant(s)
+              </span>
+              <span class="completude-total">{{ documentsTotaux }} pièces obligatoires</span>
+            </div>
+          </header>
+
+          <!-- Alerte pièces manquantes -->
+          <div class="dossier-alert-banner" *ngIf="completionPercent < 100">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span
+              >{{ documentsTotaux - documentsValides }} pièce(s) manquante(s) — le dossier ne peut
+              pas être finalisé.</span
+            >
+          </div>
+
+          <!-- Grille des documents -->
+          <div class="document-upload-grid">
+            <div
+              class="document-upload-card"
+              *ngFor="let doc of documentsRequis"
+              [class.document-upload-card--valide]="doc.depose"
+              [class.document-upload-card--manquant]="!doc.depose"
+            >
+              <!-- En-tête carte -->
+              <div class="document-upload-head">
+                <div class="document-meta">
+                  <i class="fas" [ngClass]="doc.icon"></i>
+                  <div>
+                    <h3>{{ doc.nom }}</h3>
+                    <small *ngIf="doc.date_depot">Déposé le {{ doc.date_depot }}</small>
+                    <small *ngIf="!doc.date_depot" class="text-muted">Non déposé</small>
+                  </div>
+                </div>
+                <span class="doc-state" [ngClass]="doc.depose ? 'depose' : 'manquant'">
+                  <i class="fas" [ngClass]="doc.depose ? 'fa-check-circle' : 'fa-clock'"></i>
+                  {{ doc.depose ? 'Déposé' : 'À déposer' }}
+                </span>
+              </div>
+
+              <!-- Boutons Télécharger + Aperçu si fichier existant -->
+              <div class="doc-existing-actions" *ngIf="doc.depose && doc.fichier_url">
+                <button
+                  class="btn-doc-sm telecharger btn-download-modern"
+                  (click)="telechargerDocument(doc)"
+                >
+                  <i class="fas fa-download"></i> Télécharger
+                </button>
+                <button class="btn-doc-sm apercu btn-preview-modern" (click)="ouvrirApercu(doc)">
+                  <i class="fas fa-eye"></i> Aperçu
+                </button>
+              </div>
+
+              <!-- Zone Drag & Drop -->
+              <div
+                class="upload-zone compact"
+                [class.upload-zone--dragover]="dragOverDocId === doc.id"
+                (dragover)="onDragOver($event, doc.id)"
+                (dragleave)="onDragLeave()"
+                (drop)="onDocumentDrop($event, doc)"
+                (click)="docInput.click()"
+              >
+                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                <h3>Glissez-déposez votre fichier ici</h3>
+                <p>ou cliquez pour parcourir vos fichiers</p>
+                <small>Formats acceptés : PDF, JPG, PNG (Max 5 Mo)</small>
+                <input
+                  #docInput
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  (change)="onDocumentFileSelected($event, doc)"
+                  style="display: none"
+                />
+              </div>
+
+              <!-- Erreur upload -->
+              <small class="upload-error-text" *ngIf="uploadErrors[doc.id]">
+                {{ uploadErrors[doc.id] }}
+              </small>
+
+              <!-- Fichier sélectionné en attente -->
+              <div class="file-preview mini" *ngIf="selectedDocumentFiles[doc.id] as selectedFile">
+                <div class="file-info">
+                  <i class="fas fa-file-pdf file-icon"></i>
+                  <div class="file-details">
+                    <strong>{{ selectedFile.name }}</strong>
+                    <small>{{ formatFileSize(selectedFile.size) }}</small>
+                  </div>
+                  <button class="btn-remove" (click)="removeDocumentFile(doc.id)">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                <button class="btn-primary" (click)="uploadDocumentFile(doc)">
+                  <i class="fas fa-upload"></i> Envoyer {{ doc.nom }}
+                </button>
+              </div>
+
+              <!-- Barre progression upload -->
+              <div
+                class="upload-progress-wrap"
+                *ngIf="uploadProgress[doc.id] > 0 && uploadProgress[doc.id] < 100"
+              >
+                <div class="upload-progress-bar">
+                  <div class="upload-progress-fill" [style.width.%]="uploadProgress[doc.id]"></div>
+                </div>
+                <small>{{ uploadProgress[doc.id] }}%</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bouton Finaliser -->
+          <div class="finaliser-dossier-section">
+            <div class="finaliser-hint" *ngIf="completionPercent < 100">
+              <i class="fas fa-lock"></i>
+              Déposez toutes les pièces obligatoires pour activer la finalisation ({{
+                documentsTotaux - documentsValides
+              }}
+              manquante(s)).
+            </div>
+            <div class="finaliser-hint success" *ngIf="completionPercent === 100">
+              <i class="fas fa-check-circle"></i>
+              Toutes les pièces sont déposées. Vous pouvez finaliser votre dossier.
+            </div>
+            <button
+              class="btn-finaliser"
+              [disabled]="completionPercent < 100 || finalisationLoading"
+              (click)="finaliserDossier()"
+            >
+              <i
+                class="fas"
+                [ngClass]="finalisationLoading ? 'fa-spinner fa-spin' : 'fa-check-double'"
+              >
+              </i>
+              {{ finalisationLoading ? 'Finalisation en cours...' : 'Finaliser mon dossier' }}
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══ MODAL APERÇU ══ -->
+    <div class="apercu-overlay" *ngIf="apercuDoc" (click)="fermerApercu()">
+      <div class="apercu-modal" (click)="$event.stopPropagation()">
+        <div class="apercu-modal-header">
+          <h3><i class="fas fa-eye"></i> {{ apercuDoc.nom }}</h3>
+          <button class="btn-close-apercu" (click)="fermerApercu()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="apercu-modal-body">
+          <iframe
+            *ngIf="isPdf(apercuDoc.fichier_url)"
+            [src]="getApercuPdfUrl(apercuDoc?.fichier_url)"
+            class="apercu-iframe"
+          >
+          </iframe>
+          <img
+            *ngIf="!isPdf(apercuDoc.fichier_url)"
+            [src]="apercuDoc.fichier_url"
+            class="apercu-image"
+            [alt]="apercuDoc.nom"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="currentView === 'inscription'" class="view-content">
+      <div class="section-card">
+        <div class="section-header section-header-export">
+          <h2><i class="fas fa-user-plus"></i> Inscription en ligne</h2>
+          <div class="download-box">
+            <label for="inscriptionExportFormat">Télécharger en</label>
+            <select
+              id="inscriptionExportFormat"
+              class="export-select btn-export-select"
+              [(ngModel)]="inscriptionExportFormat"
+            >
+              <option value="csv">CSV</option>
+              <option value="json">JSON</option>
+              <option value="pdf">PDF</option>
+              <option value="xlsx">Excel</option>
+            </select>
+            <button
+              class="btn-download btn-download-modern btn-export-action"
+              (click)="exportInscriptionsEnLigne()"
+            >
+              <i class="fas fa-download"></i> Télécharger
+            </button>
+          </div>
+        </div>
+
+        <!-- Workflow stepper (reflète statut_inscription) -->
+        <div class="insc-workflow-stepper">
+          <div class="insc-step" [ngClass]="getInscriptionStepClass(1)">
+            <div class="insc-step-circle"><i class="fas fa-star"></i></div>
+            <div class="insc-step-label">Sélectionné</div>
+          </div>
+          <div class="insc-step-connector" [ngClass]="getInscriptionConnectorClass(1)"></div>
+          <div class="insc-step" [ngClass]="getInscriptionStepClass(2)">
+            <div class="insc-step-circle"><i class="fas fa-pen-to-square"></i></div>
+            <div class="insc-step-label">Inscription en ligne</div>
+          </div>
+          <div class="insc-step-connector" [ngClass]="getInscriptionConnectorClass(2)"></div>
+          <div class="insc-step" [ngClass]="getInscriptionStepClass(3)">
+            <div class="insc-step-circle"><i class="fas fa-hourglass-half"></i></div>
+            <div class="insc-step-label">En attente</div>
+          </div>
+          <div class="insc-step-connector" [ngClass]="getInscriptionConnectorClass(3)"></div>
+          <div class="insc-step" [ngClass]="getInscriptionStepClass(4)">
+            <div class="insc-step-circle"><i class="fas fa-circle-check"></i></div>
+            <div class="insc-step-label">Inscrit confirmé</div>
+          </div>
+        </div>
+
+        <!-- CTA inscription : visible uniquement si sélectionné -->
+        <div class="inscription-banner" *ngIf="isSelectionne">
+          <div class="inscription-banner-text">
+            <h3>Félicitations — Vous avez été sélectionné !</h3>
+            <p>
+              Procédez à votre inscription sur la plateforme universitaire officielle, puis
+              saisissez votre numéro d'inscription ci-dessous. Le responsable confirmera votre
+              inscription après vérification de la liste officielle.
+            </p>
+          </div>
+          <div class="inscription-banner-actions">
+            <a
+              class="btn-primary-inscription"
+              href="https://www.inscription.tn"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="fas fa-external-link-alt"></i> Effectuer l'inscription
+            </a>
+          </div>
+        </div>
+
+        <!-- État verrouillé : candidature pas encore sélectionnée -->
+        <div class="inscription-locked-banner" *ngIf="!isSelectionne">
+          <i class="fas fa-hourglass-half"></i>
+          <div>
+            <strong>Inscription non disponible</strong>
+            <p>Cette section est accessible uniquement après que votre candidature soit <strong>Sélectionnée</strong> par la commission. Revenez ici une fois la décision communiquée.</p>
+          </div>
+        </div>
+        <div class="insc-admis-scroll">
+          <table class="candidatures-table candidatures-admis">
+            <thead>
+              <tr>
+                <th>N° Candidature</th>
+                <th>Nom &amp; Prénom</th>
+                <th>N° Inscription Universitaire</th>
+                <th>Saisir N° Inscription</th>
+                <th>Statut Final</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngIf="admittedCandidatures.length > 0; else noAdmittedCandidatures">
+                <tr
+                  *ngFor="let candidature of admittedCandidatures"
+                  [class.row-selected]="selectedCandidatureForInscription?.id === candidature.id"
+                >
+                  <td>
+                    <strong>{{ candidature.numero }}</strong>
+                  </td>
+                  <td>{{ getNomPrenomInscription(candidature) }}</td>
+                  <td>
+                    {{ getNumeroInscriptionUniversitaire(candidature) }}
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      class="inscription-number-field"
+                      [name]="'numero_inscription_' + candidature.id"
+                      [(ngModel)]="candidature.numero_inscription_universitaire"
+                      (blur)="syncNumeroInscriptionUniversitaire(candidature)"
+                      placeholder="26-999-ABC"
+                      autocomplete="off"
+                    />
+                    <small class="inscription-number-help">
+                      Saisir votre N° d'inscription universitaire (ex: 26-999-ABC)
+                    </small>
+                  </td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatutFinalInscriptionClass(candidature)">
+                      {{ getStatutFinalInscription(candidature) }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="inscription-actions-cell">
+                      <button
+                        *ngIf="canValidateInscription(candidature)"
+                        type="button"
+                        class="btn-validate-inscription"
+                        (click)="validateInscription(candidature)"
+                      >
+                        <i class="fas fa-circle-check"></i>
+                        <span>Valider l'Inscription</span>
+                      </button>
+                      <div class="action-menu-container">
+                        <button
+                          class="kebab-btn"
+                          type="button"
+                          aria-label="Actions"
+                          (click)="
+                            $event.stopPropagation(); toggleInscriptionActionMenu(candidature.id)
+                          "
+                        >
+                          <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div
+                          class="actions-dropdown-menu"
+                          *ngIf="openInscriptionActionMenuId === candidature.id"
+                          (click)="$event.stopPropagation()"
+                        >
+                          <button
+                            type="button"
+                            class="menu-item"
+                            (click)="voirDossierCompletInscription(candidature)"
+                          >
+                            <i class="fas fa-folder-open"></i>
+                            <span>Consulter le dossier complet</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+              <ng-template #noAdmittedCandidatures>
+                <tr>
+                  <td colspan="6">
+                    <div class="no-data">
+                      <strong>Aucune candidature admise à afficher</strong>
+                      <p>
+                        Dès qu'une candidature est sélectionnée, elle apparaîtra ici avec le bouton
+                        de dépôt.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="currentView === 'importer'" class="view-content">
+      <div class="section-card">
+        <h2>Importer un fichier</h2>
+        <p class="importer-subtitle">
+          Déposez chaque document requis dans son champ dédié. Formats acceptés: PDF, JPG, PNG (max
+          5 Mo).
+        </p>
+
+        <!-- Toolbar dossier sélectionné -->
+        <div class="dossier-toolbar" *ngIf="selectedDossierNumber">
+          <span class="selected-dossier-badge">
+            Upload lié au dossier: {{ selectedDossierNumber }}
+          </span>
+          <button class="btn-doc" (click)="switchView('mon-dossier')">Retour aux dossiers</button>
+        </div>
+
+        <!-- ══ PROGRESS BAR COMPLÉTUDE ══ -->
+        <div class="dossier-completude-bar">
+          <div class="completude-labels">
+            <span>Complétude du dossier</span>
+            <strong
+              [class.text-success]="completionPercent === 100"
+              [class.text-warn]="completionPercent < 100"
+            >
+              {{ completionPercent }}%
+            </strong>
+          </div>
+          <div class="completude-track">
+            <div
+              class="completude-fill"
+              [style.width.%]="completionPercent"
+              [class.fill-complete]="completionPercent === 100"
+              [class.fill-partial]="completionPercent < 100 && completionPercent > 0"
+              [class.fill-empty]="completionPercent === 0"
+            ></div>
+          </div>
+          <small class="completude-hint">
+            <span class="dot-success"></span> {{ documentsValides }} validé(s) &nbsp;
+            <span class="dot-warn"></span> {{ documentsTotaux - documentsValides }} manquant(s)
+          </small>
+        </div>
+
+        <!-- ══ ALERTE PIÈCES MANQUANTES ══ -->
+        <div class="dossier-alert-banner" *ngIf="completionPercent < 100">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>
+            {{ documentsTotaux - documentsValides }} pièce(s) obligatoire(s) manquante(s). Le
+            dossier ne peut pas être finalisé tant que toutes les pièces ne sont pas déposées.
+          </span>
+        </div>
+
+        <!-- ══ FORMULAIRE DE CHOIX ══ -->
+        <div class="section-card" *ngIf="!shouldShowPreferenceForm()">
+          <h3>Exemple du formulaire de choix</h3>
+          <p class="subtitle">
+            Le formulaire s'affiche automatiquement quand plusieurs masters sont acceptés et un
+            dossier est sélectionné.
+          </p>
+          <div class="profile-actions">
+            <button type="button" class="btn-primary" (click)="activerExemplePreferenceForm()">
+              Afficher un exemple maintenant
+            </button>
+          </div>
+        </div>
+
+        <!-- Formulaire de préférence -->
+        <div class="section-card preference-form-card" *ngIf="shouldShowPreferenceForm()">
+          <h3>Candidature pour le master en informatique</h3>
+          <p class="subtitle">
+            Choix par ordre de préférence — Candidature en Master (MPGL, MRGL ou MPDS)
+          </p>
+
+          <div class="profile-actions" *ngIf="isPreferenceFormDemoMode">
+            <button type="button" class="btn-doc" (click)="desactiverExemplePreferenceForm()">
+              Quitter l'exemple
+            </button>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nom et prénom</label>
+              <input
+                type="text"
+                [(ngModel)]="dossierPreferenceForm.nom_prenom"
+                name="pref_nom_prenom"
+              />
+            </div>
+            <div class="form-group">
+              <label>Num_dossier</label>
+              <input
+                type="text"
+                [(ngModel)]="dossierPreferenceForm.numero_dossier_reserve_administration"
+                name="pref_num_dossier"
+                placeholder="Num_dossier"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Établissement d'origine</label>
+              <input
+                type="text"
+                [(ngModel)]="dossierPreferenceForm.etablissement_origine"
+                name="pref_etablissement"
+              />
+            </div>
+            <div class="form-group">
+              <label>Type de diplôme</label>
+              <input type="text" [(ngModel)]="dossierPreferenceForm.diplome" name="pref_diplome" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Choix 1</label>
+              <select [(ngModel)]="dossierPreferenceForm.choix_1" name="pref_choix_1">
+                <option value="">Sélectionner</option>
+                <option *ngFor="let opt of getPreferenceMasterOptions()" [value]="opt.value">
+                  {{ opt.value.toUpperCase() }} — {{ opt.label }}
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Choix 2</label>
+              <select [(ngModel)]="dossierPreferenceForm.choix_2" name="pref_choix_2">
+                <option value="">Sélectionner</option>
+                <option *ngFor="let opt of getPreferenceMasterOptions()" [value]="opt.value">
+                  {{ opt.value.toUpperCase() }} — {{ opt.label }}
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Choix 3</label>
+              <select [(ngModel)]="dossierPreferenceForm.choix_3" name="pref_choix_3">
+                <option value="">Sélectionner</option>
+                <option *ngFor="let opt of getPreferenceMasterOptions()" [value]="opt.value">
+                  {{ opt.value.toUpperCase() }} — {{ opt.label }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="profile-actions">
+            <button type="button" class="btn-primary" (click)="submitDossierPreferenceForm()">
+              Enregistrer le formulaire de choix
+            </button>
+          </div>
+        </div>
+
+        <!-- ══ BOUTON ENVOI GLOBAL ══ -->
+        <div class="multi-upload-actions">
+          <button
+            type="button"
+            class="btn-primary"
+            [disabled]="selectedDocumentsCount === 0"
+            (click)="uploadAllSelectedDocuments()"
+          >
+            <i class="fas fa-upload"></i>
+            Envoyer tous les documents sélectionnés ({{ selectedDocumentsCount }})
+          </button>
+        </div>
+
+        <!-- ══ GRILLE DOCUMENTS ══ -->
+        <div class="document-upload-grid">
+          <div
+            class="document-upload-card"
+            *ngFor="let doc of documentsRequis"
+            [class.document-upload-card--valide]="doc.depose"
+            [class.document-upload-card--manquant]="!doc.depose"
+          >
+            <!-- En-tête document -->
+            <div class="document-upload-head">
+              <div class="document-meta">
+                <i class="fas" [ngClass]="doc.icon"></i>
+                <div>
+                  <h3>{{ doc.nom }}</h3>
+                  <small *ngIf="doc.date_depot">Déposé le {{ doc.date_depot }}</small>
+                  <small *ngIf="!doc.date_depot" class="text-muted">Non déposé</small>
+                </div>
+              </div>
+              <!-- Badge statut -->
+              <span class="doc-state" [ngClass]="doc.depose ? 'depose' : 'manquant'">
+                <i class="fas" [ngClass]="doc.depose ? 'fa-check-circle' : 'fa-clock'"></i>
+                {{ doc.depose ? 'Déposé' : 'À déposer' }}
+              </span>
+            </div>
+
+            <!-- Boutons Aperçu + Télécharger (si fichier existant) -->
+            <div class="doc-existing-actions" *ngIf="doc.depose && doc.fichier_url">
+              <button
+                class="btn-doc-sm apercu"
+                (click)="ouvrirApercu(doc)"
+                title="Aperçu sans téléchargement"
+              >
+                <i class="fas fa-eye"></i> Aperçu
+              </button>
+              <button
+                class="btn-doc-sm telecharger"
+                (click)="telechargerDocument(doc)"
+                title="Télécharger le fichier"
+              >
+                <i class="fas fa-download"></i> Télécharger
+              </button>
+              <button
+                class="btn-doc-sm remplacer"
+                (click)="docInput.click()"
+                title="Remplacer le fichier"
+              >
+                <i class="fas fa-sync-alt"></i> Remplacer
+              </button>
+            </div>
+
+            <!-- Zone Drag & Drop -->
+            <div
+              class="upload-zone compact"
+              [class.upload-zone--dragover]="dragOverDocId === doc.id"
+              (dragover)="onDragOver($event, doc.id)"
+              (dragleave)="onDragLeave()"
+              (drop)="onDocumentDrop($event, doc)"
+              (click)="docInput.click()"
+            >
+              <i class="fas fa-cloud-upload-alt upload-icon"></i>
+              <h3>Glissez-déposez votre fichier ici</h3>
+              <p>ou cliquez pour parcourir vos fichiers</p>
+              <small>Formats acceptés : PDF, JPG, PNG (Max 5 Mo)</small>
+              <input
+                #docInput
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                (change)="onDocumentFileSelected($event, doc)"
+                style="display: none"
+              />
+            </div>
+
+            <!-- Fichier sélectionné en attente d'envoi -->
+            <div class="file-preview mini" *ngIf="selectedDocumentFiles[doc.id] as selectedFile">
+              <div class="file-info">
+                <i class="fas fa-file-pdf file-icon"></i>
+                <div class="file-details">
+                  <strong>{{ selectedFile.name }}</strong>
+                  <small>{{ formatFileSize(selectedFile.size) }}</small>
+                </div>
+                <button class="btn-remove" (click)="removeDocumentFile(doc.id)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <button class="btn-primary" (click)="uploadDocumentFile(doc)">
+                <i class="fas fa-upload"></i> Envoyer {{ doc.nom }}
+              </button>
+            </div>
+
+            <!-- Barre de progression upload -->
+            <div
+              class="upload-progress-wrap"
+              *ngIf="uploadProgress[doc.id] > 0 && uploadProgress[doc.id] < 100"
+            >
+              <div class="upload-progress-bar">
+                <div class="upload-progress-fill" [style.width.%]="uploadProgress[doc.id]"></div>
+              </div>
+              <small>{{ uploadProgress[doc.id] }}%</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ BOUTON FINALISER ══ -->
+        <div class="finaliser-dossier-section">
+          <div class="finaliser-hint" *ngIf="completionPercent < 100">
+            <i class="fas fa-lock"></i>
+            Déposez toutes les pièces obligatoires pour activer la finalisation ({{
+              documentsTotaux - documentsValides
+            }}
+            manquante(s)).
+          </div>
+          <div class="finaliser-hint success" *ngIf="completionPercent === 100">
+            <i class="fas fa-check-circle"></i>
+            Toutes les pièces sont déposées. Vous pouvez finaliser votre dossier.
+          </div>
+          <button
+            class="btn-finaliser"
+            [disabled]="completionPercent < 100 || finalisationLoading"
+            (click)="finaliserDossier()"
+          >
+            <i
+              class="fas"
+              [ngClass]="finalisationLoading ? 'fa-spinner fa-spin' : 'fa-check-double'"
+            ></i>
+            {{ finalisationLoading ? 'Finalisation en cours...' : 'Finaliser mon dossier' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MODAL APERÇU DOCUMENT ══ -->
+    <div class="apercu-overlay" *ngIf="apercuDoc" (click)="fermerApercu()">
+      <div class="apercu-modal" (click)="$event.stopPropagation()">
+        <div class="apercu-modal-header">
+          <h3><i class="fas fa-eye"></i> {{ apercuDoc.nom }}</h3>
+          <button class="btn-close-apercu" (click)="fermerApercu()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="apercu-modal-body">
+          <iframe
+            *ngIf="isPdf(apercuDoc.fichier_url)"
+            [src]="getApercuPdfUrl(apercuDoc?.fichier_url)"
+            class="apercu-iframe"
+          >
+          </iframe>
+          <img
+            *ngIf="!isPdf(apercuDoc.fichier_url)"
+            [src]="apercuDoc.fichier_url"
+            class="apercu-image"
+            [alt]="apercuDoc.nom"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="currentView === 'suivi'" class="view-content">
+      <div class="section-card">
+        <div class="candidatures-header">
+          <div class="page-eyebrow">Mon Espace · Candidature</div>
+          <h2><i class="fas fa-route"></i> Suivi de candidature</h2>
+          <p class="subtitle">Suivez l'avancement de chacune de vos candidatures en temps réel.</p>
+        </div>
+        <div *ngIf="isWorkflowMockMode" class="simulation-banner">
+          Mode simulation actif: 4 scenarios de test sont affiches (avec etats en rouge).
+        </div>
+
+        <!-- ★ Req-2 — Reclasser les vœux Masters par drag & drop -->
+        <div class="voeux-reorder-card" *ngIf="voeuxMastersOrdonnes.length >= 2">
+          <div class="voeux-reorder-head">
+            <i class="fas fa-grip-vertical"></i>
+            <div>
+              <strong>Réordonner vos vœux Masters</strong>
+              <small
+                >Glissez-déposez pour changer l'ordre de priorité. Le vœu n°1 est votre choix
+                principal.</small
+              >
+            </div>
+          </div>
+          <ul class="voeux-list" cdkDropList (cdkDropListDropped)="onVoeuDrop($event)">
+            <li class="voeux-list-item" *ngFor="let v of voeuxMastersOrdonnes" cdkDrag>
+              <span class="voeux-drag-handle" cdkDragHandle><i class="fas fa-grip-vertical"></i></span>
+              <span class="voeux-medaille">{{ getMedailleVoeu(v.choix_priorite) }}</span>
+              <span class="voeux-priorite">Vœu {{ v.choix_priorite }}</span>
+              <span class="voeux-master">{{ v.master_nom }}</span>
+              <span class="voeux-numero">{{ v.numero }}</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="suivi-layout">
+          <div class="suivi-col">
+            <h3>Suivi des candidatures</h3>
+            <div class="suivi-card" *ngFor="let candidature of mesCandidatures">
+              <div class="suivi-head">
+                <div class="suivi-head-titre">
+                  <span
+                    *ngIf="candidature.choix_priorite && candidature.choix_priorite <= 3"
+                    class="voeu-medaille-badge"
+                    [class.voeu-or]="candidature.choix_priorite === 1"
+                    [class.voeu-argent]="candidature.choix_priorite === 2"
+                    [class.voeu-bronze]="candidature.choix_priorite === 3"
+                    [title]="'Vœu n°' + candidature.choix_priorite"
+                  >
+                    {{ getMedailleVoeu(candidature.choix_priorite) }}
+                    Vœu {{ candidature.choix_priorite }}
+                  </span>
+                  <strong>{{ candidature.master_nom }}</strong>
+                </div>
+                <span>{{ candidature.numero }}</span>
+              </div>
+              <div class="timeline-card">
+                <div
+                  class="timeline-item"
+                  *ngFor="let step of workflowTimeline(candidature); let last = last"
+                >
+                  <div class="timeline-marker" [ngClass]="'state-' + step.state">
+                    <span *ngIf="step.state === 'current'" class="timeline-core"></span>
+                  </div>
+                  <div class="timeline-line" *ngIf="!last"></div>
+                  <div class="timeline-content">
+                    <p>{{ step.label }}</p>
+                    <small *ngIf="step.hint">{{ step.hint }}</small>
+                  </div>
+                </div>
+              </div>
+              <div class="workflow-note" *ngIf="candidature.motif_rejet">
+                Motif: {{ candidature.motif_rejet }}
+              </div>
+            </div>
+          </div>
+          <div class="suivi-col guide-col">
+            <h3>Processus complet</h3>
+            <div class="process-card">
+              <div class="process-step" *ngFor="let phase of workflowProcessGuide(); let i = index">
+                <div class="phase-index">{{ i + 1 }}</div>
+                <div class="phase-content">
+                  <strong>{{ phase.title }}</strong>
+                  <p>{{ phase.description }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="currentView === 'historique'" class="view-content">
+      <div class="section-card historique-shell">
+        <div class="dc-ph">
+          <div class="dc-ph-eyebrow">Mon Espace · Historique</div>
+          <div class="dc-ph-title"><i class="fas fa-history"></i> Historique des Candidatures</div>
+          <p class="dc-ph-sub">Consultez l'ensemble de vos candidatures passées et leurs résultats.</p>
+        </div>
+
+        <div class="historique-kpis">
+          <div class="kpi-card">
+            <small>Total candidatures</small>
+            <strong>{{ historiqueTotalCount }}</strong>
+          </div>
+          <div class="kpi-card">
+            <small>Meilleur score</small>
+            <strong>{{
+              historiqueBestScore !== null ? historiqueBestScore + ' pts' : '-'
+            }}</strong>
+          </div>
+          <div class="kpi-card">
+            <small>Admissions</small>
+            <strong>{{ historiqueAdmissionsCount }}</strong>
+          </div>
+        </div>
+
+        <div class="historique-filters">
+          <select [(ngModel)]="historiqueFilterYear">
+            <option value="">Toutes les années</option>
+            <option *ngFor="let y of historiqueYears" [value]="y">
+              {{ y }}
+            </option>
+          </select>
+
+          <select [(ngModel)]="historiqueFilterResult">
+            <option value="">Tous les résultats</option>
+            <option value="success">Succès</option>
+            <option value="waiting">Attente</option>
+            <option value="rejected">Rejet</option>
+          </select>
+
+          <button
+            class="btn-secondary"
+            (click)="historiqueFilterYear = ''; historiqueFilterResult = ''"
+          >
+            Réinitialiser
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table class="candidatures-table candidatures-historique">
+            <thead>
+              <tr>
+                <th>Année</th>
+                <th>N° Candidature</th>
+                <th>Master</th>
+                <th>Score</th>
+                <th>Classement</th>
+                <th>Résultat</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of filteredHistorique">
+                <td>{{ item.annee_universitaire }}</td>
+                <td>{{ item.numero }}</td>
+                <td>{{ item.master_nom }}</td>
+                <td>{{ item.score || '-' }}</td>
+                <td>{{ item.classement || '-' }}</td>
+                <td>
+                  <span
+                    class="badge modern-badge"
+                    [ngClass]="{
+                      'badge-success': ['selectionne', 'inscrit', 'valide'].includes(
+                        (item.statut_final || '').toLowerCase()
+                      ),
+                      'badge-wait': [
+                        'en_attente',
+                        'sous_examen',
+                        'soumis',
+                        'preselectionne',
+                      ].includes((item.statut_final || '').toLowerCase()),
+                      'badge-reject': ['rejete', 'non_admis', 'non_preselectionne'].includes(
+                        (item.statut_final || '').toLowerCase()
+                      ),
+                    }"
+                  >
+                    {{ getStatutLabel(item.statut_final) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="hist-menu-wrap">
+                    <button class="hist-kebab-btn" type="button" (click)="toggleHistoriqueMenu(item.id || 0); $event.stopPropagation()" title="Actions">
+                      <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="hist-dropdown" [class.open]="openHistoriqueMenuId === (item.id || 0)">
+                      <button class="hist-dd-item" type="button" (click)="voirDetails(item); openHistoriqueMenuId = null">
+                        <i class="fas fa-eye"></i> Voir détails
+                      </button>
+                      <button class="hist-dd-item" type="button" (click)="voirRecapitulatif($any(item)); openHistoriqueMenuId = null">
+                        <i class="fas fa-file-alt"></i> Récapitulatif
+                      </button>
+                      <button class="hist-dd-item" type="button" (click)="downloadHistoriquePdf(item); openHistoriqueMenuId = null">
+                        <i class="fas fa-download"></i> Télécharger PDF
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="filteredHistorique.length === 0">
+                <td colspan="7" class="empty-row">Aucun élément trouvé pour ce filtre.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="currentView === 'reclamations'" class="view-content">
+      <div class="section-card">
+        <div class="dc-ph">
+          <div class="dc-ph-eyebrow">Mon Espace · Réclamations</div>
+          <div class="dc-ph-title"><i class="fas fa-exclamation-circle"></i> Mes Réclamations</div>
+          <p class="dc-ph-sub">Déposez et suivez vos réclamations auprès de la commission.</p>
+        </div>
+        <button
+          class="btn-nouvelle-reclamation"
+          *ngIf="actionPermissions.deposerReclamation"
+          (click)="ouvrirFormulaireReclamation()"
+        >
+          <i class="fas fa-plus"></i> Nouvelle réclamation
+        </button>
+        <div class="reclamations-list" *ngIf="reclamations.length > 0; else noReclamations">
+          <details class="reclamation-card" *ngFor="let reclamation of reclamations">
+            <summary class="reclamation-summary">
+              <div class="reclamation-summary-main">
+                <strong>{{ reclamation.identifiant }}</strong>
+                <span class="reclamation-objet">{{ getObjetLabel(reclamation.objet) }}</span>
+              </div>
+              <span class="reclamation-statut" [ngClass]="'statut-' + reclamation.statut">
+                {{ getStatutReclamationLabel(reclamation.statut) }}
+              </span>
+            </summary>
+
+            <div class="reclamation-body">
+              <p><strong>Master concerné:</strong> {{ reclamation.master_nom }}</p>
+              <p><strong>Date:</strong> {{ reclamation.date | date: 'dd/MM/yyyy HH:mm' }}</p>
+              <p><strong>Motif:</strong> {{ reclamation.motif }}</p>
+              <p *ngIf="reclamation.reponse">
+                <strong>Réponse commission:</strong> {{ reclamation.reponse }}
+              </p>
+              <div class="reclamation-actions">
+                <button class="btn-doc" (click)="voirReclamation(reclamation)">Consulter</button>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <ng-template #noReclamations>
+          <div class="empty-reclamations">
+            <p>Aucune réclamation pour le moment.</p>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- MOD v5 §C — Dialog inline « Nouvelle réclamation » (même page, sans redirection) -->
+      <div class="recl-modal-overlay" *ngIf="showModalReclamation" (click)="fermerModalReclamation()">
+        <div class="recl-modal" (click)="$event.stopPropagation()">
+          <div class="recl-modal-header">
+            <h3><i class="fas fa-exclamation-circle"></i> Nouvelle réclamation</h3>
+            <button type="button" class="recl-modal-close" (click)="fermerModalReclamation()" aria-label="Fermer">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="recl-modal-body">
+            <div class="recl-fg">
+              <label>Master concerné <span class="req">*</span></label>
+              <select [(ngModel)]="nouvelleReclamation.master_id" [ngModelOptions]="{ standalone: true }">
+                <option value="">— Sélectionner —</option>
+                <option *ngFor="let c of mesCandidatures" [value]="c.master_id">{{ c.master_nom }}</option>
+              </select>
+            </div>
+            <div class="recl-fg">
+              <label>Objet de la réclamation <span class="req">*</span></label>
+              <select [(ngModel)]="nouvelleReclamation.objet" [ngModelOptions]="{ standalone: true }">
+                <option value="">— Sélectionner —</option>
+                <option value="score">Score incorrect</option>
+                <option value="statut">Statut non mis à jour</option>
+                <option value="dossier">Problème de dossier</option>
+                <option value="paiement">Problème de paiement</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
+            <div class="recl-fg">
+              <label>Motif / Description <span class="req">*</span></label>
+              <textarea [(ngModel)]="nouvelleReclamation.motif" [ngModelOptions]="{ standalone: true }"
+                rows="4" placeholder="Décrivez votre réclamation en détail…"></textarea>
+            </div>
+          </div>
+          <div class="recl-modal-footer">
+            <button type="button" class="recl-btn-cancel" (click)="fermerModalReclamation()">Annuler</button>
+            <button type="button" class="recl-btn-submit" (click)="soumettreReclamation()">
+              <i class="fas fa-paper-plane"></i> Soumettre
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="currentView === 'notifications'" class="view-content">
+      <div class="section-card">
+        <div class="dc-ph">
+          <div class="dc-ph-eyebrow">Mon Espace · Notifications</div>
+          <div class="dc-ph-title">
+            <i class="fas fa-bell"></i> Notifications
+            <span style="font-size:12px;font-weight:400;color:#94A3B8;margin-left:8px">{{ currentDate | date: 'EEEE d MMMM y' }}</span>
+          </div>
+          <p class="dc-ph-sub">Toutes vos alertes de préinscription, candidature et réclamation.</p>
+        </div>
+
+        <div class="status-rail">
+          <div class="status-pill status-pill--info">
+            <span>Soumises</span>
+            <strong>{{ countByStatut('soumis') }}</strong>
+          </div>
+          <div class="status-pill status-pill--warning">
+            <span>En examen</span>
+            <strong>{{ countByStatut('sous_examen') }}</strong>
+          </div>
+          <div class="status-pill status-pill--success">
+            <span>Admis / sélectionnés</span>
+            <strong>{{ countByStatut('selectionne') + countByStatut('inscrit') }}</strong>
+          </div>
+          <div class="status-pill status-pill--danger">
+            <span>Rejetés</span>
+            <strong>{{ countByStatut('rejete') }}</strong>
+          </div>
+        </div>
+
+        <div class="notifications-kpi-grid">
+          <article class="notifications-kpi-card">
+            <span>Total</span>
+            <strong>{{ notificationsTotalCount }}</strong>
+          </article>
+          <article class="notifications-kpi-card unread">
+            <span>Non lues</span>
+            <strong>{{ notificationsNonLues }}</strong>
+          </article>
+          <article class="notifications-kpi-card today">
+            <span>Aujourd'hui</span>
+            <strong>{{ notificationsTodayCount }}</strong>
+          </article>
+          <article class="notifications-kpi-card critical">
+            <span>Prioritaires</span>
+            <strong>{{ notificationsCriticalCount }}</strong>
+          </article>
+        </div>
+
+        <div class="notifications-filters">
+          <select [(ngModel)]="filtreNotificationType">
+            <option value="">Tous les types</option>
+            <option value="info">Info</option>
+            <option value="success">Succès</option>
+            <option value="warning">Avertissement</option>
+            <option value="danger">Danger</option>
+          </select>
+          <select [(ngModel)]="filtreNotificationTriRapide">
+            <option value="recent">Tri rapide: Plus récent</option>
+            <option value="critique">Tri rapide: Plus critique</option>
+          </select>
+          <input type="date" [(ngModel)]="filtreNotificationDateDebut" />
+          <input type="date" [(ngModel)]="filtreNotificationDateFin" />
+          <input
+            type="text"
+            [(ngModel)]="filtreNotificationRecherche"
+            placeholder="Rechercher (titre, message...)"
+          />
+          <button class="btn-secondary" (click)="reinitialiserFiltresNotifications()">
+            Réinitialiser
+          </button>
+        </div>
+
+        <div
+          class="notifications-list"
+          *ngIf="getNotificationsFiltrees().length > 0; else noNotifications"
+        >
+          <div class="notifications-actions" *ngIf="notificationsNonLues > 0">
+            <span class="notifications-counter"
+              >{{ notificationsFilteredUnreadCount }} non lue(s) dans le filtre</span
+            >
+            <button class="btn-secondary" (click)="marquerToutesNotificationsCommeLues()">
+              Marquer tous comme lus
+            </button>
+          </div>
+          <article
+            class="notification-card"
+            *ngFor="let notification of getNotificationsFiltrees()"
+            [class.unread]="!notification.lue"
+            (click)="marquerNotificationCommeLue(notification.id)"
+          >
+            <div class="notification-head">
+              <strong>{{ notification.titre }}</strong>
+              <span class="notification-type" [ngClass]="'type-' + notification.type">
+                {{ getNotificationTypeLabel(notification.type) }}
+              </span>
+            </div>
+            <p>{{ notification.message }}</p>
+            <small>{{ notification.date | date: 'dd/MM/yyyy HH:mm' }}</small>
+          </article>
+        </div>
+
+        <ng-template #noNotifications>
+          <div class="empty-reclamations notifications-empty-state">
+            <p *ngIf="notificationsErreur">{{ notificationsErreur }}</p>
+            <p *ngIf="!notificationsErreur">Aucune notification pour ce filtre.</p>
+            <small *ngIf="!notificationsErreur"
+              >Essayez de reinitialiser les filtres ou revenez plus tard.</small
+            >
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </main>
+
+  <div
+    *ngIf="selectedOffreDetail"
+    class="modal-overlay detail-offre-overlay"
+    (click)="fermerDetailOffre()"
+  >
+    <div class="modal-content detail-offre-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Consulter detail</h2>
+        <button class="btn-close" (click)="fermerDetailOffre()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="detail-offre-block">
+        <div class="detail-offre-hero">
+          <h3>{{ selectedOffreDetail.titre }}</h3>
+          <p>{{ selectedOffreDetail.description }}</p>
+        </div>
+
+        <div class="detail-table-wrap">
+          <table class="candidatures-table detail-table">
+            <thead>
+              <tr>
+                <th>Capacite d'accueil totale</th>
+                <th>etablissement d'origine</th>
+                <th>Capacite d'accueil</th>
+                <th>Type de dipleme</th>
+                <th>Dates importantes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of getDetailRowsForOffre(selectedOffreDetail)">
+                <td>{{ row.capaciteAccueilleTotale }}</td>
+                <td>{{ row.etablissementOrigine }}</td>
+                <td>{{ row.capaciteAccueille }}</td>
+                <td>{{ row.typeDiplome }}</td>
+                <td>{{ row.datesImportantes }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-outline" (click)="fermerDetailOffre()">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showEditCandidatureModal" class="modal-overlay" (click)="fermerModalModification()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Modifier candidature</h2>
+        <button class="btn-close" (click)="fermerModalModification()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" *ngIf="selectedCandidatureForEdit as candidature">
+        <p>
+          <strong>{{ candidature.numero }}</strong> - {{ candidature.master_nom }}
+        </p>
+        <p class="modification-countdown">
+          Temps restant: {{ getModificationCountdown(candidature) }}
+        </p>
+
+        <div class="form-group">
+          <label for="editPriorite">Choix de priorité (1 à 5)</label>
+          <input
+            id="editPriorite"
+            type="number"
+            min="1"
+            max="5"
+            [(ngModel)]="editChoixPriorite"
+            name="editChoixPriorite"
+          />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="fermerModalModification()">
+            Annuler
+          </button>
+          <button type="button" class="btn-primary" (click)="confirmerModificationCandidature()">
+            Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showSubmissionWizardModal" class="wizard-overlay" (click)="closeSubmissionWizard()">
+    <div class="wizard-shell" (click)="$event.stopPropagation()">
+      <!-- ── HEADER ── -->
+      <header class="wizard-topbar">
+        <div class="wizard-topbar-left">
+          <div class="wizard-logo-badge">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+          <div>
+            <p class="wizard-topbar-kicker">Nouvelle candidature</p>
+            <h2 class="wizard-topbar-title">
+              {{ wizardOffre?.titre || 'Soumettre ma candidature' }}
+            </h2>
+            <div class="wizard-card-badges">
+              <span class="wizard-chip wizard-chip--info">
+                {{ wizardOffre?.type === 'cycle_ingenieur' ? 'Ingénieur' : 'Master' }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <button class="wizard-close-btn" (click)="closeSubmissionWizard()">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+
+      <!-- ── STEPPER HORIZONTAL ── -->
+      <div class="wizard-stepper-bar">
+        <div
+          class="wizard-step-pill"
+          *ngFor="let step of wizardStepsMeta; let i = index"
+          [class.step-done]="wizardCurrentStep > i + 1"
+          [class.step-active]="wizardCurrentStep === i + 1"
+          [class.step-locked]="wizardCurrentStep < i + 1 && !canGoToWizardStep(i + 1)"
+          (click)="goToWizardStep(i + 1)"
+          role="button"
+          tabindex="0"
+          (keydown.enter)="goToWizardStep(i + 1)"
+        >
+          <div class="step-pill-circle">
+            <i class="fas fa-check" *ngIf="wizardCurrentStep > i + 1"></i>
+            <span *ngIf="wizardCurrentStep <= i + 1">{{ i + 1 }}</span>
+          </div>
+          <div class="step-pill-label">
+            <span class="step-pill-num">Étape {{ i + 1 }}</span>
+            <span class="step-pill-name">{{ step.label }}</span>
+          </div>
+          <div class="step-pill-connector" *ngIf="i < wizardStepsMeta.length - 1"></div>
+        </div>
+      </div>
+
+      <!-- ── SCORE PREVIEW (affiché dès étape 2) ── -->
+      <div class="wizard-score-ribbon" *ngIf="wizardCurrentStep >= 2 && hasWizardScoreInputs()">
+        <i class="fas fa-chart-line"></i>
+        <span>Score estimé en temps réel :</span>
+        <strong class="score-live">{{ getWizardComputedScoreDisplay() }}</strong>
+        <small>calculé automatiquement selon vos moyennes</small>
+      </div>
+
+      <!-- ════════════════════════════════
+         ÉTAPE 1 — Informations Personnelles
+    ════════════════════════════════ -->
+      <div class="wizard-step-body" *ngIf="wizardCurrentStep === 1">
+        <div class="wizard-step-intro">
+          <div class="step-intro-icon"><i class="fas fa-user-circle"></i></div>
+          <div>
+            <h3>Informations Personnelles</h3>
+            <p>
+              Vérifiez et complétez vos coordonnées. Ces informations figureront sur votre dossier.
+            </p>
+          </div>
+        </div>
+
+        <!-- Carte Identité -->
+        <div class="wizard-card">
+          <div class="wizard-card-header">
+            <i class="fas fa-id-card"></i>
+            <h4>Identité</h4>
+          </div>
+          <div class="wizard-card-body">
+            <div class="wz-form-row">
+              <div
+                class="wz-field"
+                [class.wz-field--error]="wizardTouched.nom && !wizardData.nom.trim()"
+              >
+                <label><i class="fas fa-user"></i> Nom <span class="req">*</span></label>
+                <input
+                  type="text"
+                  [(ngModel)]="wizardData.nom"
+                  name="wzNom"
+                  (blur)="wizardTouched.nom = true"
+                  placeholder="Ex: Ben Ali"
+                />
+                <span class="wz-error" *ngIf="wizardTouched.nom && !wizardData.nom.trim()">
+                  Le nom est obligatoire
+                </span>
+              </div>
+              <div
+                class="wz-field"
+                [class.wz-field--error]="wizardTouched.prenom && !wizardData.prenom.trim()"
+              >
+                <label><i class="fas fa-user"></i> Prénom <span class="req">*</span></label>
+                <input
+                  type="text"
+                  [(ngModel)]="wizardData.prenom"
+                  name="wzPrenom"
+                  (blur)="wizardTouched.prenom = true"
+                  placeholder="Ex: Mohamed"
+                />
+                <span class="wz-error" *ngIf="wizardTouched.prenom && !wizardData.prenom.trim()">
+                  Le prénom est obligatoire
+                </span>
+              </div>
+            </div>
+
+            <div class="wz-form-row">
+              <div
+                class="wz-field"
+                [class.wz-field--error]="
+                  wizardTouched.cinPasseport &&
+                  (!wizardData.cinPasseport.trim() || !isWizardCINValid(wizardData.cinPasseport))
+                "
+              >
+                <label
+                  ><i class="fas fa-id-badge"></i> N° CIN / Passeport
+                  <span class="req">*</span></label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="wizardData.cinPasseport"
+                  name="wzCin"
+                  (blur)="wizardTouched.cinPasseport = true"
+                  placeholder="Ex: 12345678"
+                  maxlength="8"
+                />
+                <span
+                  class="wz-error"
+                  *ngIf="wizardTouched.cinPasseport && !wizardData.cinPasseport.trim()"
+                >
+                  Le numéro CIN/Passeport est obligatoire et doit contenir 8 chiffres
+                </span>
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.cinPasseport &&
+                    wizardData.cinPasseport.trim() &&
+                    !isWizardCINValid(wizardData.cinPasseport)
+                  "
+                >
+                  Le CIN doit contenir exactement 8 chiffres
+                </span>
+              </div>
+              <div
+                class="wz-field"
+                [class.wz-field--error]="
+                  wizardTouched.dateNaissance && validerDateNaissance(wizardData.dateNaissance)
+                "
+              >
+                <label
+                  ><i class="fas fa-calendar-alt"></i> Date de naissance
+                  <span class="req">*</span></label
+                >
+                <input
+                  type="date"
+                  [(ngModel)]="wizardData.dateNaissance"
+                  name="wzDob"
+                  [max]="maxDateNaissanceHTML"
+                  (blur)="wizardTouched.dateNaissance = true"
+                />
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.dateNaissance &&
+                    validerDateNaissance(wizardData.dateNaissance) === 'required'
+                  "
+                >
+                  ⚠️ La date de naissance est obligatoire
+                </span>
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.dateNaissance &&
+                    validerDateNaissance(wizardData.dateNaissance) === 'invalide'
+                  "
+                >
+                  ⚠️ Date invalide — vérifiez le format
+                </span>
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.dateNaissance &&
+                    validerDateNaissance(wizardData.dateNaissance) === 'futur'
+                  "
+                >
+                  ⚠️ La date de naissance ne peut pas être dans le futur
+                </span>
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.dateNaissance &&
+                    validerDateNaissance(wizardData.dateNaissance) === 'tropJeune'
+                  "
+                >
+                  ⚠️ Vous devez avoir au moins 17 ans pour postuler
+                </span>
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.dateNaissance &&
+                    validerDateNaissance(wizardData.dateNaissance) === 'tropEleve'
+                  "
+                >
+                  ⚠️ Veuillez vérifier votre date de naissance
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carte Coordonnées -->
+        <div class="wizard-card">
+          <div class="wizard-card-header">
+            <i class="fas fa-address-book"></i>
+            <h4>Coordonnées</h4>
+          </div>
+          <div class="wizard-card-body">
+            <div class="wz-form-row">
+              <div
+                class="wz-field"
+                [class.wz-field--error]="wizardTouched.email && !isValidEmail(wizardData.email)"
+              >
+                <label><i class="fas fa-envelope"></i> Email <span class="req">*</span></label>
+                <input
+                  type="email"
+                  [(ngModel)]="wizardData.email"
+                  name="wzEmail"
+                  (input)="wizardData.email = sanitizeWizardEmailInput(wizardData.email)"
+                  (blur)="wizardTouched.email = true"
+                  placeholder="Ex: nom@email.com"
+                />
+                <span
+                  class="wz-error"
+                  *ngIf="wizardTouched.email && !isValidEmail(wizardData.email)"
+                >
+                  Adresse email invalide
+                </span>
+              </div>
+              <div
+                class="wz-field"
+                [class.wz-field--error]="
+                  wizardTouched.telephone &&
+                  (!wizardData.telephone.trim() || !isWizardPhoneValid(wizardData.telephone))
+                "
+              >
+                <label><i class="fas fa-phone"></i> Téléphone <span class="req">*</span></label>
+                <input
+                  type="text"
+                  [(ngModel)]="wizardData.telephone"
+                  name="wzTel"
+                  inputmode="tel"
+                  maxlength="12"
+                  (input)="wizardData.telephone = sanitizeWizardPhoneInput(wizardData.telephone)"
+                  (blur)="wizardTouched.telephone = true"
+                  placeholder="Ex: +21655000000"
+                />
+                <span
+                  class="wz-error"
+                  *ngIf="wizardTouched.telephone && !wizardData.telephone.trim()"
+                >
+                  Le numéro de téléphone est obligatoire
+                </span>
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.telephone &&
+                    wizardData.telephone.trim() &&
+                    !isWizardPhoneValid(wizardData.telephone)
+                  "
+                >
+                  Le téléphone doit commencer par +216
+                </span>
+              </div>
+            </div>
+            <div
+              class="wz-field"
+              [class.wz-field--error]="
+                wizardTouched.etablissementOrigine && !wizardData.etablissementOrigine.trim()
+              "
+            >
+              <label
+                ><i class="fas fa-university"></i> Établissement d'origine
+                <span class="req">*</span></label
+              >
+              <select
+                [(ngModel)]="wizardData.etablissementOrigineType"
+                name="wzEtabType"
+                (ngModelChange)="onWizardEtablissementTypeChange()"
+                (blur)="wizardTouched.etablissementOrigine = true"
+              >
+                <option value="ISIMM">ISIMM</option>
+                <option value="Externe">Externe</option>
+              </select>
+              <input
+                *ngIf="wizardData.etablissementOrigineType === 'Externe'"
+                type="text"
+                [(ngModel)]="wizardData.etablissementExterneNom"
+                name="wzEtabExtNom"
+                (ngModelChange)="onWizardEtablissementExterneNomChange()"
+                (blur)="wizardTouched.etablissementOrigine = true"
+                placeholder="Nom de l'établissement (Ex: ENSI, FST...)"
+                style="margin-top: 6px"
+              />
+              <span
+                class="wz-error"
+                *ngIf="
+                  wizardTouched.etablissementOrigine && !wizardData.etablissementOrigine.trim()
+                "
+              >
+                L'établissement est obligatoire
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+         ÉTAPE 2 — Diplôme et Formation
+    ════════════════════════════════ -->
+      <div class="wizard-step-body" *ngIf="wizardCurrentStep === 2">
+        <div class="wizard-step-intro">
+          <div class="step-intro-icon"><i class="fas fa-book-open"></i></div>
+          <div>
+            <h3>Diplôme et Formation</h3>
+            <p>
+              Renseignez votre diplôme, votre formation et les informations académiques associées.
+            </p>
+          </div>
+        </div>
+
+        <!-- Carte Baccalauréat -->
+        <div class="wizard-card">
+          <div class="wizard-card-header">
+            <i class="fas fa-school"></i>
+            <h4>Baccalauréat</h4>
+          </div>
+          <div class="wizard-card-body">
+            <div class="wz-form-row">
+              <div class="wz-field">
+                <label><i class="fas fa-list"></i> Spécialité Bac <span class="req">*</span></label>
+                <select [(ngModel)]="wizardData.specialiteBac" name="wzSpecBac">
+                  <option value="">— Sélectionner —</option>
+                  <option *ngIf="isWizardMrglOffer() || isWizardMrmiOffer()" value="Informatique">
+                    Informatique
+                  </option>
+                  <option *ngIf="isWizardMrglOffer() || isWizardMrmiOffer()" value="Economique">
+                    Economique
+                  </option>
+                  <option *ngIf="isWizardMrglOffer() || isWizardMrmiOffer()" value="Mathematique">
+                    Mathématique
+                  </option>
+                  <option *ngIf="isWizardMrglOffer() || isWizardMrmiOffer()" value="Technique">
+                    Technique
+                  </option>
+                  <option
+                    *ngIf="isWizardMrglOffer() || isWizardMrmiOffer()"
+                    value="Science experimentale"
+                  >
+                    Science expérimentale
+                  </option>
+                  <option *ngIf="isWizardMrglOffer() || isWizardMrmiOffer()" value="Autre">
+                    Autre
+                  </option>
+                  <option
+                    *ngIf="!isWizardMrglOffer() && !isWizardMrmiOffer()"
+                    value="Sciences Exprimentales"
+                  >
+                    Sciences Expérimentales
+                  </option>
+                  <option *ngIf="!isWizardMrglOffer() && !isWizardMrmiOffer()" value="Informatique">
+                    Informatique
+                  </option>
+                  <option *ngIf="!isWizardMrglOffer() && !isWizardMrmiOffer()" value="Technique">
+                    Technique
+                  </option>
+                  <option *ngIf="!isWizardMrglOffer() && !isWizardMrmiOffer()" value="Mathmatiques">
+                    Mathématiques
+                  </option>
+                </select>
+              </div>
+              <div class="wz-field">
+                <label><i class="fas fa-calendar"></i> Année Bac <span class="req">*</span></label>
+                <input
+                  type="text"
+                  [(ngModel)]="wizardData.anneeBac"
+                  name="wzAnneeBac"
+                  inputmode="numeric"
+                  maxlength="4"
+                  (input)="wizardData.anneeBac = sanitizeWizardDigits(wizardData.anneeBac, 4)"
+                  (blur)="wizardTouched.anneeBac = true"
+                  placeholder="Ex: 2022"
+                  [class.input-error]="
+                    wizardTouched.anneeBac &&
+                    validerAnneeBac(wizardData.anneeBac, wizardData.dateNaissance)
+                  "
+                />
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.anneeBac &&
+                    validerAnneeBac(wizardData.anneeBac, wizardData.dateNaissance) === 'required'
+                  "
+                >
+                  ⚠️ L'année du Bac est obligatoire
+                </span>
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.anneeBac &&
+                    validerAnneeBac(wizardData.anneeBac, wizardData.dateNaissance) === 'format'
+                  "
+                >
+                  ⚠️ Format invalide — 4 chiffres requis (ex : 2022)
+                </span>
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.anneeBac &&
+                    validerAnneeBac(wizardData.anneeBac, wizardData.dateNaissance) === 'tropAncien'
+                  "
+                >
+                  ⚠️ L'année du Bac ne peut pas être avant 1990
+                </span>
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.anneeBac &&
+                    validerAnneeBac(wizardData.anneeBac, wizardData.dateNaissance) === 'futur'
+                  "
+                >
+                  ⚠️ L'année du Bac ne peut pas être dans le futur
+                </span>
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.anneeBac &&
+                    validerAnneeBac(wizardData.anneeBac, wizardData.dateNaissance) === 'incoherent'
+                  "
+                >
+                  ⚠️ L'année du Bac doit être ≥ {{ getAnneeBacMinCoherente() }} selon votre date de naissance
+                </span>
+              </div>
+              <div class="wz-field">
+                <label
+                  ><i class="fas fa-star-half-alt"></i> Moyenne Bac (session princ.)
+                  <span class="req">*</span></label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="wizardData.moyenneBacPrincipale"
+                  name="wzMoyBac"
+                  inputmode="decimal"
+                  maxlength="5"
+                  (input)="
+                    wizardData.moyenneBacPrincipale = sanitizeWizardDecimalInput(
+                      wizardData.moyenneBacPrincipale
+                    );
+                    triggerWizardScoreCalculation()
+                  "
+                  (blur)="wizardTouched.moyenneBacPrincipale = true"
+                  placeholder="Ex: 14,50"
+                  [class.input-error]="isWizardScoreInvalid(wizardData.moyenneBacPrincipale)"
+                />
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.moyenneBacPrincipale &&
+                    isWizardScoreInvalid(wizardData.moyenneBacPrincipale)
+                  "
+                >
+                  Les notes ne doivent pas dépasser 20
+                </span>
+              </div>
+            </div>
+
+            <!-- Champs MRGL spécifiques -->
+            <div class="wz-form-row" *ngIf="isWizardMrglOffer()">
+              <div class="wz-field">
+                <label
+                  ><i class="fas fa-calculator"></i> Note Maths Bac
+                  <span class="req">*</span></label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="wizardData.noteMathBac"
+                  name="wzMathBac"
+                  inputmode="decimal"
+                  maxlength="5"
+                  (input)="
+                    wizardData.noteMathBac = sanitizeWizardDecimalInput(wizardData.noteMathBac);
+                    triggerWizardScoreCalculation()
+                  "
+                  (blur)="wizardTouched.noteMathBac = true"
+                  placeholder="Ex: 18,25"
+                  [class.input-error]="isWizardScoreInvalid(wizardData.noteMathBac)"
+                />
+                <span
+                  class="wz-error"
+                  *ngIf="wizardTouched.noteMathBac && isWizardScoreInvalid(wizardData.noteMathBac)"
+                >
+                  Les notes ne doivent pas dépasser 20
+                </span>
+              </div>
+              <div class="wz-field">
+                <label
+                  ><i class="fas fa-language"></i> Note Français Bac
+                  <span class="req">*</span></label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="wizardData.noteFrancaisBac"
+                  name="wzFrBac"
+                  inputmode="decimal"
+                  maxlength="5"
+                  (input)="
+                    wizardData.noteFrancaisBac = sanitizeWizardDecimalInput(
+                      wizardData.noteFrancaisBac
+                    );
+                    triggerWizardScoreCalculation()
+                  "
+                  (blur)="wizardTouched.noteFrancaisBac = true"
+                  placeholder="Ex: 16,00"
+                  [class.input-error]="isWizardScoreInvalid(wizardData.noteFrancaisBac)"
+                />
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.noteFrancaisBac &&
+                    isWizardScoreInvalid(wizardData.noteFrancaisBac)
+                  "
+                >
+                  Les notes ne doivent pas dépasser 20
+                </span>
+              </div>
+              <div class="wz-field">
+                <label
+                  ><i class="fas fa-globe"></i> Note Anglais Bac <span class="req">*</span></label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="wizardData.noteAnglaisBac"
+                  name="wzEnBac"
+                  inputmode="decimal"
+                  maxlength="5"
+                  (input)="
+                    wizardData.noteAnglaisBac = sanitizeWizardDecimalInput(
+                      wizardData.noteAnglaisBac
+                    );
+                    triggerWizardScoreCalculation()
+                  "
+                  (blur)="wizardTouched.noteAnglaisBac = true"
+                  placeholder="Ex: 15,75"
+                  [class.input-error]="isWizardScoreInvalid(wizardData.noteAnglaisBac)"
+                />
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.noteAnglaisBac && isWizardScoreInvalid(wizardData.noteAnglaisBac)
+                  "
+                >
+                  Les notes ne doivent pas dépasser 20
+                </span>
+              </div>
+            </div>
+            <div class="wz-field" *ngIf="isWizardMrglOffer()">
+              <label
+                ><i class="fas fa-certificate"></i> Certification B2
+                <span class="req">*</span></label
+              >
+              <div class="wz-checkbox-compact">
+                <label class="compact-checkbox">
+                  <input
+                    type="checkbox"
+                    [checked]="wizardData.certificationB2 === 'oui'"
+                    (change)="
+                      wizardData.certificationB2 = $event.target.checked ? 'oui' : 'non';
+                      triggerWizardScoreCalculation()
+                    "
+                  />
+                  <span class="compact-mark"></span>
+                  <span class="compact-label">Possède une certification B2</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carte Licence / Diplôme -->
+        <div class="wizard-card">
+          <div class="wizard-card-header">
+            <i class="fas fa-graduation-cap"></i>
+            <h4>Diplôme & Notes par année</h4>
+          </div>
+          <div class="wizard-card-body">
+            <div class="wz-form-row">
+              <div class="wz-field">
+                <label
+                  ><i class="fas fa-list-alt"></i> Spécialité du diplôme
+                  <span class="req">*</span></label
+                >
+                <select [(ngModel)]="wizardData.specialiteDiplome" name="wzSpecDiplome">
+                  <option value="">— Sélectionner —</option>
+                  <option *ngFor="let spec of getWizardSpecialitesDemandees()" [value]="spec">
+                    {{ spec }}
+                  </option>
+                </select>
+              </div>
+              <div class="wz-field">
+                <label
+                  ><i class="fas fa-award"></i> Nature du diplôme <span class="req">*</span></label
+                >
+                <select [(ngModel)]="wizardData.natureDiplome" name="wzNatureDiplome">
+                  <option value="">— Sélectionner —</option>
+                  <option value="Licence">Licence</option>
+                  <option value="Maitrise">Maîtrise</option>
+                </select>
+              </div>
+              <div class="wz-field">
+                <label
+                  ><i class="fas fa-calendar-check"></i> Année d'obtention du dernier diplôme
+                  <span class="req">*</span></label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="wizardData.anneeObtentionDiplome"
+                  name="wzAnneeDip"
+                  inputmode="numeric"
+                  maxlength="4"
+                  (input)="
+                    wizardData.anneeObtentionDiplome = sanitizeWizardDigits(
+                      wizardData.anneeObtentionDiplome,
+                      4
+                    );
+                    triggerWizardScoreCalculation()
+                  "
+                  (blur)="wizardTouched.anneeObtentionDiplome = true"
+                  placeholder="Ex: 2024"
+                  [class.input-error]="
+                    wizardTouched.anneeObtentionDiplome &&
+                    !isWizardYearValid(wizardData.anneeObtentionDiplome)
+                  "
+                />
+                <span
+                  class="wz-error"
+                  *ngIf="
+                    wizardTouched.anneeObtentionDiplome &&
+                    !isWizardYearValid(wizardData.anneeObtentionDiplome)
+                  "
+                >
+                  L'année d'obtention doit contenir 4 chiffres
+                </span>
+              </div>
+            </div>
+
+            <!-- Tableau récapitulatif des moyennes -->
+            <div class="wz-grades-table-wrap">
+              <h5 class="wz-grades-title">
+                <i class="fas fa-table"></i> Tableau des moyennes par année
+              </h5>
+              <table class="wz-grades-table">
+                <thead>
+                  <tr>
+                    <th>Année</th>
+                    <th>Moyenne <span class="req">*</span></th>
+                    <th>Session <span class="req">*</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="year-badge">L1</span></td>
+                    <td>
+                      <input
+                        class="grade-input"
+                        type="text"
+                        [(ngModel)]="wizardData.moyenne1Annee"
+                        name="wzMoy1"
+                        inputmode="decimal"
+                        maxlength="5"
+                        (input)="
+                          wizardData.moyenne1Annee = sanitizeWizardDecimalInput(
+                            wizardData.moyenne1Annee
+                          );
+                          triggerWizardScoreCalculation()
+                        "
+                        (blur)="wizardTouched.moyenne1Annee = true"
+                        placeholder="Ex: 13,50"
+                        [class.input-error]="
+                          wizardTouched.moyenne1Annee &&
+                          isWizardScoreInvalid(wizardData.moyenne1Annee)
+                        "
+                      />
+                      <span
+                        class="wz-error"
+                        *ngIf="
+                          wizardTouched.moyenne1Annee &&
+                          isWizardScoreInvalid(wizardData.moyenne1Annee)
+                        "
+                      >
+                        Les notes ne doivent pas dépasser 20
+                      </span>
+                    </td>
+                    <td>
+                      <select
+                        class="session-select"
+                        [(ngModel)]="wizardData.session1Annee"
+                        (ngModelChange)="triggerWizardScoreCalculation()"
+                        name="wzSes1"
+                      >
+                        <option value="">—</option>
+                        <option value="Principale">Principale</option>
+                        <option value="control">Contrôle</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><span class="year-badge">L2</span></td>
+                    <td>
+                      <input
+                        class="grade-input"
+                        type="text"
+                        [(ngModel)]="wizardData.moyenne2Annee"
+                        name="wzMoy2"
+                        inputmode="decimal"
+                        maxlength="5"
+                        (input)="
+                          wizardData.moyenne2Annee = sanitizeWizardDecimalInput(
+                            wizardData.moyenne2Annee
+                          );
+                          triggerWizardScoreCalculation()
+                        "
+                        (blur)="wizardTouched.moyenne2Annee = true"
+                        placeholder="Ex: 14,00"
+                        [class.input-error]="
+                          wizardTouched.moyenne2Annee &&
+                          isWizardScoreInvalid(wizardData.moyenne2Annee)
+                        "
+                      />
+                      <span
+                        class="wz-error"
+                        *ngIf="
+                          wizardTouched.moyenne2Annee &&
+                          isWizardScoreInvalid(wizardData.moyenne2Annee)
+                        "
+                      >
+                        Les notes ne doivent pas dépasser 20
+                      </span>
+                    </td>
+                    <td>
+                      <select
+                        class="session-select"
+                        [(ngModel)]="wizardData.session2Annee"
+                        (ngModelChange)="triggerWizardScoreCalculation()"
+                        name="wzSes2"
+                      >
+                        <option value="">—</option>
+                        <option value="Principale">Principale</option>
+                        <option value="control">Contrôle</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><span class="year-badge">L3</span></td>
+                    <td>
+                      <input
+                        class="grade-input"
+                        type="text"
+                        [(ngModel)]="wizardData.moyenne3Annee"
+                        name="wzMoy3"
+                        inputmode="decimal"
+                        maxlength="5"
+                        (input)="
+                          wizardData.moyenne3Annee = sanitizeWizardDecimalInput(
+                            wizardData.moyenne3Annee
+                          );
+                          triggerWizardScoreCalculation()
+                        "
+                        (blur)="wizardTouched.moyenne3Annee = true"
+                        placeholder="Ex: 12,75"
+                        [class.input-error]="
+                          wizardTouched.moyenne3Annee &&
+                          isWizardScoreInvalid(wizardData.moyenne3Annee)
+                        "
+                      />
+                      <span
+                        class="wz-error"
+                        *ngIf="
+                          wizardTouched.moyenne3Annee &&
+                          isWizardScoreInvalid(wizardData.moyenne3Annee)
+                        "
+                      >
+                        Les notes ne doivent pas dépasser 20
+                      </span>
+                    </td>
+                    <td>
+                      <select
+                        class="session-select"
+                        [(ngModel)]="wizardData.session3Annee"
+                        (ngModelChange)="triggerWizardScoreCalculation()"
+                        name="wzSes3"
+                      >
+                        <option value="">—</option>
+                        <option value="Principale">Principale</option>
+                        <option value="control">Contrôle</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr *ngIf="shouldShowWizardMrglFourthYearFields()">
+                    <td><span class="year-badge m4">M4</span></td>
+                    <td>
+                      <input
+                        class="grade-input"
+                        type="text"
+                        [(ngModel)]="wizardData.moyenne4Annee"
+                        name="wzMoy4"
+                        inputmode="decimal"
+                        maxlength="5"
+                        (input)="
+                          wizardData.moyenne4Annee = sanitizeWizardDecimalInput(
+                            wizardData.moyenne4Annee
+                          );
+                          triggerWizardScoreCalculation()
+                        "
+                        (blur)="wizardTouched.moyenne4Annee = true"
+                        placeholder="Ex: 11,25"
+                        [class.input-error]="
+                          wizardTouched.moyenne4Annee &&
+                          isWizardScoreInvalid(wizardData.moyenne4Annee)
+                        "
+                      />
+                      <span
+                        class="wz-error"
+                        *ngIf="
+                          wizardTouched.moyenne4Annee &&
+                          isWizardScoreInvalid(wizardData.moyenne4Annee)
+                        "
+                      >
+                        Les notes ne doivent pas dépasser 20
+                      </span>
+                    </td>
+                    <td>
+                      <select
+                        class="session-select"
+                        [(ngModel)]="wizardData.session4Annee"
+                        name="wzSes4"
+                      >
+                        <option value="">—</option>
+                        <option value="Principale">Principale</option>
+                        <option value="control">Contrôle</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr *ngIf="isWizardMrmiIng1EquivalentSelected()">
+                    <td><span class="year-badge ing">ING1</span></td>
+                    <td>
+                      <input
+                        class="grade-input"
+                        type="text"
+                        [(ngModel)]="wizardData.moyenneIng1"
+                        name="wzMoyIng1"
+                        inputmode="decimal"
+                        maxlength="5"
+                        (input)="
+                          wizardData.moyenneIng1 = sanitizeWizardDecimalInput(
+                            wizardData.moyenneIng1
+                          );
+                          triggerWizardScoreCalculation()
+                        "
+                        (blur)="wizardTouched.moyenneIng1 = true"
+                        placeholder="Ex: 15,00"
+                        [class.input-error]="
+                          wizardTouched.moyenneIng1 && isWizardScoreInvalid(wizardData.moyenneIng1)
+                        "
+                      />
+                      <span
+                        class="wz-error"
+                        *ngIf="
+                          wizardTouched.moyenneIng1 && isWizardScoreInvalid(wizardData.moyenneIng1)
+                        "
+                      >
+                        Les notes ne doivent pas dépasser 20
+                      </span>
+                    </td>
+                    <td>
+                      <select
+                        class="session-select"
+                        [(ngModel)]="wizardData.sessionReussiteIng1"
+                        name="wzSesIng1"
+                      >
+                        <option value="">—</option>
+                        <option value="Principale">Principale</option>
+                        <option value="control">Contrôle</option>
+                      </select>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- ════════════════════════════════════════════════════════ -->
+            <!--  MOD 1 — Cascade Université / Établissement              -->
+            <!--  Remplace les radios "Étudiant ISIMM / Externe"          -->
+            <!-- ════════════════════════════════════════════════════════ -->
+            <div class="wz-form-row" *ngIf="isWizardMrglOffer() || isWizardMrmiOffer()">
+              <div class="wz-field">
+                <label>
+                  <i class="fas fa-university"></i> Université
+                  <span class="req">*</span>
+                </label>
+                <select
+                  [(ngModel)]="wizardData.universite"
+                  (ngModelChange)="onWizardUniversiteChange()"
+                  name="wzUniversite"
+                >
+                  <option value="">— Sélectionner une université —</option>
+                  <option *ngFor="let uni of UNIVERSITIES_LIST" [value]="uni">{{ uni }}</option>
+                </select>
+              </div>
+              <div class="wz-field">
+                <label>
+                  <i class="fas fa-school"></i> Établissement
+                  <span class="req">*</span>
+                </label>
+                <select
+                  [(ngModel)]="wizardData.etablissement"
+                  (ngModelChange)="onWizardEtablissementChange()"
+                  name="wzEtablissement"
+                  [disabled]="!wizardData.universite"
+                >
+                  <option value="" *ngIf="!wizardData.universite">
+                    — Choisir d'abord une université —
+                  </option>
+                  <option value="" *ngIf="wizardData.universite">— Sélectionner —</option>
+                  <option
+                    *ngFor="let etab of getWizardEtablissements()"
+                    [value]="etab"
+                  >
+                    {{ etab }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Champs complémentaires -->
+            <div class="wz-form-row">
+              <div class="wz-field">
+                <label
+                  ><i class="fas fa-redo-alt"></i> Nb années redoublement
+                  <span class="req">*</span></label
+                >
+                <input
+                  type="number"
+                  min="0"
+                  [(ngModel)]="wizardData.nombreRedoublement"
+                  (ngModelChange)="triggerWizardScoreCalculation()"
+                  name="wzRedoub"
+                  placeholder="0"
+                />
+              </div>
+              <div class="wz-field" *ngIf="isWizardMrmiIng1EquivalentSelected()">
+                <label><i class="fas fa-redo-alt"></i> Nb redoublements ING1</label>
+                <input
+                  type="number"
+                  min="0"
+                  [(ngModel)]="wizardData.nombreRedoublementIng1"
+                  (ngModelChange)="triggerWizardScoreCalculation()"
+                  name="wzRedIng1"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+
+            <!-- Spécialité (visible si non-ISIMM) -->
+            <div class="wz-form-row" *ngIf="wizardData.universite && !wizardData.isISIMM">
+              <div class="wz-field">
+                <label><i class="fas fa-book"></i> Spécialité d'origine</label>
+                <input
+                  type="text"
+                  [(ngModel)]="wizardData.specialiteExterne"
+                  name="wzSpecExt"
+                  placeholder="Ex: Génie logiciel"
+                />
+              </div>
+            </div>
+
+            <!-- Score Live (legacy) -->
+            <div class="wz-score-live-card" *ngIf="getWizardComputedScore() > 0">
+              <div class="score-live-left">
+                <i class="fas fa-tachometer-alt"></i>
+                <div>
+                  <p class="score-live-label">Score calculé automatiquement</p>
+                  <small>Moyenne pondérée de vos notes saisies</small>
+                </div>
+              </div>
+              <div class="score-live-value">{{ getWizardComputedScore().toFixed(2) }}</div>
+            </div>
+
+            <!-- 📊 Widget Score Estimé (Sprint 4) -->
+            <div class="score-estime-widget" *ngIf="scoreLiveDetail.length > 0">
+              <div class="score-estime-header">
+                <i class="fas fa-chart-line"></i>
+                <span>Score estimé en temps réel</span>
+              </div>
+              <div class="score-estime-detail">
+                <div class="score-estime-row" *ngFor="let d of scoreLiveDetail">
+                  <span class="score-estime-code">{{ d.code }}</span>
+                  <span class="score-estime-nom">{{ d.nom }}</span>
+                  <span class="score-estime-valeur">{{ d.valeur | number: '1.2-2' }}</span>
+                </div>
+              </div>
+              <div class="score-estime-total">
+                <span class="score-estime-total-label">SCORE TOTAL</span>
+                <span class="score-estime-total-value">
+                  {{ scoreLiveTotal === null ? '—' : (scoreLiveTotal | number: '1.2-2') }}
+                </span>
+              </div>
+              <div class="score-estime-disclaimer">
+                <i class="fas fa-exclamation-triangle"></i>
+                Score indicatif — sera vérifié et recalculé côté serveur après soumission.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+        ÉTAPE 3 — Validation et Synthèse
+     ════════════════════════════════ -->
+      <div class="wizard-step-body" *ngIf="wizardCurrentStep === 3">
+        <div class="wizard-step-intro">
+          <div class="step-intro-icon"><i class="fas fa-route"></i></div>
+          <div>
+            <h3>Validation et Synthèse</h3>
+            <p>Vérifiez votre saisie, confirmez le récapitulatif puis validez votre demande.</p>
+          </div>
+        </div>
+
+        <!-- Récapitulatif -->
+        <div class="wizard-card recap-card">
+          <div class="wizard-card-header">
+            <i class="fas fa-clipboard-list"></i>
+            <h4>Récapitulatif</h4>
+            <span class="recap-ready-badge">
+              <i class="fas fa-check-circle"></i> Prêt pour soumission
+            </span>
+          </div>
+          <div class="wizard-card-body">
+            <div class="recap-grid">
+              <div class="recap-item">
+                <span class="recap-label"><i class="fas fa-route"></i> Formation choisie</span>
+                <strong>{{ wizardOffre?.titre || '—' }}</strong>
+              </div>
+              <div class="recap-item">
+                <span class="recap-label"><i class="fas fa-layer-group"></i> Type</span>
+                <strong>{{
+                  wizardOffre?.type === 'cycle_ingenieur' ? 'Concours ingénieur' : 'Master'
+                }}</strong>
+              </div>
+              <div class="recap-item">
+                <span class="recap-label"><i class="fas fa-user"></i> Candidat</span>
+                <strong>{{ wizardData.nom }} {{ wizardData.prenom }}</strong>
+              </div>
+              <div class="recap-item">
+                <span class="recap-label"><i class="fas fa-envelope"></i> Email</span>
+                <strong>{{ wizardData.email }}</strong>
+              </div>
+              <div class="recap-item">
+                <span class="recap-label"><i class="fas fa-university"></i> Établissement</span>
+                <strong>{{ wizardData.etablissementOrigine }}</strong>
+              </div>
+              <div class="recap-item">
+                <span class="recap-label"><i class="fas fa-school"></i> Baccalauréat</span>
+                <strong
+                  >{{ wizardData.specialiteBac || '—' }} — {{ wizardData.anneeBac || '—' }}</strong
+                >
+              </div>
+              <div class="recap-item">
+                <span class="recap-label"><i class="fas fa-star-half-alt"></i> Moyenne Bac</span>
+                <strong>{{ wizardData.moyenneBacPrincipale || '—' }} / 20</strong>
+              </div>
+              <div class="recap-item">
+                <span class="recap-label"><i class="fas fa-graduation-cap"></i> Diplôme</span>
+                <strong
+                  >{{ wizardData.natureDiplome || '—' }} —
+                  {{ wizardData.anneeObtentionDiplome || '—' }}</strong
+                >
+              </div>
+              <div class="recap-item recap-item--score">
+                <span class="recap-label"><i class="fas fa-chart-line"></i> Score estimé</span>
+                <strong class="score-highlight">{{ getWizardComputedScore().toFixed(2) }}</strong>
+              </div>
+            </div>
+
+            <!-- Mini tableau moyennes -->
+            <div class="recap-grades-row">
+              <div class="recap-grade-badge" *ngIf="wizardData.moyenne1Annee">
+                <span>L1</span><strong>{{ wizardData.moyenne1Annee }}</strong>
+              </div>
+              <div class="recap-grade-badge" *ngIf="wizardData.moyenne2Annee">
+                <span>L2</span><strong>{{ wizardData.moyenne2Annee }}</strong>
+              </div>
+              <div class="recap-grade-badge" *ngIf="wizardData.moyenne3Annee">
+                <span>L3</span><strong>{{ wizardData.moyenne3Annee }}</strong>
+              </div>
+              <div class="recap-grade-badge" *ngIf="wizardData.moyenne4Annee">
+                <span>M4</span><strong>{{ wizardData.moyenne4Annee }}</strong>
+              </div>
+              <div class="recap-grade-badge ing" *ngIf="wizardData.moyenneIng1">
+                <span>ING1</span><strong>{{ wizardData.moyenneIng1 }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Déclaration obligatoire pour toutes les formations -->
+        <div class="wizard-card confirmation-card">
+          <div class="wizard-card-header">
+            <i class="fas fa-file-signature"></i>
+            <h4>Déclaration sur l'honneur</h4>
+          </div>
+          <div class="wizard-card-body">
+            <p class="confirmation-statement">
+              Je soussigné(e) <strong>{{ wizardData.prenom }} {{ wizardData.nom }}</strong
+              >, certifie que toutes les informations saisies sont exactes et sincères. Je suis
+              conscient(e) que toute fausse déclaration entraîne l'annulation immédiate de ma
+              candidature.
+            </p>
+            <div class="wz-field">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="wizardData.confirmationDeclaration"
+                  name="wzConfirm"
+                  class="checkbox-input"
+                />
+                <span class="checkbox-label-text"
+                  >J'accepte cette déclaration <span class="req">*</span></span
+                >
+              </label>
+            </div>
+            <div
+              class="wz-field"
+              [class.wz-field--error]="
+                wizardTouched.confirmationText &&
+                wizardData.confirmationText.trim().toLowerCase() !== 'je confirme'
+              "
+            >
+              <label
+                ><i class="fas fa-keyboard"></i> Tapez "je confirme" pour valider
+                <span class="req">*</span></label
+              >
+              <input
+                type="text"
+                [(ngModel)]="wizardData.confirmationText"
+                name="wzConfirmText"
+                (blur)="wizardTouched.confirmationText = true"
+                placeholder="je confirme"
+              />
+              <span
+                class="wz-error"
+                *ngIf="
+                  wizardTouched.confirmationText &&
+                  wizardData.confirmationText.trim().toLowerCase() !== 'je confirme'
+                "
+              >
+                Veuillez taper exactement "je confirme"
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FOOTER NAVIGATION ── -->
+      <footer class="wizard-footer-bar">
+        <button class="wz-btn-cancel" (click)="closeSubmissionWizard()">
+          <i class="fas fa-times"></i> Annuler
+        </button>
+
+        <div class="wizard-footer-right">
+          <button
+            class="wz-btn-prev"
+            (click)="previousWizardStep()"
+            [disabled]="wizardCurrentStep === 1"
+          >
+            <i class="fas fa-arrow-left"></i> Précédent
+          </button>
+
+          <!-- Boutons Suivant -->
+          <button
+            class="wz-btn-next"
+            *ngIf="wizardCurrentStep < wizardTotalSteps"
+            [disabled]="!isWizardStepValid(wizardCurrentStep)"
+            [class.wz-btn--disabled]="!isWizardStepValid(wizardCurrentStep)"
+            (click)="nextWizardStep()"
+          >
+            Suivant <i class="fas fa-arrow-right"></i>
+          </button>
+
+          <!-- Bouton Soumettre (étape finale) -->
+          <button
+            class="wz-btn-submit"
+            *ngIf="wizardCurrentStep === wizardTotalSteps"
+            [disabled]="wizardSubmitting || !isWizardSubmissionAllowed()"
+            [class.wz-btn--loading]="wizardSubmitting"
+            (click)="submitWizardCandidature()"
+          >
+            <span *ngIf="!wizardSubmitting">
+              <i class="fas fa-paper-plane"></i> Soumettre la candidature
+            </span>
+            <span *ngIf="wizardSubmitting">
+              <i class="fas fa-spinner fa-spin"></i> Envoi en cours...
+            </span>
+          </button>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- =====================  RÉCAPITULATIF MODAL  ===================== -->
+  <div class="rc-overlay" [class.rc-open]="showRecapModal" (click)="fermerRecapModal()">
+    <div class="rc-panel" (click)="$event.stopPropagation()" *ngIf="selectedCandidatureForEdit">
+
+      <!-- Header -->
+      <div class="rc-header">
+        <div class="rc-header-left">
+          <div class="rc-eyebrow">Candidature · Récapitulatif</div>
+          <h2 class="rc-title">{{ selectedCandidatureForEdit.numero }}</h2>
+          <p class="rc-sub">{{ selectedCandidatureForEdit.master_nom }}</p>
+        </div>
+        <div class="rc-header-right">
+          <span class="rc-status-badge"
+            [class.rc-status-soumis]="selectedCandidatureForEdit.statut === 'soumis'"
+            [class.rc-status-en_attente]="selectedCandidatureForEdit.statut === 'en_attente'"
+            [class.rc-status-preselectionne]="selectedCandidatureForEdit.statut === 'preselectionne'"
+            [class.rc-status-selectionne]="selectedCandidatureForEdit.statut === 'selectionne'"
+            [class.rc-status-refuse]="selectedCandidatureForEdit.statut === 'refuse'"
+            [class.rc-status-admis]="selectedCandidatureForEdit.statut === 'admis'">
+            <i class="fas fa-circle" style="font-size:7px"></i>
+            {{ getStatutLabel(selectedCandidatureForEdit.statut) }}
+          </span>
+          <button class="rc-close" type="button" (click)="fermerRecapModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step tracker -->
+      <div class="rc-steps">
+        <div class="rc-step" [class.rc-step-done]="['preselectionne','selectionne','admis'].includes(selectedCandidatureForEdit.statut)" [class.rc-step-active]="selectedCandidatureForEdit.statut === 'soumis' || selectedCandidatureForEdit.statut === 'en_attente'">
+          <div class="rc-step-dot"><i class="fas fa-paper-plane"></i></div>
+          <div class="rc-step-lbl">Soumission</div>
+        </div>
+        <div class="rc-step-line" [class.rc-line-done]="['preselectionne','selectionne','admis'].includes(selectedCandidatureForEdit.statut)"></div>
+        <div class="rc-step" [class.rc-step-done]="['selectionne','admis'].includes(selectedCandidatureForEdit.statut)" [class.rc-step-active]="selectedCandidatureForEdit.statut === 'preselectionne'">
+          <div class="rc-step-dot"><i class="fas fa-filter"></i></div>
+          <div class="rc-step-lbl">Présélection</div>
+        </div>
+        <div class="rc-step-line" [class.rc-line-done]="['selectionne','admis'].includes(selectedCandidatureForEdit.statut)"></div>
+        <div class="rc-step" [class.rc-step-done]="selectedCandidatureForEdit.statut === 'admis'" [class.rc-step-active]="selectedCandidatureForEdit.statut === 'selectionne'">
+          <div class="rc-step-dot"><i class="fas fa-award"></i></div>
+          <div class="rc-step-lbl">Sélection</div>
+        </div>
+        <div class="rc-step-line" [class.rc-line-done]="selectedCandidatureForEdit.statut === 'admis'"></div>
+        <div class="rc-step" [class.rc-step-active]="selectedCandidatureForEdit.statut === 'admis'">
+          <div class="rc-step-dot"><i class="fas fa-graduation-cap"></i></div>
+          <div class="rc-step-lbl">Admission</div>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="rc-body">
+
+        <!-- Info grid -->
+        <div class="rc-section">
+          <div class="rc-section-title"><i class="fas fa-info-circle"></i> Informations candidature</div>
+          <div class="rc-grid-4">
+            <div class="rc-cell">
+              <div class="rc-cell-lbl">N° Candidature</div>
+              <div class="rc-cell-val rc-mono">{{ selectedCandidatureForEdit.numero }}</div>
+            </div>
+            <div class="rc-cell">
+              <div class="rc-cell-lbl">Année universitaire</div>
+              <div class="rc-cell-val">{{ selectedCandidatureForEdit.annee_universitaire || '—' }}</div>
+            </div>
+            <div class="rc-cell">
+              <div class="rc-cell-lbl">Date de soumission</div>
+              <div class="rc-cell-val">{{ selectedCandidatureForEdit.date_soumission ? (selectedCandidatureForEdit.date_soumission | date:'dd/MM/yyyy') : '—' }}</div>
+            </div>
+            <div class="rc-cell">
+              <div class="rc-cell-lbl">Choix priorité</div>
+              <div class="rc-cell-val">{{ selectedCandidatureForEdit.choix_priorite ?? '—' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formation -->
+        <div class="rc-section">
+          <div class="rc-section-title"><i class="fas fa-university"></i> Formation demandée</div>
+          <div class="rc-grid-2">
+            <div class="rc-cell">
+              <div class="rc-cell-lbl">Master / Parcours</div>
+              <div class="rc-cell-val rc-strong">{{ selectedCandidatureForEdit.master_nom }}</div>
+            </div>
+            <div class="rc-cell">
+              <div class="rc-cell-lbl">Statut inscription</div>
+              <div class="rc-cell-val">{{ selectedCandidatureForEdit.statut_inscription || '—' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Score & classement -->
+        <div class="rc-section">
+          <div class="rc-section-title"><i class="fas fa-chart-bar"></i> Score & Classement</div>
+          <div class="rc-grid-3">
+            <div class="rc-cell rc-highlight-cell">
+              <div class="rc-cell-lbl">Score obtenu</div>
+              <div class="rc-cell-val rc-score">{{ selectedCandidatureForEdit.score != null ? selectedCandidatureForEdit.score + ' pts' : '—' }}</div>
+            </div>
+            <div class="rc-cell">
+              <div class="rc-cell-lbl">Classement</div>
+              <div class="rc-cell-val">{{ selectedCandidatureForEdit.classement || '—' }}</div>
+            </div>
+            <div class="rc-cell">
+              <div class="rc-cell-lbl">Nombre total candidats</div>
+              <div class="rc-cell-val">{{ selectedCandidatureForEdit.total_candidats || '—' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dossier -->
+        <div class="rc-section">
+          <div class="rc-section-title"><i class="fas fa-folder-open"></i> Dossier</div>
+          <div class="rc-grid-2">
+            <div class="rc-cell">
+              <div class="rc-cell-lbl">Dossier déposé</div>
+              <div class="rc-cell-val" [class.rc-ok]="selectedCandidatureForEdit.dossier_depose" [class.rc-ko]="!selectedCandidatureForEdit.dossier_depose">
+                <i class="fas" [class.fa-check-circle]="selectedCandidatureForEdit.dossier_depose" [class.fa-times-circle]="!selectedCandidatureForEdit.dossier_depose"></i>
+                {{ selectedCandidatureForEdit.dossier_depose ? 'Oui' : 'Non' }}
+              </div>
+            </div>
+            <div class="rc-cell">
+              <div class="rc-cell-lbl">Dossier validé</div>
+              <div class="rc-cell-val" [class.rc-ok]="selectedCandidatureForEdit.dossier_valide" [class.rc-ko]="!selectedCandidatureForEdit.dossier_valide">
+                <i class="fas" [class.fa-check-circle]="selectedCandidatureForEdit.dossier_valide" [class.fa-times-circle]="!selectedCandidatureForEdit.dossier_valide"></i>
+                {{ selectedCandidatureForEdit.dossier_valide ? 'Validé' : 'Non validé' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Motif rejet -->
+        <div class="rc-section rc-alert-section" *ngIf="selectedCandidatureForEdit.motif_rejet">
+          <div class="rc-section-title"><i class="fas fa-exclamation-triangle"></i> Motif de rejet</div>
+          <p class="rc-alert-text">{{ selectedCandidatureForEdit.motif_rejet }}</p>
+        </div>
+
+        <!-- Historique statut -->
+        <div class="rc-section" *ngIf="selectedCandidatureForEdit.historique_statut?.length">
+          <div class="rc-section-title"><i class="fas fa-clock"></i> Historique des statuts</div>
+          <div class="rc-timeline">
+            <div class="rc-tl-item" *ngFor="let evt of selectedCandidatureForEdit.historique_statut">
+              <div class="rc-tl-dot"></div>
+              <div class="rc-tl-content">
+                <div class="rc-tl-title">{{ evt.statut }}</div>
+                <div class="rc-tl-date">{{ evt.date | date:'dd/MM/yyyy HH:mm' }}</div>
+                <div class="rc-tl-note" *ngIf="evt.commentaire">{{ evt.commentaire }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="rc-footer">
+        <button class="rc-btn-close" type="button" (click)="fermerRecapModal()">
+          <i class="fas fa-times"></i> Fermer
+        </button>
+        <button class="rc-btn-suivi" type="button" (click)="suivreCandidature(selectedCandidatureForEdit); fermerRecapModal()">
+          <i class="fas fa-chart-line"></i> Suivre la candidature
+        </button>
+      </div>
+
+    </div>
+  </div>
+  <!-- ===  END RÉCAPITULATIF MODAL  === -->
+
+</div>

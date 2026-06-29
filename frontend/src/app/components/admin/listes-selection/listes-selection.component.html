@@ -1,0 +1,249 @@
+<div class="listes-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <button class="btn-back" (click)="retourDashboard()">
+        <i class="fas fa-arrow-left"></i> Retour
+      </button>
+      <h1>Listes de Sélection par Spécialité</h1>
+    </div>
+    <div class="header-actions">
+      <button class="btn-primary" (click)="exporterTout()">
+        <i class="fas fa-download"></i> Exporter tout
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters-section">
+    <select [(ngModel)]="specialiteSelectionnee" class="filter-select" (change)="chargerListes()">
+      <option value="">Toutes les spécialités</option>
+      <option *ngFor="let spec of specialites" [value]="spec">{{ spec }}</option>
+    </select>
+
+    <select [(ngModel)]="anneeSelectionnee" class="filter-select" (change)="chargerListes()">
+      <option value="">Toutes les années</option>
+      <option value="2026">2026</option>
+      <option value="2025">2025</option>
+      <option value="2024">2024</option>
+    </select>
+  </div>
+
+  <!-- Onglets -->
+  <div class="tabs-container">
+    <button
+      class="tab"
+      [class.active]="ongletActif === 'attente'"
+      (click)="ongletActif = 'attente'"
+    >
+      <i class="fas fa-clock"></i>
+      Liste d'Attente
+      <span class="badge">{{ getListeAttente().length }}</span>
+    </button>
+    <button
+      class="tab"
+      [class.active]="ongletActif === 'principale'"
+      (click)="ongletActif = 'principale'"
+    >
+      <i class="fas fa-check-circle"></i>
+      Liste Principale
+      <span class="badge">{{ getListePrincipale().length }}</span>
+    </button>
+  </div>
+
+  <!-- LISTE D'ATTENTE -->
+  <div *ngIf="ongletActif === 'attente'" class="liste-section">
+    <div class="section-header">
+      <h2>
+        <i class="fas fa-clock"></i>
+        Liste d'Attente
+        <span class="specialite-label" *ngIf="specialiteSelectionnee">
+          - {{ specialiteSelectionnee }}
+        </span>
+      </h2>
+      <div class="section-actions">
+        <button class="btn-action" (click)="genererListe('attente')">
+          <i class="fas fa-sync"></i> Générer automatiquement
+        </button>
+        <button class="btn-action" (click)="exporterListe('attente')">
+          <i class="fas fa-file-excel"></i> Exporter Excel
+        </button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <i class="fas fa-users"></i>
+        <div>
+          <strong>{{ getListeAttente().length }}</strong>
+          <span>Candidats en attente</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <i class="fas fa-chart-line"></i>
+        <div>
+          <strong>{{ getMoyenneScore('attente') }}</strong>
+          <span>Score moyen</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="listes-table">
+        <thead>
+          <tr>
+            <th>Rang</th>
+            <th>Candidat</th>
+            <th>Email</th>
+            <th>Score</th>
+            <th>Spécialité</th>
+            <th>Statut Dossier</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let candidat of getListeAttente(); let i = index">
+            <td>
+              <strong class="rang">{{ i + 1 }}</strong>
+            </td>
+            <td>
+              <strong>{{ candidat.nom }}</strong>
+            </td>
+            <td>{{ candidat.email }}</td>
+            <td>
+              <span class="score-badge" [class.high]="candidat.score >= 15">
+                {{ candidat.score }}
+              </span>
+            </td>
+            <td>{{ candidat.specialite }}</td>
+            <td>
+              <span class="statut-badge" [class.valid]="candidat.dossier_valide">
+                {{ candidat.dossier_valide ? 'Valide' : 'Invalide' }}
+              </span>
+            </td>
+            <td>
+              <button class="btn-icon" (click)="deplacerVers('principale', candidat)">
+                <i class="fas fa-arrow-right"></i>
+              </button>
+              <button class="btn-icon" (click)="voirDetails(candidat)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LISTE PRINCIPALE -->
+  <div *ngIf="ongletActif === 'principale'" class="liste-section">
+    <div class="section-header">
+      <h2>
+        <i class="fas fa-check-circle"></i>
+        Liste Principale (Admis)
+        <span class="specialite-label" *ngIf="specialiteSelectionnee">
+          - {{ specialiteSelectionnee }}
+        </span>
+      </h2>
+      <div class="section-actions">
+        <button class="btn-action" (click)="genererListe('principale')">
+          <i class="fas fa-sync"></i> Générer automatiquement
+        </button>
+        <button class="btn-action success" (click)="publierListe()">
+          <i class="fas fa-paper-plane"></i> Publier la liste
+        </button>
+        <button class="btn-action" (click)="exporterListe('principale')">
+          <i class="fas fa-file-excel"></i> Exporter Excel
+        </button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box success">
+        <i class="fas fa-user-check"></i>
+        <div>
+          <strong>{{ getListePrincipale().length }}</strong>
+          <span>Candidats admis</span>
+        </div>
+      </div>
+      <div class="stat-box success">
+        <i class="fas fa-trophy"></i>
+        <div>
+          <strong>{{ getMoyenneScore('principale') }}</strong>
+          <span>Score moyen</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <i class="fas fa-percentage"></i>
+        <div>
+          <strong>{{ getTauxAdmission() }}%</strong>
+          <span>Taux d'admission</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="listes-table">
+        <thead>
+          <tr>
+            <th>Rang</th>
+            <th>Candidat</th>
+            <th>Email</th>
+            <th>Score</th>
+            <th>Spécialité</th>
+            <th>Mention</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let candidat of getListePrincipale(); let i = index" class="admis-row">
+            <td>
+              <strong class="rang admis">{{ i + 1 }}</strong>
+            </td>
+            <td>
+              <strong>{{ candidat.nom }}</strong>
+            </td>
+            <td>{{ candidat.email }}</td>
+            <td>
+              <span class="score-badge high">
+                {{ candidat.score }}
+              </span>
+            </td>
+            <td>{{ candidat.specialite }}</td>
+            <td>
+              <span class="mention-badge" [ngClass]="getMentionClass(candidat.score)">
+                {{ getMention(candidat.score) }}
+              </span>
+            </td>
+            <td>
+              <button class="btn-icon warning" (click)="deplacerVers('attente', candidat)">
+                <i class="fas fa-arrow-left"></i>
+              </button>
+              <button class="btn-icon" (click)="voirDetails(candidat)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Informations -->
+  <div class="info-panel">
+    <div class="info-item">
+      <i class="fas fa-info-circle"></i>
+      <p>
+        <strong>Génération automatique :</strong> Les listes sont générées automatiquement en
+        fonction des scores. Les meilleurs candidats sont placés en liste principale.
+      </p>
+    </div>
+    <div class="info-item">
+      <i class="fas fa-exchange-alt"></i>
+      <p>
+        <strong>Déplacements :</strong> Vous pouvez déplacer manuellement des candidats entre les
+        listes en cliquant sur les flèches.
+      </p>
+    </div>
+  </div>
+</div>

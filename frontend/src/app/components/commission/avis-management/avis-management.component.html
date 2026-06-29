@@ -1,0 +1,165 @@
+<div class="avis-management-container">
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>Gestion des Avis</h1>
+      <p>Visualisez et filtrez les avis donnés par votre commission</p>
+    </div>
+    <div class="header-actions">
+      <button *ngIf="avis.length > 0" (click)="exportAvisToCsv()" class="btn btn-secondary">
+        <span>📥 Exporter CSV</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ALERTS -->
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+    <button (click)="errorMessage = ''" class="alert-close">✕</button>
+  </div>
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+    <button (click)="successMessage = ''" class="alert-close">✕</button>
+  </div>
+
+  <!-- STATISTICS CARDS -->
+  <div *ngIf="statistics" class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ statistics.total }}</div>
+      <div class="stat-label">Total Avis</div>
+    </div>
+    <div class="stat-card favorable">
+      <div class="stat-value">{{ statistics.favorables }}</div>
+      <div class="stat-label">Favorables</div>
+    </div>
+    <div class="stat-card defavorable">
+      <div class="stat-value">{{ statistics.defavorables }}</div>
+      <div class="stat-label">Défavorables</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ statistics.pourcentage_favorable }}%</div>
+      <div class="stat-label">Taux Favorable</div>
+    </div>
+  </div>
+
+  <!-- FILTERS SECTION -->
+  <div class="filters-card">
+    <h3>Filtres</h3>
+
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label>Commission</label>
+        <select [(ngModel)]="selectedCommissionId" class="filter-select">
+          <option [value]="null">Toutes les commissions</option>
+          <option *ngFor="let comm of availableCommissions" [value]="comm.id">
+            {{ comm.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Membre</label>
+        <select [(ngModel)]="selectedMemberId" class="filter-select">
+          <option [value]="null">Tous les membres</option>
+          <option *ngFor="let member of availableMembers" [value]="member.member_id">
+            {{ member.member_name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Type d'Avis</label>
+        <select [(ngModel)]="selectedAvisType" class="filter-select">
+          <option value="">Tous les avis</option>
+          <option value="favorable">Favorable</option>
+          <option value="defavorable">Défavorable</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>De</label>
+        <input type="date" [(ngModel)]="dateFromFilter" class="filter-input" />
+      </div>
+
+      <div class="filter-group">
+        <label>À</label>
+        <input type="date" [(ngModel)]="dateToFilter" class="filter-input" />
+      </div>
+
+      <div class="filter-actions">
+        <button (click)="filterAvis()" class="btn btn-primary" [disabled]="loading">
+          <span *ngIf="!loading">🔍 Filtrer</span>
+          <span *ngIf="loading">⏳ Chargement...</span>
+        </button>
+        <button (click)="resetFilters()" class="btn btn-secondary">Réinitialiser</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS TABLE -->
+  <div class="results-card">
+    <h3>
+      Résultats
+      <span *ngIf="avis.length > 0" class="result-count">({{ avis.length }})</span>
+    </h3>
+
+    <div *ngIf="avis.length === 0 && !loading" class="empty-state">
+      <p>Aucun avis trouvé. Essayez d'ajuster les filtres.</p>
+    </div>
+
+    <div *ngIf="loading" class="loading-state">
+      <p>Chargement des avis...</p>
+    </div>
+
+    <div *ngIf="avis.length > 0 && !loading" class="table-responsive">
+      <table class="avis-table">
+        <thead>
+          <tr>
+            <th>Candidat</th>
+            <th>Membre</th>
+            <th>Commission</th>
+            <th>Avis</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let avisItem of paginatedAvis" [class.defavorable]="!avisItem.avis">
+            <td>{{ avisItem.candidat_name }}</td>
+            <td>{{ avisItem.member_name }}</td>
+            <td>{{ avisItem.commission_name }}</td>
+            <td>
+              <span [class]="'badge badge-' + avisItem.avis_type">
+                {{ avisItem.avis_type === 'favorable' ? '✓ Favorable' : '✗ Défavorable' }}
+              </span>
+            </td>
+            <td>{{ avisItem.date_avis | date: 'dd/MM/yyyy' }}</td>
+            <td class="actions">
+              <button
+                (click)="viewAvisDetails(avisItem.candidature_id, avisItem.id)"
+                class="btn-icon"
+                title="Voir les détails"
+              >
+                👁️
+              </button>
+              <button
+                (click)="deleteAvis(avisItem.candidature_id, avisItem.id)"
+                class="btn-icon btn-danger"
+                title="Supprimer"
+              >
+                🗑️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- PAGINATION -->
+      <div *ngIf="totalPages > 1" class="pagination">
+        <button (click)="previousPage()" [disabled]="currentPage === 1">← Précédent</button>
+        <span>Page {{ currentPage }} sur {{ totalPages }}</span>
+        <button (click)="nextPage()" [disabled]="currentPage === totalPages">Suivant →</button>
+      </div>
+    </div>
+  </div>
+</div>

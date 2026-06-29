@@ -1,0 +1,21 @@
+﻿# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+db.sqlite3
+*.sqlite3
+celerybeat-schedule
+
+# Node
+node_modules/
+.angular/
+dist/
+*.log
+
+# Env
+.env
+
+# Media uploads
+media/

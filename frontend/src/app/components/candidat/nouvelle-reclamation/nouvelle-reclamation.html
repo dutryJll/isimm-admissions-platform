@@ -1,0 +1,133 @@
+<div class="nr-page">
+
+  <!-- Page Header -->
+  <div class="nr-header">
+    <div class="nr-header-icon">
+      <i class="fas fa-headset"></i>
+    </div>
+    <div>
+      <p class="nr-header-eyebrow">Espace Candidat · Assistance</p>
+      <h1 class="nr-header-title">Nouvelle Réclamation</h1>
+      <p class="nr-header-sub">Remplissez le formulaire pour soumettre votre demande de vérification.</p>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <div class="nr-card">
+    <form (ngSubmit)="submit()" class="nr-form">
+
+      <!-- Row 1: Master + Objet -->
+      <div class="nr-row-2">
+        <div class="nr-field">
+          <label class="nr-label" for="master">
+            <i class="fas fa-graduation-cap nr-label-icon"></i>
+            Master concerné <span class="nr-required">*</span>
+          </label>
+          <select id="master" name="master" class="nr-select" [(ngModel)]="formData.master_id" required>
+            <option value="">— Sélectionner un master —</option>
+            <option *ngFor="let master of masterOptions" [value]="master.id">
+              {{ master.nom }}
+            </option>
+          </select>
+          <small class="nr-hint nr-hint--warn" *ngIf="masterOptions.length === 0">
+            <i class="fas fa-exclamation-triangle"></i>
+            Aucun master disponible. Effectuez d'abord une <strong>candidature</strong>.
+          </small>
+        </div>
+
+        <div class="nr-field">
+          <label class="nr-label" for="objet">
+            <i class="fas fa-tag nr-label-icon"></i>
+            Objet <span class="nr-required">*</span>
+          </label>
+          <select id="objet" name="objet" class="nr-select" [(ngModel)]="formData.objet" required>
+            <option value="">— Sélectionner un objet —</option>
+            <option value="score">Score incorrect</option>
+            <option value="statut">Statut non mis à jour</option>
+            <option value="dossier">Problème de dossier</option>
+            <option value="paiement">Problème de paiement</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 2: Type -->
+      <div class="nr-field">
+        <label class="nr-label" for="type">
+          <i class="fas fa-layer-group nr-label-icon"></i>
+          Type de réclamation
+          <span class="nr-opt-badge">Facultatif</span>
+        </label>
+        <select id="type" name="type" class="nr-select" [(ngModel)]="reclamationType">
+          <option value="">— Sélectionner un type —</option>
+          <option value="score">Score</option>
+          <option value="statut">Statut</option>
+          <option value="dossier">Dossier</option>
+          <option value="paiement">Paiement</option>
+          <option value="autre">Autre</option>
+        </select>
+        <small class="nr-hint">Permet de faciliter le traitement par la commission.</small>
+      </div>
+
+      <!-- Row 3: Description -->
+      <div class="nr-field">
+        <label class="nr-label" for="motif">
+          <i class="fas fa-align-left nr-label-icon"></i>
+          Description du problème <span class="nr-required">*</span>
+        </label>
+        <textarea
+          id="motif"
+          name="motif"
+          class="nr-textarea"
+          rows="5"
+          [(ngModel)]="formData.motif"
+          placeholder="Expliquez clairement votre réclamation avec les détails nécessaires..."
+          required
+        ></textarea>
+      </div>
+
+      <!-- Row 4: Upload -->
+      <div class="nr-field">
+        <label class="nr-label">
+          <i class="fas fa-paperclip nr-label-icon"></i>
+          Justificatif
+          <span class="nr-opt-badge">Optionnel</span>
+        </label>
+        <div class="nr-upload-zone" (click)="$event.preventDefault(); fileInput.click()">
+          <input
+            #fileInput
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png"
+            style="display: none"
+            (change)="onFileSelected($event)"
+          />
+          <div class="nr-upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+          <div class="nr-upload-text">
+            <strong>Glisser-déposer ou cliquer pour sélectionner</strong>
+            <span>PDF, JPG, PNG — max 5 Mo</span>
+          </div>
+        </div>
+        <div class="nr-selected-file" *ngIf="selectedFileName">
+          <i class="fas fa-file-alt"></i>
+          <span>{{ selectedFileName }}</span>
+          <button type="button" class="nr-btn-remove" (click)="clearSelectedFile()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="nr-actions">
+        <button type="button" class="nr-btn nr-btn--secondary" (click)="cancel()">
+          <i class="fas fa-arrow-left"></i>
+          Annuler
+        </button>
+        <button type="submit" class="nr-btn nr-btn--primary" [disabled]="isSubmitting">
+          <span *ngIf="!isSubmitting"><i class="fas fa-paper-plane"></i> Envoyer la réclamation</span>
+          <span *ngIf="isSubmitting"><i class="fas fa-spinner fa-spin"></i> Envoi en cours...</span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

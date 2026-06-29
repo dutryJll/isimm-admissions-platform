@@ -1,0 +1,360 @@
+.upload-dossier {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f3f8ff 0%, #f9fbff 100%);
+}
+
+.upload-dossier__header {
+  background: linear-gradient(135deg, #0f3e68 0%, #14548c 100%);
+  color: #fff;
+  padding: 1.4rem 1rem 2.6rem;
+}
+
+.upload-dossier__header-content,
+.upload-dossier__progress-card,
+.upload-dossier__content {
+  width: min(1100px, 94vw);
+  margin: 0 auto;
+}
+
+.upload-dossier__header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.upload-dossier__back {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  cursor: pointer;
+}
+
+.upload-dossier__title {
+  font-size: clamp(1.2rem, 4.6vw, 1.8rem);
+  margin: 0;
+}
+
+.upload-dossier__subtitle {
+  margin: 0.25rem 0 0;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.upload-dossier__progress-card {
+  margin-top: -1.1rem;
+  margin-bottom: 1rem;
+  background: #fff;
+  border: 1px solid #dee9f8;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(18, 53, 86, 0.1);
+  padding: 1rem;
+}
+
+.upload-dossier__progress-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.7rem;
+}
+
+.upload-dossier__progress-head span {
+  font-weight: 700;
+  color: #1f4b79;
+}
+
+.upload-dossier__progress-track {
+  width: 100%;
+  height: 10px;
+  background: #e6eef9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.upload-dossier__progress-value {
+  height: 100%;
+  background: linear-gradient(90deg, #30b97f, #159f72);
+  transition: width 0.3s ease;
+}
+
+.upload-dossier__content {
+  display: grid;
+  gap: 1rem;
+  padding-bottom: 2rem;
+}
+
+.upload-dossier__card {
+  background: #fff;
+  border: 1px solid #dce8f6;
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 8px 20px rgba(15, 44, 73, 0.06);
+}
+
+.upload-dossier__card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.upload-dossier__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.4rem;
+}
+
+.upload-dossier__icon--cin {
+  background: linear-gradient(135deg, #5f6cf3, #6b39be);
+}
+
+.upload-dossier__icon--releves {
+  background: linear-gradient(135deg, #ed5aa2, #e9476d);
+}
+
+.upload-dossier__icon--diplome {
+  background: linear-gradient(135deg, #30a8ff, #1c8ae7);
+}
+
+.upload-dossier__icon--photo {
+  background: linear-gradient(135deg, #23bf8a, #0ea072);
+}
+
+.upload-dossier__icon--formulaire {
+  background: linear-gradient(135deg, #185fa5, #0f1f3d);
+}
+
+.upload-dossier__icon--attestation {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.upload-dossier__icon--cv {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+}
+
+/* ── Badges obligatoire / optionnel ── */
+.upload-dossier__badge-req,
+.upload-dossier__badge-opt {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.upload-dossier__badge-req {
+  background: #eff6ff;
+  color: #185fa5;
+}
+
+.upload-dossier__badge-opt {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+/* ── PARTIE B : message d'erreur de validation ── */
+.upload-dossier__error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #b91c1c;
+  font-size: 0.85rem;
+}
+
+.upload-dossier__error i {
+  font-size: 0.95rem;
+}
+
+/* ── Icône fichier PDF (aperçu non-image) ── */
+.upload-dossier__file-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.upload-dossier__meta {
+  flex: 1;
+}
+
+.upload-dossier__meta h3 {
+  margin: 0;
+  color: #143858;
+  font-size: 1rem;
+}
+
+.upload-dossier__meta p {
+  margin: 0.2rem 0 0;
+  color: #577089;
+  font-size: 0.85rem;
+}
+
+.upload-dossier__status {
+  color: #18a874;
+  font-size: 1.4rem;
+}
+
+.upload-dossier__drop {
+  border: 2px dashed #c5d5ea;
+  border-radius: 12px;
+  padding: 1.4rem 1rem;
+  text-align: center;
+  color: #4c6480;
+  cursor: pointer;
+  background: #f8fbff;
+}
+
+.upload-dossier__drop i {
+  font-size: 1.7rem;
+  color: #3975b6;
+  margin-bottom: 0.4rem;
+}
+
+.upload-dossier__preview {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: #f2fbf6;
+  border: 1px solid #a8dfc3;
+  border-radius: 12px;
+  padding: 0.75rem;
+}
+
+.upload-dossier__thumb {
+  width: 68px;
+  height: 68px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.upload-dossier__file {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.upload-dossier__file strong {
+  color: #0f3555;
+}
+
+.upload-dossier__file small {
+  color: #4e6780;
+}
+
+.upload-dossier__file-progress {
+  margin-top: 0.45rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.upload-dossier__file-progress span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #285682;
+}
+
+.upload-dossier__file-progress mat-progress-bar {
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.upload-dossier__remove {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: #ffe8eb;
+  color: #ca2f45;
+  cursor: pointer;
+}
+
+.upload-dossier__submit {
+  background: #fff;
+  border: 1px solid #dce8f6;
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.upload-dossier__submit-btn {
+  width: 100%;
+  border: 0;
+  border-radius: 999px;
+  min-height: 50px;
+  background: linear-gradient(135deg, #e36a10, #ea8e1a);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.upload-dossier__submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.upload-dossier__hint {
+  margin: 0.65rem 0 0;
+  color: #577089;
+  text-align: center;
+}
+
+.upload-dossier__submit-progress {
+  margin-top: 0.8rem;
+}
+
+.upload-dossier__submit-progress-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.45rem;
+}
+
+.upload-dossier__submit-progress-head strong {
+  color: #0f3555;
+}
+
+.upload-dossier__progress-track--submit {
+  height: 11px;
+  background: transparent;
+}
+
+.upload-dossier__progress-value--submit {
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+@media (min-width: 900px) {
+  .upload-dossier__header {
+    padding: 1.8rem 1rem 3rem;
+  }
+
+  .upload-dossier__content {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .upload-dossier__submit {
+    grid-column: 1 / -1;
+  }
+}

@@ -1,0 +1,22 @@
+{% extends "notifications/candidature_base.html" %}
+
+{% block specific_content %}
+<div class="info-box" style="background: #e8f5e9; border-left-color: #4caf50;">
+    <p style="margin: 0; color: #2e7d32;">
+        <strong>🎉 Félicitations!</strong> Vous avez été sélectionné/admis!
+    </p>
+</div>
+
+<p>Nous sommes heureux de vous informer que votre candidature a été retenue et que vous avez été sélectionné pour poursuivre votre formation au sein de notre établissement.</p>
+
+<p><strong>Prochaines étapes:</strong></p>
+<ol>
+    <li>Finalisez votre inscription administrative sur la plateforme</li>
+    <li>Complétez les formalités d'inscription avant la date limite</li>
+    <li>Consultez le calendrier d'orientation et d'intégration</li>
+</ol>
+
+<p style="color: #2e7d32; font-weight: bold;">Date limite d'inscription: <strong>{{ deadline }}</strong></p>
+
+<p>Bienvenue parmi nos étudiants!</p>
+{% endblock %}

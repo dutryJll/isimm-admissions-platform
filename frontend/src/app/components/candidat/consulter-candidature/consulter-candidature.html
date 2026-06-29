@@ -1,0 +1,149 @@
+<div class="candidatures-page" [class.detail-mode]="!!selectedCandidature">
+  <div class="page-header">
+    <div>
+      <h1>{{ selectedCandidature ? 'Détail de candidature' : 'Mes Candidatures' }}</h1>
+      <p class="subtitle">
+        {{
+          selectedCandidature
+            ? 'Consultez toutes les informations de votre candidature.'
+            : 'Consultez et suivez vos candidatures déposées.'
+        }}
+      </p>
+    </div>
+    <div class="header-filters" *ngIf="!selectedCandidature">
+      <label>Spécialité</label>
+      <select [(ngModel)]="selectedSpecialite" (change)="appliquerFiltres()">
+        <option value="">Toutes</option>
+        <option *ngFor="let s of availableSpecialites" [value]="s">{{ s }}</option>
+      </select>
+    </div>
+    <div class="header-actions" *ngIf="selectedCandidature">
+      <button class="btn-ghost" (click)="retourDashboard()">Retour dashboard</button>
+    </div>
+  </div>
+
+  <section class="detail-layout" *ngIf="selectedCandidature; else listMode">
+    <article class="detail-main-card">
+      <div class="detail-banner">
+        <span class="banner-badge">Espace Detail</span>
+        <p>Suivi complet de votre candidature</p>
+      </div>
+
+      <div class="detail-top-row">
+        <span class="tag">{{ selectedCandidature.type_candidature | titlecase }}</span>
+        <span class="status-pill" [ngClass]="statusClass(selectedCandidature.statut)">
+          {{ statusLabel(selectedCandidature.statut) }}
+        </span>
+      </div>
+
+      <h2>Candidature #{{ selectedCandidature.numero || '2603-00001-GL' }}</h2>
+
+      <div class="detail-grid">
+        <div class="info-block">
+          <h3>Informations personnelles</h3>
+          <p><strong>Nom:</strong> {{ selectedCandidature.first_name || '-' }}</p>
+          <p><strong>Prénom:</strong> {{ selectedCandidature.last_name || '-' }}</p>
+          <p><strong>Email:</strong> {{ selectedCandidature.email || '-' }}</p>
+          <p><strong>CIN:</strong> {{ selectedCandidature.cin || '-' }}</p>
+        </div>
+
+        <div class="info-block">
+          <h3>Informations académiques</h3>
+          <p>
+            <strong>Formation:</strong>
+            {{ selectedCandidature.master_nom || 'Master Recherche Génie Logiciel' }}
+          </p>
+          <p><strong>Spécialité:</strong> {{ selectedCandidature.specialite || '-' }}</p>
+          <p><strong>Type:</strong> {{ selectedCandidature.type_candidature || '-' }}</p>
+          <p>
+            <strong>Date soumission:</strong>
+            {{ selectedCandidature.date_soumission | date: 'dd/MM/yyyy HH:mm' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="detail-kpis">
+        <div class="kpi-card">
+          <span>Numero</span>
+          <strong>{{ selectedCandidature.numero || '2603-00001-GL' }}</strong>
+        </div>
+        <div class="kpi-card">
+          <span>Score</span>
+          <strong>{{ selectedCandidature.score || '--' }}</strong>
+        </div>
+        <div class="kpi-card">
+          <span>Statut</span>
+          <strong>{{ statusLabel(selectedCandidature.statut) }}</strong>
+        </div>
+      </div>
+
+      <div class="rejection-block" *ngIf="selectedCandidature.motif_rejet">
+        <h3>Motif de rejet</h3>
+        <p>{{ selectedCandidature.motif_rejet }}</p>
+      </div>
+    </article>
+
+    <aside class="detail-side-card">
+      <h3>Résumé</h3>
+      <div class="score-box">
+        <span>Score</span>
+        <strong>{{ selectedCandidature.score || '--' }}</strong>
+      </div>
+      <p class="helper-text">Le statut est mis à jour automatiquement après étude de dossier.</p>
+      <button class="btn-primary" (click)="retourDashboard()">Retour au dashboard</button>
+
+      <section class="progress-card" *ngIf="progressSteps.length > 0">
+        <div class="progress-card-head">
+          <h4>Suivi des candidatures</h4>
+          <button class="history-link" (click)="retourDashboard()">Voir historique</button>
+        </div>
+
+        <div class="progress-meta">
+          <p class="progress-master">
+            {{ selectedCandidature.master_nom || 'Master Recherche Génie Logiciel' }}
+          </p>
+          <p class="progress-number">{{ selectedCandidature.numero || '2603-00001-GL' }}</p>
+        </div>
+
+        <div class="progress-list">
+          <div class="progress-item" *ngFor="let step of progressSteps; let last = last">
+            <div class="progress-rail">
+              <div class="progress-marker" [ngClass]="'state-' + step.state">
+                <span class="progress-check" *ngIf="step.state === 'done'">✓</span>
+              </div>
+              <div class="progress-connector" *ngIf="!last"></div>
+            </div>
+            <div class="progress-text">
+              <p>{{ step.label }}</p>
+              <small *ngIf="step.hint">{{ step.hint }}</small>
+            </div>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </section>
+
+  <ng-template #listMode>
+    <div class="candidatures-list" *ngIf="candidaturesFiltrees.length > 0 && !detailRequested">
+      <div *ngFor="let candidature of candidaturesFiltrees" class="candidature-card">
+        <h3>{{ candidature.first_name }} {{ candidature.last_name }}</h3>
+        <p><strong>Numéro:</strong> {{ candidature.numero || candidature.id }}</p>
+        <p><strong>Formation:</strong> {{ candidature.master_nom || '--' }}</p>
+        <p><strong>Type:</strong> {{ candidature.type_candidature }}</p>
+        <p><strong>Statut:</strong> {{ candidature.statut }}</p>
+        <p><strong>Score:</strong> {{ candidature.score || '--' }}</p>
+        <button class="btn-primary" (click)="voirDetails(candidature)">Consulter détail</button>
+      </div>
+    </div>
+
+    <div *ngIf="!detailRequested && candidaturesFiltrees.length === 0" class="empty">
+      <p>Aucune candidature</p>
+    </div>
+
+    <div *ngIf="detailRequested && selectedCandidature === null" class="empty">
+      <h3>Candidature introuvable</h3>
+      <p>Impossible de charger les détails pour cet identifiant.</p>
+      <button class="btn-primary" (click)="retourDashboard()">Retour au dashboard</button>
+    </div>
+  </ng-template>
+</div>

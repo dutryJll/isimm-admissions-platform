@@ -1,0 +1,71 @@
+<div class="engineer-exploration-page">
+  <section class="hero">
+    <h1>{{ concoursInfo.titre }}</h1>
+    <p>{{ concoursInfo.annee }}</p>
+    <p>{{ concoursInfo.autorite }}</p>
+  </section>
+
+  <section class="process-card">
+    <h2>1) Eligibilite</h2>
+    <ul>
+      <li *ngFor="let item of eligibilite">{{ item }}</li>
+    </ul>
+  </section>
+
+  <section class="cards-grid">
+    <article class="info-card">
+      <h2>2) Nombre de places</h2>
+      <h3>{{ capaciteGl.specialite }}</h3>
+      <ul>
+        <li>{{ capaciteGl.internes }}</li>
+        <li>{{ capaciteGl.externes }}</li>
+      </ul>
+    </article>
+
+    <article class="info-card">
+      <h2>3A) Calcul du score - etudiants Prepa (internes)</h2>
+      <ul>
+        <li *ngFor="let line of scoreInterne">{{ line }}</li>
+      </ul>
+    </article>
+
+    <article class="info-card">
+      <h2>3B) Calcul du score - etudiants Licence</h2>
+      <ul>
+        <li *ngFor="let line of scoreLicence">{{ line }}</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="process-card">
+    <h2>4) Dossier de candidature</h2>
+    <ol>
+      <li *ngFor="let doc of dossier">{{ doc }}</li>
+    </ol>
+  </section>
+
+  <section class="process-card">
+    <h2>5) Envoi et delais</h2>
+    <ul>
+      <li><strong>Mode:</strong> {{ envoi.mode }}</li>
+      <li><strong>Adresse:</strong> {{ envoi.adresse }}</li>
+      <li><strong>Date limite:</strong> {{ envoi.dateLimite }}</li>
+    </ul>
+  </section>
+
+  <section class="process-card">
+    <h2>Autre specialite mentionnee</h2>
+    <h3>{{ specialiteSecondaire.titre }}</h3>
+    <p>{{ specialiteSecondaire.note }}</p>
+  </section>
+
+  <div class="actions-row">
+    <a class="btn apply-btn" [routerLink]="['/candidature']" [queryParams]="{ type: 'ingenieur' }">
+      Candidater
+    </a>
+  </div>
+
+  <div class="back-link">
+    <a [routerLink]="['/']"><i class="fas fa-arrow-left"></i> Retour à l'accueil </a>
+  </div>
+</div>

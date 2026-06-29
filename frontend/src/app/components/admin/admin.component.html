@@ -1,0 +1,243 @@
+<div class="dashboard-admin-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="user-info">
+        <div class="user-avatar admin">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <div class="user-details">
+          <h2>{{ currentUser?.first_name }} {{ currentUser?.last_name }}</h2>
+          <p>{{ currentUser?.email }}</p>
+          <span class="badge-admin">
+            <i class="fas fa-crown"></i>
+            Administrateur
+          </span>
+        </div>
+      </div>
+      <button class="btn-logout" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        Déconnexion
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card users">
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Utilisateurs</h3>
+          <p class="stat-value">{{ stats.totalUsers }}</p>
+          <small>Total utilisateurs</small>
+        </div>
+      </div>
+
+      <div class="stat-card masters">
+        <div class="stat-icon">
+          <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Masters</h3>
+          <p class="stat-value">{{ stats.totalMasters }}</p>
+          <small>Masters disponibles</small>
+        </div>
+      </div>
+
+      <div class="stat-card candidatures">
+        <div class="stat-icon">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Candidatures</h3>
+          <p class="stat-value">{{ stats.totalCandidatures }}</p>
+          <small>Cette année</small>
+        </div>
+      </div>
+
+      <div class="stat-card commission">
+        <div class="stat-icon">
+          <i class="fas fa-user-tie"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Commission</h3>
+          <p class="stat-value">{{ stats.totalCommission }}</p>
+          <small>Membres actifs</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menu principal -->
+  <div class="content-section">
+    <h2 class="section-title">
+      <i class="fas fa-cogs"></i>
+      Gestion de la plateforme
+    </h2>
+
+    <div class="features-grid">
+      <div class="feature-card masters" (click)="activeSection = 'masters'">
+        <div class="feature-icon">
+          <i class="fas fa-graduation-cap"></i>
+        </div>
+        <h3>Gérer les Masters</h3>
+        <p>Ajouter, modifier ou supprimer des masters</p>
+        <div class="feature-badge">{{ stats.totalMasters }} masters</div>
+      </div>
+
+      <div class="feature-card commission" (click)="activeSection = 'commission'">
+        <div class="feature-icon">
+          <i class="fas fa-users-cog"></i>
+        </div>
+        <h3>Gérer la Commission</h3>
+        <p>Ajouter/supprimer membres et responsables</p>
+        <div class="feature-badge">{{ stats.totalCommission }} membres</div>
+      </div>
+
+      <div class="feature-card candidatures" (click)="activeSection = 'candidatures'">
+        <div class="feature-icon">
+          <i class="fas fa-file-invoice"></i>
+        </div>
+        <h3>Gérer les Candidatures</h3>
+        <p>Consulter, modifier ou supprimer</p>
+        <div class="feature-badge">{{ stats.totalCandidatures }} candidatures</div>
+      </div>
+
+      <div class="feature-card users" (click)="activeSection = 'users'">
+        <div class="feature-icon">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <h3>Gérer les Utilisateurs</h3>
+        <p>Voir tous les comptes utilisateurs</p>
+        <div class="feature-badge">{{ stats.totalUsers }} utilisateurs</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section MASTERS -->
+  <div class="management-section" *ngIf="activeSection === 'masters'">
+    <div class="section-header">
+      <h2>
+        <i class="fas fa-graduation-cap"></i>
+        Gestion des Masters
+      </h2>
+      <button class="btn-add" (click)="ouvrirModalAjouterMaster()">
+        <i class="fas fa-plus"></i>
+        Ajouter un master
+      </button>
+    </div>
+
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom du Master</th>
+            <th>Type</th>
+            <th>Places</th>
+            <th>Statut</th>
+            <th>Date limite</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let master of masters">
+            <td>#{{ master.id }}</td>
+            <td>
+              <strong>{{ master.nom }}</strong>
+            </td>
+            <td>
+              <span
+                class="badge"
+                [class.recherche]="master.type === 'recherche'"
+                [class.professionnel]="master.type === 'professionnel'"
+              >
+                {{ master.type }}
+              </span>
+            </td>
+            <td>{{ master.places }}</td>
+            <td>
+              <span
+                class="statut-badge"
+                [class.ouvert]="master.statut === 'ouvert'"
+                [class.ferme]="master.statut === 'ferme'"
+              >
+                {{ master.statut }}
+              </span>
+            </td>
+            <td>{{ master.date_limite }}</td>
+            <td>
+              <div class="actions-cell">
+                <button class="btn-icon btn-edit" (click)="editerMaster(master)">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-icon btn-delete" (click)="supprimerMaster(master)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section COMMISSION -->
+  <div class="management-section" *ngIf="activeSection === 'commission'">
+    <div class="section-header">
+      <h2>
+        <i class="fas fa-users-cog"></i>
+        Gestion de la Commission
+      </h2>
+      <button class="btn-add" (click)="ouvrirModalAjouterMembre()">
+        <i class="fas fa-user-plus"></i>
+        Ajouter un membre
+      </button>
+    </div>
+
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Date d'ajout</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let membre of membresCommission">
+            <td>
+              <strong>{{ membre.first_name }} {{ membre.last_name }}</strong>
+            </td>
+            <td>{{ membre.email }}</td>
+            <td>
+              <span
+                class="badge"
+                [class.responsable]="membre.role === 'responsable_commission'"
+                [class.membre]="membre.role === 'commission'"
+              >
+                {{ membre.role === 'responsable_commission' ? 'Responsable' : 'Membre' }}
+              </span>
+            </td>
+            <td>{{ membre.date_creation }}</td>
+            <td>
+              <div class="actions-cell">
+                <button class="btn-icon btn-edit" (click)="editerMembre(membre)">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-icon btn-delete" (click)="supprimerMembre(membre)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

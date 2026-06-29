@@ -1,0 +1,27 @@
+<div class="modal-root" *ngIf="current">
+  <div class="modal-header">
+    <h3>Dossier {{ index + 1 }} / {{ list.length }}</h3>
+    <button class="close" (click)="close()">✕</button>
+  </div>
+
+  <div class="modal-body">
+    <h4>{{ current.nom }}</h4>
+    <p><strong>Master:</strong> {{ current.master }}</p>
+    <p><strong>Score:</strong> {{ current.score }}</p>
+    <p><strong>État dossier:</strong> {{ current.etat_dossier }}</p>
+    <p><strong>Statut:</strong> {{ current.statut }}</p>
+    <div class="pieces">
+      <h5>Pièces</h5>
+      <ul>
+        <li *ngFor="let p of current.pieces">{{ p.nom }} - {{ p.statut }}</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button (click)="prev()" [disabled]="index === 0">Précédent</button>
+    <button (click)="valider()" [disabled]="loading">Valider</button>
+    <button (click)="rejeter()" [disabled]="loading">Rejeter</button>
+    <button (click)="next()" [disabled]="index >= list.length - 1">Suivant</button>
+  </div>
+</div>

@@ -1,0 +1,85 @@
+<div class="inscriptions-page">
+  <div class="inscriptions-header">
+    <div>
+      <div class="eyebrow">Commission / Inscription en ligne</div>
+      <h2>Inscriptions</h2>
+      <p>
+        Les dossiers affichés suivent la commission active et les données mockées de démonstration.
+      </p>
+    </div>
+    <div class="inscriptions-header-actions">
+      <div class="count-pill">{{ inscriptionsFiltrees.length }} dossier(s)</div>
+      <div class="export-wrap" style="position:relative">
+        <button class="btn-export" type="button" (click)="exportMenuOpen = !exportMenuOpen">
+          <i class="fas fa-download"></i> Exporter
+          <i class="fas fa-chevron-down" style="font-size:10px;margin-left:4px"></i>
+        </button>
+        <div class="export-menu" *ngIf="exportMenuOpen" (click)="$event.stopPropagation()">
+          <button class="export-item" type="button" (click)="exporterExcel(); exportMenuOpen=false">
+            <i class="fas fa-file-excel" style="color:#10b981"></i> Exporter Excel (.xlsx)
+          </button>
+          <button class="export-item" type="button" (click)="exporterPDF(); exportMenuOpen=false">
+            <i class="fas fa-file-pdf" style="color:#a32d2d"></i> Exporter PDF officiel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters-card">
+    <div class="filters-grid">
+      <div class="field">
+        <label>Recherche</label>
+        <input
+          type="text"
+          [(ngModel)]="recherche"
+          (input)="applyFilters()"
+          placeholder="Nom, email ou matricule"
+        />
+      </div>
+      <div class="field">
+        <label>Spécialité</label>
+        <select [(ngModel)]="selectedSpecialite" (change)="applyFilters()">
+          <option value="">Toutes</option>
+          <option *ngFor="let s of availableSpecialites" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Candidat</th>
+          <th>Master / Spécialité</th>
+          <th>N° Inscription</th>
+          <th>Date dépôt</th>
+          <th>Paiement</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let inscription of inscriptionsFiltrees">
+          <td>
+            <div class="candidate-name">{{ inscription.candidat }}</div>
+            <div class="candidate-mail">{{ inscription.email }}</div>
+          </td>
+          <td>{{ inscription.specialite }}</td>
+          <td>{{ inscription.matricule }}</td>
+          <td>{{ inscription.dateDepot }}</td>
+          <td>
+            <span class="status-pill" [ngClass]="getPaiementClass(inscription.paiement)">
+              {{ inscription.paiement }}</span
+            >
+          </td>
+          <td>
+            <span class="status-pill" [ngClass]="getStatusClass(inscription.statut)">
+              {{ inscription.statut }}</span
+            >
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

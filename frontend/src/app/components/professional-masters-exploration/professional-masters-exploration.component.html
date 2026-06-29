@@ -1,0 +1,99 @@
+<div class="professional-exploration-page">
+  <section class="hero">
+    <h1>Exploration des Mastères Professionnels</h1>
+    <p>
+      Cette page regroupe les informations essentielles des parcours MPGL, MPDS et MP3I pour l année
+      universitaire 2025-2026: capacités, calendrier, dossier et calcul du score.
+    </p>
+  </section>
+
+  <section class="process-card">
+    <h2>Calendrier commun</h2>
+    <ul>
+      <li>Inscription en ligne: {{ calendrierCommun.inscription }}</li>
+      <li>Annonce préselection: {{ calendrierCommun.preselection }}</li>
+      <li>Dépôt du dossier numérique: {{ calendrierCommun.depot }}</li>
+      <li>Résultats finaux: {{ calendrierCommun.resultatFinal }}</li>
+      <li>Recours: {{ calendrierCommun.recours }}</li>
+    </ul>
+  </section>
+
+  <section class="explore-toolbar">
+    <label for="search-pro-master">Recherche formation</label>
+    <input
+      id="search-pro-master"
+      type="text"
+      [(ngModel)]="recherche"
+      placeholder="Filtrer les mastères professionnels..."
+    />
+  </section>
+
+  <section class="cards-grid">
+    <article class="info-card" *ngFor="let master of mastersFiltres">
+      <h2>{{ master.titre }}</h2>
+      <p>{{ master.avis }}</p>
+
+      <h3>Capacité totale</h3>
+      <p>{{ master.capaciteTotale }} places</p>
+
+      <h3>Répartition</h3>
+      <ul>
+        <li *ngFor="let line of master.repartition">{{ line }}</li>
+      </ul>
+
+      <h3>Coefficients et critères</h3>
+      <table mat-table [dataSource]="master.criteres" class="criteria-table">
+        <ng-container matColumnDef="critere">
+          <th mat-header-cell *matHeaderCellDef>Critère</th>
+          <td mat-cell *matCellDef="let row">{{ row.critere }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="coefficient">
+          <th mat-header-cell *matHeaderCellDef>Coefficient</th>
+          <td mat-cell *matCellDef="let row">{{ row.coefficient }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="details">
+          <th mat-header-cell *matHeaderCellDef>Détails</th>
+          <td mat-cell *matCellDef="let row">{{ row.details }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+
+      <div class="actions">
+        <a
+          class="btn apply-btn"
+          [routerLink]="['/candidature']"
+          [queryParams]="{ type: 'master', parcours: master.code }"
+          >Candidater</a
+        >
+      </div>
+    </article>
+  </section>
+
+  <section class="process-card">
+    <h2>Composition du dossier numérique (PDF)</h2>
+    <ul>
+      <li *ngFor="let doc of dossierNumerique">{{ doc }}</li>
+    </ul>
+    <p>
+      Outil conseillé pour fusionner les documents:
+      <a href="https://www.pdf2go.com/fr/fusionner-pdf" target="_blank" rel="noopener noreferrer"
+        >pdf2go.com/fr/fusionner-pdf</a
+      >
+    </p>
+  </section>
+
+  <section class="process-card">
+    <h2>Remarques importantes</h2>
+    <ol>
+      <li *ngFor="let note of remarquesImportantes">{{ note }}</li>
+    </ol>
+  </section>
+
+  <div class="back-link">
+    <a [routerLink]="['/']"><i class="fas fa-arrow-left"></i> Retour à l'accueil </a>
+  </div>
+</div>

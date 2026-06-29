@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Mise à jour de votre candidature</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        color: #333;
+      }
+      .container {
+        max-width: 700px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #e6e6e6;
+        border-radius: 6px;
+      }
+      .header {
+        background: #0b5d9b;
+        color: #fff;
+        padding: 12px 16px;
+        border-radius: 4px;
+      }
+      .content {
+        margin-top: 16px;
+      }
+      .footer {
+        margin-top: 24px;
+        font-size: 13px;
+        color: #666;
+      }
+      .cta {
+        display: inline-block;
+        background: #0b5d9b;
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 4px;
+        text-decoration: none;
+      }
+      .meta {
+        background: #f7f7f7;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 12px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <strong>ISIMM Admissions — Mise à jour de candidature</strong>
+      </div>
+
+      <div class="content">
+        <p>Bonjour {{ candidat.get_full_name|default:candidat.username }},</p>
+
+        <p>
+          Nous vous informons qu'une mise à jour a été effectuée sur votre
+          candidature <strong>{{ candidature.numero }}</strong> pour la
+          formation <strong>{{ master.nom }}</strong>.
+        <p>
+          <a class="cta" href="{{ site_url|default:'https://isimm.example.com' }}">Accéder à mon espace</a>
+        </p>
+          <p>
+            <strong>Ancien statut :</strong> {{ ancien_statut|default:"-" }}
+          </p>
+          <p><strong>Nouveau statut :</strong> {{ nouveau_statut }}</p>
+        </div>
+
+        <p>{{ message }}</p>
+
+        <p>
+          Vous pouvez consulter les détails de votre dossier et les prochaines
+          étapes en vous connectant à votre espace candidat.
+        </p>
+
+        <p>
+          <a class="cta" href="{{ site_url|default:'https://isimm.example.com' }}">Accéder à mon espace</a>
+        </p>
+
+        <p class="footer">
+          Si vous avez des questions, répondez simplement à cet email ou
+          contactez le service admissions à
+          <strong>admissions@isimm.example.com</strong>.
+        </p>
+
+        <p class="footer">
+          Cordialement,<br />Le service des admissions — ISIMM
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

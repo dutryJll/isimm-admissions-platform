@@ -1,0 +1,41 @@
+.pv-root {
+  width: 100%;
+  font-family: var(--body-font);
+  color: #0f172a;
+}
+.pv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 2px solid #e2e8f0;
+}
+.pv-left img,
+.pv-right img {
+  height: 56px;
+}
+.pv-center {
+  text-align: center;
+}
+.pv-institution {
+  font-weight: 700;
+  color: #1d4e89;
+}
+.pv-title {
+  margin-top: 6px;
+  font-size: 20px;
+  color: #0f172a;
+  font-weight: 800;
+}
+.pv-body {
+  padding: 18px;
+}
+.pv-footer {
+  padding: 8px 12px;
+  border-top: 2px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #64748b;
+}

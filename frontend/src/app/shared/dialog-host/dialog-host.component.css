@@ -1,0 +1,157 @@
+/* ─── Overlay ─── */
+.dlg-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: dlg-fade 0.2s ease;
+}
+@keyframes dlg-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── Card ─── */
+.dlg-card {
+  width: 100%;
+  max-width: 440px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px -10px rgba(15, 23, 42, 0.35);
+  overflow: hidden;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  animation: dlg-pop 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+@keyframes dlg-pop {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ─── Header ─── */
+.dlg-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  position: relative;
+}
+.dlg-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  font-size: 16px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.variant-info  .dlg-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+.variant-success .dlg-icon { background: linear-gradient(135deg, #10b981, #047857); }
+.variant-warning .dlg-icon { background: linear-gradient(135deg, #f59e0b, #b45309); }
+.variant-danger .dlg-icon { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+
+.dlg-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  flex: 1;
+  line-height: 1.35;
+}
+.dlg-close {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s, color 0.15s;
+}
+.dlg-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* ─── Body ─── */
+.dlg-body {
+  padding: 16px 22px 18px;
+}
+.dlg-message {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.55;
+  margin: 0 0 12px;
+  white-space: pre-wrap;
+}
+.dlg-input,
+.dlg-select {
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #0f172a;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.dlg-input:focus,
+.dlg-select:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* ─── Footer ─── */
+.dlg-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 22px 20px;
+  background: #fafbfc;
+  border-top: 1px solid #f1f5f9;
+}
+.dlg-btn {
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s, transform 0.1s;
+}
+.dlg-btn:active {
+  transform: scale(0.97);
+}
+.dlg-btn-cancel {
+  background: #f1f5f9;
+  color: #475569;
+}
+.dlg-btn-cancel:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+.dlg-btn-ok {
+  background: #2563eb;
+  color: #fff;
+}
+.dlg-btn-ok:hover {
+  background: #1d4ed8;
+}
+.dlg-btn-danger {
+  background: #ef4444 !important;
+}
+.dlg-btn-danger:hover {
+  background: #b91c1c !important;
+}

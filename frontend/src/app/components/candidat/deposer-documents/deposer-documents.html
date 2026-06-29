@@ -1,0 +1,138 @@
+<div class="upload-dossier">
+  <header class="upload-dossier__header">
+    <div class="upload-dossier__header-content">
+      <button class="upload-dossier__back" [routerLink]="['/candidat/dashboard']" type="button">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div>
+        <h1 class="upload-dossier__title">Déposer mes documents</h1>
+        <p class="upload-dossier__subtitle">
+          Téléchargez les pièces requises pour votre candidature
+        </p>
+      </div>
+      <div
+        class="upload-dossier__specialite"
+        *ngIf="availableSpecialites && availableSpecialites.length"
+      >
+        <label>Spécialité</label>
+        <select [(ngModel)]="selectedSpecialite">
+          <option value="">Toutes</option>
+          <option *ngFor="let s of availableSpecialites" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <section class="upload-dossier__progress-card">
+    <div class="upload-dossier__progress-head">
+      <h3>Progression du dossier</h3>
+      <span>{{ nbObligatoiresDeposees }}/{{ nbObligatoires }} pièces obligatoires</span>
+    </div>
+    <mat-progress-bar
+      mode="determinate"
+      [value]="(nbObligatoiresDeposees / nbObligatoires) * 100"
+    ></mat-progress-bar>
+  </section>
+
+  <main class="upload-dossier__content">
+    <!-- ── PARTIE A : boucle sur les 6 pièces officielles ── -->
+    <article class="upload-dossier__card" *ngFor="let piece of pieces">
+      <div class="upload-dossier__card-head">
+        <div class="upload-dossier__icon" [ngClass]="piece.iconClass">
+          <i [class]="piece.icon"></i>
+        </div>
+        <div class="upload-dossier__meta">
+          <h3>
+            {{ piece.titre }}
+            <span class="upload-dossier__badge-opt" *ngIf="!piece.obligatoire">Optionnel</span>
+            <span class="upload-dossier__badge-req" *ngIf="piece.obligatoire">Obligatoire</span>
+          </h3>
+          <p>{{ piece.description }}</p>
+        </div>
+        <div class="upload-dossier__status" *ngIf="hasFile(piece.key)">
+          <i class="fas fa-check-circle"></i>
+        </div>
+      </div>
+
+      <!-- Zone de dépôt -->
+      <div class="upload-dossier__drop" *ngIf="!hasFile(piece.key)" (click)="fileInput.click()">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Cliquez pour ajouter un fichier</p>
+        <input
+          #fileInput
+          type="file"
+          [accept]="piece.accept"
+          (change)="onFileSelected($event, piece)"
+          hidden
+        />
+      </div>
+
+      <!-- PARTIE B : message d'erreur de validation -->
+      <div class="upload-dossier__error" *ngIf="fileErrors[piece.key]">
+        <i class="fas fa-triangle-exclamation"></i>
+        {{ fileErrors[piece.key] }}
+      </div>
+
+      <!-- Aperçu du fichier déposé -->
+      <div
+        class="upload-dossier__preview"
+        *ngIf="hasFile(piece.key) && previewFor(piece.key) as preview"
+      >
+        <img
+          *ngIf="preview.isImage && preview.previewUrl"
+          [src]="preview.previewUrl"
+          [alt]="'Aperçu ' + piece.titre"
+          class="upload-dossier__thumb"
+        />
+        <div class="upload-dossier__file-icon" *ngIf="!preview.isImage">
+          <i class="fas fa-file-pdf"></i>
+        </div>
+        <div class="upload-dossier__file">
+          <strong>{{ preview.fileName }}</strong>
+          <small>{{ preview.fileSize }} - {{ preview.mimeType }}</small>
+          <div class="upload-dossier__file-progress">
+            <mat-progress-bar
+              mode="determinate"
+              [value]="progressFor(piece.key)"
+            ></mat-progress-bar>
+            <span>{{ progressFor(piece.key) }}%</span>
+          </div>
+        </div>
+        <button class="upload-dossier__remove" (click)="removeFile(piece.key)" type="button">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </article>
+
+    <section class="upload-dossier__submit">
+      <button
+        class="upload-dossier__submit-btn"
+        (click)="soumettre()"
+        [disabled]="!toutesObligatoiresPresentes || isSubmitting"
+        type="button"
+      >
+        <i class="fas fa-check"></i>
+        Soumettre le dossier
+      </button>
+
+      <p class="upload-dossier__hint" *ngIf="!toutesObligatoiresPresentes">
+        Veuillez déposer toutes les pièces obligatoires
+        ({{ nbObligatoires - nbObligatoiresDeposees }} restante(s))
+      </p>
+
+      <div class="upload-dossier__submit-progress" *ngIf="isSubmitting">
+        <div class="upload-dossier__submit-progress-head">
+          <strong>{{ uploadStepLabel }}</strong>
+          <span>{{ submitProgress }}%</span>
+        </div>
+        <div class="upload-dossier__progress-track upload-dossier__progress-track--submit">
+          <mat-progress-bar
+            mode="determinate"
+            [value]="submitProgress"
+            class="upload-dossier__progress-value--submit"
+          ></mat-progress-bar>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>

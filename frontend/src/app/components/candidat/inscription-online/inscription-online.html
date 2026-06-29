@@ -1,0 +1,164 @@
+<div class="inscription-page">
+  <!-- Header -->
+  <div class="inscription-header">
+    <button class="btn-back" routerLink="/candidat/dashboard">
+      <i class="fas fa-arrow-left"></i> Retour
+    </button>
+    <h1>Inscription en ligne</h1>
+    <p>Complétez votre processus d'inscription pour finaliser votre admission</p>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement en cours...</p>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading && candidature" class="inscription-content">
+    <!-- Stepper -->
+    <div class="stepper-container">
+      <div class="stepper">
+        <div *ngFor="let step of steps; let i = index" class="step" [class]="getStepClass(step.id)">
+          <div class="step-circle">{{ step.id }}</div>
+          <div class="step-label">{{ step.label }}</div>
+
+          <!-- Connector -->
+          <div *ngIf="i < steps.length - 1" class="step-connector" [class.completed]="step.id < currentStep"></div>
+        </div>
+      </div>
+
+      <!-- Step Description -->
+      <div class="step-description">
+        <p>{{ getStepDescription(currentStep) }}</p>
+      </div>
+    </div>
+
+    <!-- Candidate Info -->
+    <div class="candidate-info-card">
+      <div class="card-header">
+        <span><i class="fas fa-user"></i> Informations du candidat</span>
+
+        <div class="card-header-actions">
+          <!-- PARTIE C : bouton consulter le dossier -->
+          <button class="btn-consulter" (click)="consulterDossier(candidature)" type="button">
+            <i class="fas fa-folder-open"></i> Consulter le dossier complet
+          </button>
+
+          <!-- PARTIE C : menu kebab -->
+          <div class="kebab-menu">
+          <button class="kebab-btn" (click)="toggleKebab(candidature.id, $event)" type="button">
+            <i class="fas fa-ellipsis-vertical"></i>
+          </button>
+          <div class="kebab-dropdown" *ngIf="kebabOuvert === candidature.id">
+            <button class="kebab-item" (click)="consulterDossier(candidature)" type="button">
+              <i class="fas fa-folder-open"></i> Consulter le dossier complet
+            </button>
+            <button class="kebab-item" (click)="telechargerRecu(candidature)" type="button">
+              <i class="fas fa-download"></i> Télécharger le reçu
+            </button>
+          </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="info-row">
+          <span class="label">Candidat:</span>
+          <span class="value">{{ candidature.candidat_prenom }} {{ candidature.candidat_nom }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Numéro de candidature:</span>
+          <span class="value">{{ candidature.numero }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Master:</span>
+          <span class="value">{{ candidature.master_nom }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Statut d'inscription:</span>
+          <span class="value badge" [class.badge-pending]="currentStep < 4" [class.badge-success]="currentStep === 4">
+            {{ candidature.statut_inscription_label }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Section -->
+    <div *ngIf="currentStep === 2" class="form-section">
+      <div class="form-card">
+        <div class="form-header">
+          <i class="fas fa-pen-fancy"></i> Saisie du numéro d'inscription
+        </div>
+
+        <div class="form-body">
+          <div class="form-group">
+            <label for="numeroInscription">Numéro d'inscription universitaire *</label>
+            <input
+              id="numeroInscription"
+              type="text"
+              [(ngModel)]="numeroInscription"
+              placeholder="Ex: 20241234567"
+              class="form-input"
+              [disabled]="submitting"
+            />
+            <small class="form-help">
+              Vous pouvez trouver ce numéro dans votre espace universitaire
+            </small>
+          </div>
+
+          <!-- Error / Success Messages -->
+          <div *ngIf="errorMessage" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+          </div>
+          <div *ngIf="successMessage" class="alert alert-success">
+            <i class="fas fa-check-circle"></i> {{ successMessage }}
+          </div>
+
+          <!-- Submit Button -->
+          <div class="form-actions">
+            <button
+              class="btn-submit"
+              (click)="saisirNumero()"
+              [disabled]="submitting || !numeroInscription.trim()"
+            >
+              <i class="fas" [class.fa-spinner]="submitting" [class.fa-spin]="submitting" [class.fa-arrow-right]="!submitting"></i>
+              {{ submitting ? 'Enregistrement...' : 'Enregistrer et continuer' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Waiting Step -->
+    <div *ngIf="currentStep === 3" class="waiting-section">
+      <div class="waiting-card">
+        <div class="waiting-icon">
+        </div>
+        <h3>En attente de vérification</h3>
+        <p>Votre numéro d'inscription a été enregistré avec succès.</p>
+        <p>Le responsable d'admission doit maintenant vérifier votre numéro avant la confirmation.</p>
+        <p class="waiting-note">Vous recevrez un email de confirmation dès la vérification.</p>
+      </div>
+    </div>
+
+    <!-- Confirmed Step -->
+    <div *ngIf="currentStep === 4" class="confirmed-section">
+      <div class="confirmed-card">
+        <div class="confirmed-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h3>Inscription confirmée</h3>
+        <p>Félicitations! Votre inscription a été confirmée.</p>
+        <div class="confirmed-number">
+          <span class="label">Numéro d'inscription confirmé:</span>
+          <span class="number">{{ candidature.numero_inscription }}</span>
+        </div>
+        <div class="confirmed-actions">
+          <button class="btn-back-home" routerLink="/candidat/dashboard">
+            <i class="fas fa-home"></i> Retourner à l'accueil
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

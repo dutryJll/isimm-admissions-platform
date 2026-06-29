@@ -1,0 +1,535 @@
+<div class="page" (click)="closeExp($event)">
+  <!-- stat cards -->
+  <div class="stat-row">
+    <div class="scard">
+      <div class="sicon si-blue">
+        <i class="fas fa-file-alt"></i>
+      </div>
+      <div>
+        <div class="snum">{{ candidatures.length }}</div>
+        <div class="slbl">Total candidats</div>
+      </div>
+    </div>
+    <div class="scard">
+      <div class="sicon si-teal">
+        <i class="fas fa-users"></i>
+      </div>
+      <div>
+        <div class="snum">{{ getInternalCount() }}</div>
+        <div class="slbl">Candidats internes</div>
+      </div>
+    </div>
+    <div class="scard">
+      <div class="sicon si-amber">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div>
+        <div class="snum">{{ getAverageScore().toFixed(2) }}</div>
+        <div class="slbl">Moyenne des scores</div>
+      </div>
+    </div>
+    <div class="scard">
+      <div class="sicon si-purple">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div>
+        <div class="snum">{{ getPreselectedCount() }}</div>
+        <div class="slbl">Présélectionnés</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- quota -->
+  <div class="quota-card">
+    <div class="quota-top">
+      <div class="quota-lbl">Quota de présélection</div>
+      <div class="quota-nums">
+        <strong>{{ getPreselectedCount() }}</strong> / 20 places
+      </div>
+    </div>
+    <div class="qtrack">
+      <div class="qfill" [style.width.%]="(getPreselectedCount() / 20) * 100"></div>
+    </div>
+    <div class="qhint">Sélectionnez des candidats pour remplir le quota</div>
+  </div>
+
+  <div class="avis-global-card">
+    <div class="avis-global-head">
+      <div>
+        <h3>Réponses des membres (Avis global)</h3>
+        <p *ngIf="!globalAvisLoading && globalAvisSummary">
+          {{ globalAvisSummary.completed_count }} / {{ globalAvisSummary.total_members }} reçus -
+          Favorables: {{ globalAvisSummary.favorables }} - Défavorables:
+          {{ globalAvisSummary.defavorables }}
+        </p>
+      </div>
+      <div class="avis-global-actions">
+        <button class="btn btn-teal" (click)="loadCommissionGlobalAvisSummary()">Actualiser</button>
+        <button
+          class="btn btn-primary"
+          [disabled]="finalDecisionApplying || preselectionLocked"
+          (click)="openFinalDecisionModal()"
+        >
+          {{ finalDecisionApplying ? 'Application...' : 'Décision Finale' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="avis-global-wait" *ngIf="globalAvisLoading">Chargement des avis globaux...</div>
+    <div class="avis-global-wait" *ngIf="!globalAvisLoading && !globalAvisResponses.length">
+      Aucune réponse globale pour la commission active.
+    </div>
+
+    <div class="avis-global-table" *ngIf="!globalAvisLoading && globalAvisResponses.length">
+      <table>
+        <thead>
+          <tr>
+            <th>Membre</th>
+            <th>Email</th>
+            <th>Statut</th>
+            <th>Commentaire</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of globalAvisResponses">
+            <td>{{ row.membre_name }}</td>
+            <td>{{ row.membre_email }}</td>
+            <td>
+              <span
+                class="badge"
+                [ngClass]="
+                  row.statut === 'favorable'
+                    ? 'b-admis'
+                    : row.statut === 'defavorable'
+                      ? 'b-exam'
+                      : 'b-nonlu'
+                "
+              >
+                {{ row.statut }}
+              </span>
+            </td>
+            <td>{{ row.commentaire || '-' }}</td>
+            <td>{{ row.date_avis ? (row.date_avis | date: 'dd/MM/yyyy HH:mm') : '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- filtres -->
+  <div class="filter-card">
+    <div class="fg">
+      <div>
+        <div class="flbl">Recherche globale</div>
+        <input
+          type="text"
+          class="finput"
+          placeholder="Nom, email, CIN, spécialité..."
+          (input)="filterByName($event)"
+        />
+      </div>
+      <div>
+        <div class="flbl">Score minimum</div>
+        <input type="number" class="finput" placeholder="Score min..." (change)="applyFilter()" />
+      </div>
+      <div>
+        <div class="flbl">Score maximum</div>
+        <input type="number" class="finput" placeholder="Score max..." (change)="applyFilter()" />
+      </div>
+    </div>
+    <div class="fg2">
+      <div>
+        <div class="flbl">Statut</div>
+        <select class="finput">
+          <option value="">Tous</option>
+          <option value="preselectionne">Présélectionné</option>
+          <option value="sous_examen">Sous examen</option>
+        </select>
+      </div>
+      <div>
+        <label class="check-lbl">
+          <input type="checkbox" (change)="toggleTop100()" />
+          <span>Top 100 seulement</span>
+        </label>
+      </div>
+    </div>
+    <div class="fg">
+      <div>
+        <div class="flbl">Spécialité</div>
+        <select
+          class="finput"
+          *ngIf="availableSpecialites && availableSpecialites.length > 0"
+          [(ngModel)]="selectedSpecialite"
+          (change)="applyFilter()"
+        >
+          <option value="">Toutes les spécialités</option>
+          <option *ngFor="let s of availableSpecialites" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-row3">
+      <button class="btn btn-primary" (click)="resetAll()">Réinitialiser</button>
+      <label class="check-lbl">
+        <span>Seuil validation:</span>
+        <input
+          type="number"
+          class="seuil-input"
+          [(ngModel)]="validationScoreThreshold"
+          min="0"
+          max="20"
+          step="0.5"
+        />
+      </label>
+    </div>
+  </div>
+
+  <!-- selection bar -->
+  <div class="sel-bar" id="sel-bar" [style.display]="selectedIds.length > 0 ? 'flex' : 'none'">
+    <div class="sel-bar-left">
+      <div class="sel-count">
+        <i class="fas fa-check-double"></i>
+        <span id="sel-count-txt"
+          >{{ selectedIds.length }} candidat{{ selectedIds.length > 1 ? 's' : '' }} sélectionné{{
+            selectedIds.length > 1 ? 's' : ''
+          }}</span
+        >
+      </div>
+      <div class="seuil-row">
+        <span>Seuil minimum:</span>
+        <input
+          type="number"
+          class="seuil-input"
+          [(ngModel)]="validationScoreThreshold"
+          min="0"
+          max="20"
+          step="0.5"
+        />
+      </div>
+    </div>
+    <div class="sel-bar-right">
+      <button class="btn btn-primary" (click)="validateSelection()">Valider la sélection</button>
+      <button class="btn btn-teal" (click)="fullAutoValidate()">Tous valider</button>
+      <button class="btn btn-info" (click)="marquerLus()">Marquer comme lus</button>
+      <div class="exp-wrap">
+        <button class="btn btn-sec" (click)="toggleExp($event)">Export...</button>
+        <div class="exp-menu" id="exp-menu">
+          <button class="exp-item" (click)="telechargerZIP()">
+            <i class="fas fa-file-archive"></i>
+            <span>Télécharger ZIP</span>
+          </button>
+          <button class="exp-item" (click)="exportExcel()">
+            <i class="fas fa-file-excel"></i>
+            <span>Exporter Excel</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- table -->
+  <div class="table-wrap">
+    <div class="table-hdr">
+      <div class="tbl-title">
+        Candidatures <span id="tbl-cnt">({{ candidatures.length }})</span>
+      </div>
+    </div>
+    <div style="overflow-x: auto">
+      <table class="preselection-table">
+        <colgroup>
+          <col style="width: 42px" />
+          <col style="width: 70px" />
+          <col style="width: 100px" />
+          <col style="width: 24%" />
+          <col style="width: 22%" />
+          <col style="width: 14%" />
+          <col style="width: 12%" />
+          <col style="width: 12%" />
+          <col style="width: 12%" />
+          <col style="width: 110px" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="check-all" (change)="toggleAll($event)" /></th>
+            <th>Rang</th>
+            <th>Numéro</th>
+            <th>Nom</th>
+            <th>Spécialité</th>
+            <th>Score</th>
+            <th>Statut</th>
+            <th>Avis Membres</th>
+            <th>Décision</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr
+            *ngFor="let c of filtered; let i = index"
+            [class.selected]="isSelected(c.id)"
+            [class.lu]="c.lu"
+          >
+            <td>
+              <input
+                type="checkbox"
+                [checked]="isSelected(c.id)"
+                (change)="toggleRow(c.id, $event)"
+              />
+            </td>
+            <td>{{ i + 1 }}</td>
+            <td>{{ c.numero || '-' }}</td>
+            <td>{{ c.nom_complet || c.candidat_nom }}</td>
+            <td>{{ c.specialite || '-' }}</td>
+            <td>
+              <div class="score-wrap">
+                <div class="score-val">{{ c.score || '-' }}</div>
+                <div class="score-bar" *ngIf="c.score">
+                  <div
+                    class="score-fill"
+                    [ngClass]="getScoreClass(c.score)"
+                    [style.width.%]="getScorePct(c.score)"
+                  ></div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="getBadgeClass(c.decision_preselection)">{{
+                getStatusLabel(c.decision_preselection)
+              }}</span>
+            </td>
+            <td>
+              <button class="btn btn-info" (click)="openAvisModal(c)">Voir avis</button>
+            </td>
+            <td>{{ c.decision_finale_responsable || '-' }}</td>
+            <td>
+              <button class="btn btn-primary" (click)="quickValidate(c)">Valider</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pag-row">
+      <div class="pag-info" id="pag-info">
+        Affichage 1–{{ candidatures.length }} sur {{ candidatures.length }}
+      </div>
+      <div class="pag-btns">
+        <button class="pag-btn">&lt;</button>
+        <button class="pag-btn active">1</button>
+        <button class="pag-btn">&gt;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal"
+  *ngIf="finalDecisionModalOpen"
+  style="
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 120;
+  "
+  (click)="closeFinalDecisionModal()"
+>
+  <div
+    class="modal-content"
+    style="
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      width: 90%;
+      max-width: 560px;
+      max-height: 80vh;
+      overflow-y: auto;
+    "
+    (click)="$event.stopPropagation()"
+  >
+    <h3 style="margin-bottom: 12px; color: #185fa5">Confirmer la décision finale</h3>
+    <p style="margin-bottom: 10px; color: #334155">
+      Cette action applique la décision collégiale sur le Top 100, clôture la session active,
+      verrouille les modifications et prépare l'export final.
+    </p>
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px">
+      <button class="btn btn-sec" (click)="closeFinalDecisionModal()">Annuler</button>
+      <button class="btn btn-primary" (click)="applyFinalDecisionTop100()">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- floating counter -->
+<div class="float-ctr" id="float-ctr" [class.show]="selectedIds.length > 0">
+  <i class="fas fa-check-circle"></i>
+  <span id="float-txt"
+    >{{ selectedIds.length }} candidat{{ selectedIds.length > 1 ? 's' : '' }} sélectionné{{
+      selectedIds.length > 1 ? 's' : ''
+    }}
+    pour consultation</span
+  >
+</div>
+
+<!-- toast -->
+<div class="toast" id="toast" [class.show]="false">
+  <i class="fas fa-info-circle"></i>
+  <span id="toast-txt"></span>
+</div>
+
+<!-- ════ CAROUSEL ════ -->
+<div class="carousel-overlay" id="carousel" [class.open]="showCarousel">
+  <div class="car-topbar">
+    <div class="car-tb-left">
+      <div class="car-tb-title" id="car-title">Consultation des dossiers</div>
+      <div class="car-tb-sub" id="car-subtitle">Mode lecture rapide</div>
+    </div>
+    <div class="car-tb-right">
+      <button class="car-close" (click)="closeCarousel()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="car-body">
+    <div class="car-sidebar">
+      <div class="car-sidebar-title">Candidats</div>
+      <div
+        class="car-nav-item"
+        *ngFor="let c of selectedIds; let j = index"
+        [class.active]="carIdx === j"
+        (click)="setCarIdx(j)"
+      >
+        <div class="car-nav-num">{{ j + 1 }}</div>
+        <div class="car-nav-name">{{ c }}</div>
+        <div class="car-nav-score">{{ c }}</div>
+      </div>
+    </div>
+
+    <div class="car-main" *ngIf="carIdx >= 0 && carIdx < selectedIds.length">
+      <!-- Affichera le contenu du dossier sélectionné -->
+      <div class="car-card">
+        <div class="car-card-title">Informations personnelles</div>
+        <div class="car-hero">
+          <div class="car-avatar">FA</div>
+          <div>
+            <div class="car-name">Fatma Gharbi</div>
+            <div class="car-sub">Master Data Science</div>
+          </div>
+          <div class="car-score-pill">17.2 pts</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="car-nav-btns">
+    <button class="car-btn" (click)="carPrev()" [disabled]="carIdx === 0">← Précédent</button>
+    <div class="car-pos" id="car-pos">Position 1 / {{ selectedIds.length }}</div>
+    <button class="car-btn" (click)="carNext()" [disabled]="carIdx >= selectedIds.length - 1">
+      Suivant →
+    </button>
+  </div>
+</div>
+
+<!-- Modal Avis Membres -->
+<div
+  class="modal"
+  *ngIf="showResponsableModal"
+  style="
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  "
+>
+  <div
+    class="modal-content"
+    style="
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+    "
+  >
+    <h3 style="margin-bottom: 16px; color: #185fa5">
+      Avis pour {{ modalCandidature?.nom_complet || modalCandidature?.candidat_nom }}
+    </h3>
+
+    <div *ngIf="avisStatsLoading" style="text-align: center; padding: 24px">Chargement...</div>
+    <div *ngIf="!avisStatsLoading">
+      <div
+        class="kpi"
+        style="background: #e6f1fb; padding: 12px; border-radius: 8px; margin-bottom: 16px"
+      >
+        <strong style="color: #185fa5; font-size: 18px">{{ avisStats?.favorables || 0 }}</strong>
+        <span style="color: #666"> favorables / </span>
+        <strong style="color: #185fa5; font-size: 18px">{{ avisStats?.total || 0 }}</strong>
+        <div
+          class="progress-bar"
+          style="
+            margin-top: 8px;
+            height: 8px;
+            background: #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+          "
+        >
+          <div
+            class="progress"
+            [style.width.%]="avisStats?.pourcentage_favorable || 0"
+            style="background: #1d9e75; height: 100%"
+          ></div>
+        </div>
+      </div>
+
+      <ul class="avis-list" style="list-style: none; padding: 0; margin: 16px 0">
+        <li *ngFor="let a of avisList" style="padding: 12px 0; border-bottom: 1px solid #eee">
+          <strong>{{ a.membre_name }}</strong>
+          <span
+            class="badge"
+            [class.ok]="a.avis"
+            [class.nok]="!a.avis"
+            style="margin-left: 8px; padding: 4px 12px; border-radius: 12px; font-size: 11px"
+          >
+            {{ a.avis ? 'Favorable' : 'Défavorable' }}
+          </span>
+          <div class="argument" style="margin-top: 8px; color: #666; font-size: 12px">
+            {{ a.argument || "Pas d'argument" }}
+          </div>
+        </li>
+      </ul>
+
+      <div
+        class="decision-row"
+        style="display: flex; gap: 8px; align-items: center; margin-top: 16px; flex-wrap: wrap"
+      >
+        <label style="font-weight: 500">Décision finale:</label>
+        <select
+          [(ngModel)]="modalDecision"
+          style="padding: 8px; border: 1px solid #ddd; border-radius: 6px"
+        >
+          <option value="en_attente">En attente</option>
+          <option value="valide">Validé</option>
+          <option value="rejete">Rejeté</option>
+        </select>
+        <button class="btn btn-primary" (click)="saveDecision()" style="padding: 8px 16px">
+          Enregistrer
+        </button>
+        <button class="btn btn-teal" (click)="sendReminder()" style="padding: 8px 16px">
+          Rappeler
+        </button>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 16px">
+        <button class="btn btn-sec" (click)="closeResponsableModal()" style="padding: 8px 16px">
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

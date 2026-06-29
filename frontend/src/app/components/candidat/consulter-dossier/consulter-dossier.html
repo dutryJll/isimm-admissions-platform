@@ -1,0 +1,16 @@
+<div class="consulter-dossier">
+  <h2>Mon Dossier</h2>
+
+  <div *ngIf="!isDossierUnlocked">
+    <p>Entrez votre mot de passe :</p>
+    <input type="password" [(ngModel)]="verificationPassword" />
+    <button (click)="verifyIdentity()">Déverrouiller</button>
+    <p *ngIf="verificationError">{{ verificationError }}</p>
+  </div>
+
+  <div *ngIf="isDossierUnlocked">
+    <p>✅ CIN : {{ hasDocument('cin') ? 'Déposé' : 'Non déposé' }}</p>
+    <p>✅ Relevés : {{ hasDocument('releves') ? 'Déposé' : 'Non déposé' }}</p>
+    <button [routerLink]="['/candidat/dossier/deposer']">Déposer documents</button>
+  </div>
+</div>

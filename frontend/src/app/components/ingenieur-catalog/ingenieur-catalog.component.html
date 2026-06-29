@@ -1,0 +1,39 @@
+<div class="ingenieur-catalog-page">
+  <section class="hero">
+    <p class="kicker">Catalogue concours 2025-2026</p>
+    <h1>Cycle Ingénieur disponible</h1>
+    <p>
+      Consultez les informations officielles du concours ingenieur puis choisissez l'action la plus
+      adaptee: exploration complete ou candidature directe.
+    </p>
+  </section>
+
+
+  <section class="cards-grid">
+    <article class="catalog-card">
+      <div class="card-icon"><i class="fas fa-cogs"></i></div>
+      <p class="card-tag">Cycle ingenieur</p>
+      <h2>Parcours Ingénieur</h2>
+      <p class="card-desc">
+        Genie Logiciel et specialite mentionnee Electronique/Microelectronique.
+      </p>
+      <ul class="feature-list">
+        <li>Capacité Génie Logiciel: 52 internes + 13 externes</li>
+        <li>Admission selon règlement du concours</li>
+      </ul>
+      <div class="actions">
+        <a class="btn primary" [routerLink]="['/ingenieur/disponibles']">Explorer</a>
+        <a
+          class="btn secondary"
+          [routerLink]="['/candidature']"
+          [queryParams]="{ type: 'ingénieur' }"
+          >Candidater</a
+        >
+      </div>
+    </article>
+  </section>
+
+  <div class="back-link">
+    <a [routerLink]="['/']"><i class="fas fa-arrow-left"></i> Retour à l'accueil</a>
+  </div>
+</div>

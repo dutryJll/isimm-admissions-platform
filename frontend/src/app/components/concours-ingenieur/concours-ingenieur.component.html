@@ -1,0 +1,130 @@
+<div class="concours-page">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1>Concours National d'Accès au Cycle d'Ingénieur</h1>
+      <p>Rejoignez l'élite de l'ingénierie tunisienne</p>
+      <a
+        [routerLink]="['/choisir-candidature']"
+        [queryParams]="{ type: 'ingenieur' }"
+        class="btn-hero"
+      >
+        Candidater maintenant
+      </a>
+    </div>
+  </div>
+
+  <!-- Informations générales -->
+  <section class="info-section">
+    <div class="container">
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-icon">🎓</div>
+          <h3>Durée</h3>
+          <p>3 ans (6 semestres)</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">📚</div>
+          <h3>Diplôme</h3>
+          <p>Diplôme d'Ingénieur</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">📅</div>
+          <h3>Public</h3>
+          <p>Titulaires d'une Licence</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">💼</div>
+          <h3>Débouchés</h3>
+          <p>Ingénieur certifié CTI</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Spécialités -->
+  <section class="specialites-section">
+    <div class="container">
+      <h2 class="section-title">Spécialités disponibles</h2>
+      <div class="specialites-grid">
+        <div class="specialite-card" *ngFor="let spec of specialites">
+          <div class="specialite-icon">{{ spec.icon }}</div>
+          <h3>{{ spec.nom }}</h3>
+          <p class="specialite-desc">{{ spec.description }}</p>
+
+          <div class="matieres-list">
+            <h4>Matières principales</h4>
+            <ul>
+              <li *ngFor="let matiere of spec.matieres">{{ matiere }}</li>
+            </ul>
+          </div>
+
+          <div class="debouches">
+            <strong>Débouchés :</strong>
+            <p>{{ spec.debouches }}</p>
+          </div>
+
+          <a
+            [routerLink]="['/candidature']"
+            [queryParams]="{ type: 'ingenieur', specialite: spec.id }"
+            class="btn-specialite"
+          >
+            Choisir cette spécialité →
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Processus de sélection -->
+  <section class="processus-section">
+    <div class="container">
+      <h2 class="section-title">Processus de sélection</h2>
+      <div class="timeline">
+        <div class="timeline-item" *ngFor="let etape of processus">
+          <div class="timeline-number">{{ etape.etape }}</div>
+          <div class="timeline-content">
+            <h3>{{ etape.titre }}</h3>
+            <p>{{ etape.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Critères d'évaluation -->
+  <section class="criteres-section">
+    <div class="container">
+      <h2 class="section-title">Critères d'évaluation</h2>
+      <div class="criteres-grid">
+        <div class="critere-card" *ngFor="let critere of criteres">
+          <div class="critere-poids">{{ critere.poids }}</div>
+          <h3>{{ critere.nom }}</h3>
+          <p>{{ critere.description }}</p>
+        </div>
+      </div>
+      <div class="score-info">
+        <p>
+          📊 <strong>Score final</strong> = (Moyenne Bac × 0.5) + (Dossier × 0.3) + (Entretien ×
+          0.2)
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Final -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Prêt à rejoindre l'ISIMM ?</h2>
+      <p>Déposez votre candidature dès maintenant</p>
+      <a [routerLink]="['/candidature']" [queryParams]="{ type: 'ingenieur' }" class="btn-cta">
+        Candidater au Cycle Ingénieur
+      </a>
+    </div>
+  </section>
+
+  <!-- Retour -->
+  <div class="back-link">
+    <a [routerLink]="['/']">← Retour à l'accueil</a>
+  </div>
+</div>

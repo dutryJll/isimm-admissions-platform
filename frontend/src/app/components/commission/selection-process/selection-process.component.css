@@ -1,0 +1,16 @@
+/* Minimal dev styles for selection-process component */
+:host {
+  display: block;
+}
+
+.table-responsive {
+  overflow: visible !important;
+}
+
+.table-responsive table {
+  overflow: visible !important;
+}
+
+.actions-dropdown-menu button:hover {
+  background: #f8fafc;
+}

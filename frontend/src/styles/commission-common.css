@@ -1,0 +1,196 @@
+/* Shared commission styles extracted from decision-collegiale */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.page {
+  font-family: var(--body-font, 'Segoe UI', sans-serif);
+  color: #0f172a;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+/* ... (only include key shared rules to keep file concise) */
+
+.stat-card {
+  background: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.candidat-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: all 0.3s;
+}
+
+.btn-action {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s;
+}
+
+.btn-export {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+.btn-print {
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  color: white;
+}
+.btn-global-avis {
+  background: linear-gradient(135deg, #185fa5, #0f4f8c);
+  color: white;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 5rem 2rem;
+  color: #94a3b8;
+}
+
+.save-section {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 100;
+}
+
+.btn-save-avis {
+  padding: 1.5rem 3rem;
+  background: linear-gradient(135deg, #e85d04, #f59e0b);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+:root {
+  --primary: #185fa5;
+  --primary-600: #1050a0;
+  --accent: #1d9e75;
+  --muted: #64748b;
+  --bg: #ffffff;
+  --panel-bg: #f8fbff;
+  --card-radius: 12px;
+  --card-radius-large: 18px;
+  --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.06);
+  --text-primary: #123e68;
+}
+
+/* Modern table container used across commission pages */
+.modern-table-container {
+  width: 100%;
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 0.6rem;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(219, 234, 254, 0.92);
+}
+
+/* Treat each candidate row as a wide card */
+.modern-row {
+  width: 100%;
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.modern-row .primary-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  text-transform: none;
+}
+
+.status-admis {
+  background: #d1fae5;
+  color: #065f46;
+}
+.status-refuse {
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+.status-attente {
+  background: #dbeafe;
+  color: #0c2d6b;
+}
+
+/* Right aligned action group using circular hover */
+.row-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.row-actions .action-icon {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition:
+    background 0.2s,
+    transform 0.12s;
+  color: var(--primary);
+}
+
+.row-actions .action-icon:hover {
+  background: rgba(24, 95, 165, 0.08);
+  transform: translateY(-3px);
+}
+
+/* Ensure tables span full width and rows appear separated */
+.wide-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+}
+
+.wide-table tbody tr {
+  background: var(--bg);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+}
+
+.wide-table td,
+.wide-table th {
+  background: transparent;
+  padding: 20px;
+  vertical-align: middle;
+}

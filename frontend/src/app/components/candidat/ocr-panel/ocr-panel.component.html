@@ -1,0 +1,83 @@
+<div class="ocr-panel">
+  <!-- Header -->
+  <div class="ocr-header">
+    <div class="ocr-icon">📄</div>
+    <div>
+      <div class="ocr-title">Analyse OCR — Relevé de Notes</div>
+      <div class="ocr-subtitle">Extraction automatique de la moyenne + détection d'écarts</div>
+    </div>
+  </div>
+
+  <!-- Zone upload -->
+  <div class="ocr-upload-zone" *ngIf="!ocrResult">
+    <label class="ocr-file-label">
+      <input type="file" accept=".pdf,.jpg,.jpeg,.png" (change)="onFileSelected($event)" />
+      ⬆ {{ selectedFileName || 'Choisir le PDF du candidat' }}
+    </label>
+  </div>
+
+  <!-- Bouton analyser -->
+  <button class="ocr-btn-analyser" [disabled]="ocrEnCours || !selectedFile" (click)="analyserOCR()">
+    <span *ngIf="!ocrEnCours">🔍 Analyser le document</span>
+    <span *ngIf="ocrEnCours">⏳ Analyse en cours...</span>
+  </button>
+
+  <!-- Résultats -->
+  <div *ngIf="ocrResult" class="ocr-results">
+    <!-- Grille stats -->
+    <div class="ocr-result-grid">
+      <div class="ocr-stat">
+        <div class="ocr-stat-label">Score Extrait</div>
+        <div class="ocr-stat-value">{{ ocrResult.score_extrait ?? '—' }}</div>
+      </div>
+
+      <div class="ocr-stat">
+        <div class="ocr-stat-label">Score Déclaré</div>
+        <div class="ocr-stat-value">{{ ocrResult.score_declare ?? '—' }}</div>
+      </div>
+
+      <div class="ocr-stat">
+        <div class="ocr-stat-label">Écart</div>
+        <div class="ocr-stat-value" [ngClass]="ocrResult.ecart <= 0.5 ? 'ecart-ok' : 'ecart-ko'">
+          {{ ocrResult.ecart ?? '—' }}
+        </div>
+      </div>
+
+      <div class="ocr-stat">
+        <div class="ocr-stat-label">Confiance</div>
+        <div class="ocr-stat-value" [ngClass]="ocrResult.confiance >= 85 ? 'conf-high' : ''">
+          {{ ocrResult.confiance }}%
+        </div>
+      </div>
+    </div>
+
+    <!-- Verdict conforme -->
+    <div class="ocr-verdict" *ngIf="ocrResult.statut === 'conforme'">
+      <div class="verdict-icon">✅</div>
+      <div>
+        <div class="verdict-title">Concordance vérifiée</div>
+        <div class="verdict-text">Validation automatique — données cohérentes</div>
+      </div>
+    </div>
+
+    <!-- Verdict suspect -->
+    <div class="ocr-verdict suspect" *ngIf="ocrResult.statut === 'incoherence'">
+      <div class="verdict-icon">⚠️</div>
+      <div>
+        <div class="verdict-title">Dossier Suspect</div>
+        <div class="verdict-text">{{ ocrResult.alerte }}</div>
+      </div>
+    </div>
+
+    <!-- Preview texte -->
+    <div class="ocr-preview">
+      <details>
+        <summary>Voir le texte OCR extrait</summary>
+        <pre>{{ ocrResult.texte_extrait }}</pre>
+      </details>
+    </div>
+
+    <!-- Reset -->
+    <button class="ocr-btn-reset" (click)="reset()">🔄 Réinitialiser</button>
+  </div>
+</div>

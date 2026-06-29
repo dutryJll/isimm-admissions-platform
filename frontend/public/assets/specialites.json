@@ -1,0 +1,62 @@
+{
+  "programs": {
+    "Master DS": {
+      "full_name": "Mastère Professionnel en Sciences de Données",
+      "type": "master",
+      "specialties": [
+        "Licence en Mathématiques Appliquées (ou équivalent)",
+        "Licence en Sciences de l'Informatique spécialité Génie Logiciel et Systèmes d'Information (ou équivalent)",
+        "Licence en Informatique de Gestion"
+      ]
+    },
+    "Master 3I": {
+      "full_name": "Mastère Professionnel en Ingénieries en Instrumentation Industrielle",
+      "type": "master",
+      "specialties": [
+        "Licence en Électronique, Électrotechnique et Automatique (MIM)",
+        "Licence en Électronique, Électrotechnique et Automatique (SE)",
+        "Licence en Technologies de l'Information et de la Communication (TIC)",
+        "Licence en Mesures et Instrumentation",
+        "Licence en EEA (Spécialité Automatique et Informatique Industrielle ou Mesures et Métrologie)",
+        "Licence en Génie Électrique (Spécialité Automatique et Informatique Industrielle)"
+      ]
+    },
+    "Master MRGL": {
+      "full_name": "Mastère Recherche en Génie Logiciel",
+      "type": "master",
+      "specialties": [
+        "Licence en Informatique",
+        "Maîtrise en Informatique",
+        "Licence en Informatique ou Informatique de Gestion",
+        "Maîtrise en Informatique ou Informatique de Gestion"
+      ]
+    },
+    "Master REMI": {
+      "full_name": "Mastère Recherche en Micro-électronique et Instrumentation",
+      "type": "master",
+      "specialties": [
+        "Licence en EEA, MIM (Électronique, Systèmes Embarqués, Métrologie) ou TIC (Réseaux et IoT)",
+        "Licence en Électronique, Automatique ou Mesures et Instrumentation",
+        "Réussite en 1ère année du cycle ingénieur (Électronique/Instrumentation) ou équivalent"
+      ]
+    },
+    "Ingénieur ISAT": {
+      "full_name": "Ingénieur en Sciences Appliquées et Technologie - Génie Logiciel",
+      "type": "ingenieur",
+      "specialties": [
+        "Génie Logiciel (Informatique)",
+        "Licence en Informatique",
+        "Licence en Informatique de Gestion"
+      ]
+    }
+  },
+  "master_specialties_legacy": {
+    "Master GL": ["Génie Logiciel", "Systèmes Embarqués"],
+    "Master DS": ["Data Science", "Big Data"],
+    "Master 3I": ["Informatique Industrielle et Intelligente"]
+  },
+  "ingenieur_specialties_legacy": {
+    "GT": ["Génie Télécommunication", "Réseaux"],
+    "GC": ["Génie Civil"]
+  }
+}

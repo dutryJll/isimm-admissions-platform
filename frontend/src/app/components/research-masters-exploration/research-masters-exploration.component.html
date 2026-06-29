@@ -1,0 +1,108 @@
+<div class="research-exploration-page">
+  <section class="hero">
+    <h1>Exploration des Mastères Recherche disponibles</h1>
+    <p>
+      Cette page présente uniquement les informations essentielles pour comparer rapidement les
+      mastères recherche. Les détails complets restent dans les pages d offre.
+    </p>
+  </section>
+
+  <section class="explore-toolbar">
+    <label for="search-master">Recherche formation</label>
+    <input
+      id="search-master"
+      type="text"
+      [(ngModel)]="recherche"
+      placeholder="Rechercher un master, un critère, un score..."
+    />
+  </section>
+
+  <section class="cards-grid" *ngIf="!masterSelectionne">
+    <article class="info-card" *ngFor="let master of mastersFiltres">
+      <h2>{{ master.titre }}</h2>
+      <h3>Calendrier essentiel</h3>
+      <ul>
+        <li>Inscription en ligne: {{ master.inscription }}</li>
+        <li>Résultats préliminaires: {{ master.resultatsPreliminaires }}</li>
+        <li>Dépôt numérique: {{ master.depotNumerique }}</li>
+        <li>Résultats finaux: {{ master.resultatsFinaux }}</li>
+      </ul>
+
+      <h3>Capacité</h3>
+      <ul>
+        <li *ngFor="let cap of master.capacite">{{ cap }}</li>
+      </ul>
+
+      <h3>Score (résumé)</h3>
+      <p>{{ master.resumeScore }}</p>
+
+      <div class="actions">
+        <button class="btn detail-btn" type="button" (click)="afficherDetails(master.code)">
+          Voir détails et critères
+        </button>
+      </div>
+    </article>
+  </section>
+
+  <section class="master-detail" *ngIf="masterSelectionne as selectedMaster">
+    <button type="button" class="btn return-list-btn" (click)="retourListe()">
+      Retour à la liste
+    </button>
+
+    <article class="info-card detail-card">
+      <h2>{{ selectedMaster.titre }}</h2>
+
+      <h3>Calendrier essentiel</h3>
+      <ul>
+        <li>Inscription en ligne: {{ selectedMaster.inscription }}</li>
+        <li>Résultats préliminaires: {{ selectedMaster.resultatsPreliminaires }}</li>
+        <li>Dépôt numérique: {{ selectedMaster.depotNumerique }}</li>
+        <li>Résultats finaux: {{ selectedMaster.resultatsFinaux }}</li>
+      </ul>
+
+      <h3>Coefficients et critères d'évaluation</h3>
+      <table mat-table [dataSource]="selectedMaster.criteres" class="criteria-table">
+        <ng-container matColumnDef="critere">
+          <th mat-header-cell *matHeaderCellDef>Critère</th>
+          <td mat-cell *matCellDef="let row">{{ row.critere }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="coefficient">
+          <th mat-header-cell *matHeaderCellDef>Coefficient</th>
+          <td mat-cell *matCellDef="let row">{{ row.coefficient }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="details">
+          <th mat-header-cell *matHeaderCellDef>Détails</th>
+          <td mat-cell *matCellDef="let row">{{ row.details }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+
+      <div class="actions">
+        <a
+          class="btn apply-btn"
+          [routerLink]="['/candidature']"
+          [queryParams]="{ type: 'master', parcours: selectedMaster.code }"
+          >Candidater</a
+        >
+      </div>
+    </article>
+  </section>
+
+  <section class="process-card">
+    <h2>Procédure simplifiée (commune)</h2>
+    <ol>
+      <li>Inscription en ligne dans les délais.</li>
+      <li>Classement préliminaire selon score.</li>
+      <li>Dépôt du dossier numérique pour les pré-admis.</li>
+      <li>Publication de la liste finale.</li>
+    </ol>
+  </section>
+
+  <div class="back-link">
+    <a [routerLink]="['/']"><i class="fas fa-arrow-left"></i> Retour à l'accueil </a>
+  </div>
+</div>

@@ -1,0 +1,119 @@
+<div class="login-page">
+  <!-- SÉLECTEUR DE LANGUE -->
+  <div class="language-selector-wrapper">
+    <app-language-selector></app-language-selector>
+  </div>
+
+  <!-- LOGOS EN COINS -->
+  <div class="logo-corner logo-top-left">
+    <img [src]="isimmLogoSrc" (error)="onIsimmLogoError()" alt="ISIMM" class="corner-logo" />
+  </div>
+
+  <div class="logo-corner logo-top-right">
+    <img
+      [src]="universiteLogoSrc"
+      (error)="onUniversiteLogoError()"
+      alt="Université de Monastir"
+      class="corner-logo"
+    />
+  </div>
+
+  <!-- CONTENU PRINCIPAL -->
+  <div class="main-container">
+    <!-- BOUTON RETOUR -->
+    <button class="btn-retour" (click)="retourAccueil()">
+      <i class="fas fa-arrow-left"></i>
+      <span>{{ 'login.back' | translate }}</span>
+    </button>
+
+    <!-- CARTE PRINCIPALE -->
+    <div class="welcome-card">
+      <!-- EN-TÊTE -->
+      <div class="card-header">
+        <div class="header-icon">
+          <i class="fas fa-graduation-cap"></i>
+        </div>
+        <h1 class="main-title">{{ 'login.title' | translate }}</h1>
+        <h2 class="sub-title">{{ 'login.subtitle' | translate }}</h2>
+      </div>
+
+      <!-- ESPACES -->
+      <div class="espaces-grid">
+        <!-- ESPACE CANDIDAT -->
+        <div class="espace-card candidat" (click)="goToEspace('candidat')">
+          <div class="espace-header">
+            <div class="espace-icon">
+              <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="espace-badge">{{ 'login.candidate.badge' | translate }}</div>
+          </div>
+          <div class="espace-body">
+            <h3>{{ 'login.candidate.title' | translate }}</h3>
+            <p>{{ 'login.candidate.desc' | translate }}</p>
+          </div>
+          <div class="espace-footer">
+            <span class="btn-access">{{ 'login.access' | translate }}</span>
+            <i class="fas fa-arrow-right"></i>
+          </div>
+        </div>
+
+        <!-- ESPACE COMMISSION -->
+        <div class="espace-card commission" (click)="goToEspace('commission')">
+          <div class="espace-header">
+            <div class="espace-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="espace-badge">{{ 'login.commission.badge' | translate }}</div>
+          </div>
+          <div class="espace-body">
+            <h3>{{ 'login.commission.title' | translate }}</h3>
+            <p>{{ 'login.commission.desc' | translate }}</p>
+          </div>
+          <div class="espace-footer">
+            <span class="btn-access">{{ 'login.access' | translate }}</span>
+            <i class="fas fa-arrow-right"></i>
+          </div>
+        </div>
+
+        <!-- ESPACE ADMIN -->
+        <div class="espace-card admin" (click)="goToEspace('admin')">
+          <div class="espace-header">
+            <div class="espace-icon">
+              <i class="fas fa-cog"></i>
+            </div>
+            <div class="espace-badge">{{ 'login.admin.badge' | translate }}</div>
+          </div>
+          <div class="espace-body">
+            <h3>{{ 'login.admin.title' | translate }}</h3>
+            <p>{{ 'login.admin.desc' | translate }}</p>
+          </div>
+          <div class="espace-footer">
+            <span class="btn-access">{{ 'login.access' | translate }}</span>
+            <i class="fas fa-arrow-right"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="card-footer">
+        <p class="footer-text">
+          © 2026 ISIMM - Institut Supérieur d'Informatique et de Mathématiques de Monastir
+        </p>
+        <div class="footer-links">
+          <a href="#">{{ 'login.help' | translate }}</a>
+          <span>•</span>
+          <a href="#">{{ 'login.contact' | translate }}</a>
+          <span>•</span>
+          <a href="#">{{ 'login.privacy' | translate }}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARRIÈRE-PLAN DÉCORATIF -->
+  <div class="background-decoration">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+    <div class="circle circle-3"></div>
+  </div>
+</div>

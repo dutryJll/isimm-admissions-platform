@@ -1,0 +1,212 @@
+.global-app-shell {
+  min-height: 100vh;
+  background: #f5f8fc;
+}
+
+.global-header {
+  position: sticky;
+  top: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, #ffffff, #f7f9fb);
+  border-bottom: 1px solid #e6eef6;
+}
+.global-commission {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.global-commission select {
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #d1e3f0;
+  background: #fff;
+}
+.global-actions {
+  display: flex;
+  align-items: center;
+}
+
+.profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #0f172a;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+.profile-name {
+  font-size: 14px;
+  color: #0f172a;
+}
+.profile-menu {
+  position: absolute;
+  right: 12px;
+  top: 56px;
+  background: #fff;
+  border: 1px solid #e6eef6;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 1300;
+}
+.menu-item {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.menu-item:hover {
+  background: #f1f8ff;
+}
+.my-commissions-panel {
+  position: absolute;
+  right: 12px;
+  top: 120px;
+  width: 320px;
+  max-height: 420px;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #e6eef6;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  padding: 12px;
+  z-index: 1400;
+}
+.my-commissions-panel h4 {
+  margin: 0 0 8px 0;
+}
+.my-commissions-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.my-commissions-panel li {
+  padding: 8px 6px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.my-commissions-panel li:hover {
+  background: #f8fbff;
+}
+.my-commissions-panel li .active {
+  font-weight: 700;
+  color: #0f172a;
+}
+.panel-actions {
+  margin-top: 8px;
+  text-align: right;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-1px);
+}
+
+body.theme-dark .theme-toggle {
+  background: rgba(15, 23, 42, 0.94);
+  color: #e2e8f0;
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+/* New top navbar shared style (Candidate & Admin) */
+.top-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1250;
+  height: 64px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  gap: 12px;
+}
+
+.top-navbar-left .top-title {
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.top-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.top-navbar .profile-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.top-navbar .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #0f172a;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.top-navbar .profile-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+.top-navbar .profile-name {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 600;
+}
+.top-navbar .profile-role {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ws indicator small green dot */
+.top-navbar .ws-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #94a3b8; /* default muted */
+  display: inline-block;
+  margin-left: 6px;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.06);
+}
+.top-navbar .ws-indicator.online {
+  background: #10b981;
+}
+
+/* keep header contents from pushing page when fixed */
+.main-content {
+  padding-top: 0;
+}

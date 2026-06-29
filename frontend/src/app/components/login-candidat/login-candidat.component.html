@@ -1,0 +1,63 @@
+<div class="login-candidat-page">
+  <button class="btn-back" (click)="goBack()">← {{ 'login.candidat.back' | translate }}</button>
+
+  <div class="login-card">
+    <div class="header-mark">{{ 'login.candidat.mark' | translate }}</div>
+    <div class="header-icon" aria-hidden="true">
+      <i class="fas fa-user-graduate"></i>
+    </div>
+    <h2>{{ 'login.candidat.title' | translate }}</h2>
+    <p class="subtitle">{{ 'login.candidat.subtitle' | translate }}</p>
+
+    <div class="entry-hints">
+      <span>{{ 'login.candidat.hint.track' | translate }}</span>
+      <span>{{ 'login.candidat.hint.docs' | translate }}</span>
+      <span>{{ 'login.candidat.hint.claims' | translate }}</span>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage | translate }}
+    </div>
+
+    <form (ngSubmit)="onLogin()">
+      <div class="form-group">
+        <label>{{ 'login.candidat.email.label' | translate }}</label>
+        <input
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          [placeholder]="'login.candidat.email.placeholder' | translate"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'login.candidat.password.label' | translate }}</label>
+        <input
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          [placeholder]="'login.candidat.password.placeholder' | translate"
+          required
+        />
+      </div>
+
+      <a routerLink="/forgot-password" class="forgot-link">{{
+        'login.candidat.forgot' | translate
+      }}</a>
+
+      <button type="submit" class="btn-login" [disabled]="isLoading">
+        {{
+          isLoading ? ('login.candidat.loading' | translate) : ('login.candidat.submit' | translate)
+        }}
+      </button>
+    </form>
+
+    <div class="no-account">
+      <p>{{ 'login.candidat.noapply' | translate }}</p>
+      <button class="btn-postuler" (click)="goToPostulation()">
+        {{ 'login.candidat.postuler' | translate }}
+      </button>
+    </div>
+  </div>
+</div>

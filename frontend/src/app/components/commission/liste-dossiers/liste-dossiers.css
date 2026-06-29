@@ -1,0 +1,15 @@
+.liste-dossiers-page {
+  padding: 1rem;
+}
+
+.dossiers-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dossiers-table th,
+.dossiers-table td {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  text-align: left;
+}

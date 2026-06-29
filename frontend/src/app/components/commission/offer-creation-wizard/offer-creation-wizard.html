@@ -1,0 +1,262 @@
+<div class="wizard-container">
+  <!-- Header -->
+  <div class="wizard-header">
+    <h1>🎓 Créer une Offre de Préinscription</h1>
+    <p>Remplissez les 3 étapes pour configurer votre offre</p>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <span>✅ {{ successMessage }}</span>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-error">
+    <span>❌ {{ errorMessage }}</span>
+  </div>
+
+  <!-- Step Indicator -->
+  <div class="step-indicator">
+    <button
+      *ngFor="let step of [1, 2, 3]"
+      [class.active]="currentStep === step"
+      [class.completed]="step < currentStep"
+      (click)="goToStep(step)"
+      class="step-button"
+      [disabled]="step > currentStep"
+    >
+      <span class="step-number">{{ step }}</span>
+      <span class="step-label" [ngSwitch]="step">
+        <span *ngSwitchCase="1">Informations</span>
+        <span *ngSwitchCase="2">Calendrier</span>
+        <span *ngSwitchCase="3">Quotas</span>
+      </span>
+    </button>
+  </div>
+
+  <!-- Form -->
+  <form [formGroup]="wizardForm" class="wizard-form">
+    <!-- Step 1: Informations -->
+    <div *ngIf="currentStep === 1" class="form-step">
+      <h2>📝 Étape 1 : Informations de l'Offre</h2>
+
+      <div class="form-group">
+        <label>Titre de l'offre *</label>
+        <input
+          type="text"
+          formControlName="titre"
+          placeholder="Ex: Master Professionnel en Data Science"
+          class="form-control"
+          [class.is-invalid]="isFieldInvalid('titre')"
+        />
+        <small class="error-text" *ngIf="isFieldInvalid('titre')">
+          {{ getFieldError('titre') }}
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label>Description *</label>
+        <textarea
+          formControlName="description"
+          placeholder="Décrivez le contenu et les objectifs de cette formation..."
+          class="form-control"
+          rows="4"
+          [class.is-invalid]="isFieldInvalid('description')"
+        ></textarea>
+        <small class="error-text" *ngIf="isFieldInvalid('description')">
+          {{ getFieldError('description') }}
+        </small>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Type de formation *</label>
+          <select formControlName="typeFormation" class="form-control">
+            <option *ngFor="let option of typeFormationOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Sous-type *</label>
+          <select formControlName="soustype" class="form-control">
+            <option *ngFor="let option of sousTypeOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Spécialité *</label>
+          <select formControlName="specialite" class="form-control">
+            <option value="">Sélectionner</option>
+            <option *ngFor="let spec of specialiteOptions" [value]="spec">
+              {{ spec }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Calendrier -->
+    <div *ngIf="currentStep === 2" class="form-step">
+      <h2>📅 Étape 2 : Calendrier</h2>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Date de début de visibilité *</label>
+          <input
+            type="date"
+            formControlName="dateDebut"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('dateDebut')"
+          />
+          <small class="error-text" *ngIf="isFieldInvalid('dateDebut')">
+            {{ getFieldError('dateDebut') }}
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Date de fin de visibilité *</label>
+          <input
+            type="date"
+            formControlName="dateFin"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('dateFin')"
+          />
+          <small class="error-text" *ngIf="isFieldInvalid('dateFin')">
+            {{ getFieldError('dateFin') }}
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Date limite de préinscription *</label>
+          <input
+            type="date"
+            formControlName="dateLimitePre"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('dateLimitePre')"
+          />
+          <small class="error-text" *ngIf="isFieldInvalid('dateLimitePre')">
+            {{ getFieldError('dateLimitePre') }}
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Date limite de dépôt de dossier</label>
+          <input
+            type="date"
+            formControlName="dateLimiteDep"
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Date limite de paiement</label>
+          <input
+            type="date"
+            formControlName="dateLimitePaiement"
+            class="form-control"
+          />
+        </div>
+      </div>
+
+      <div class="info-box">
+        <strong>ℹ️ Info:</strong> Seule la date limite de préinscription est obligatoire. Les autres dates peuvent être laissées vides si elles ne s'appliquent pas.
+      </div>
+    </div>
+
+    <!-- Step 3: Quotas -->
+    <div *ngIf="currentStep === 3" class="form-step">
+      <h2>📊 Étape 3 : Quotas et Capacités</h2>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Capacité d'accueil total *</label>
+          <input
+            type="number"
+            formControlName="capaciteAccueil"
+            min="1"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('capaciteAccueil')"
+          />
+          <small class="error-text" *ngIf="isFieldInvalid('capaciteAccueil')">
+            {{ getFieldError('capaciteAccueil') }}
+          </small>
+          <small>Nombre de places disponibles pour cette formation</small>
+        </div>
+
+        <div class="form-group">
+          <label>Capacité liste d'attente</label>
+          <input
+            type="number"
+            formControlName="capaciteListeAttente"
+            min="0"
+            class="form-control"
+          />
+          <small>Nombre de places en liste d'attente (par défaut: 50)</small>
+        </div>
+
+        <div class="form-group">
+          <label>Places réservées internes</label>
+          <input
+            type="number"
+            formControlName="capaciteInterne"
+            min="0"
+            class="form-control"
+          />
+          <small>Places réservées aux étudiants internes ISIMM</small>
+        </div>
+
+        <div class="form-group">
+          <label>Places réservées externes</label>
+          <input
+            type="number"
+            formControlName="capaciteExterne"
+            min="0"
+            class="form-control"
+          />
+          <small>Places réservées aux candidats externes</small>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <strong>💡 Conseil:</strong> La somme des places internes et externes doit être ≤ à la capacité d'accueil total.
+      </div>
+    </div>
+  </form>
+
+  <!-- Navigation Buttons -->
+  <div class="wizard-footer">
+    <button
+      (click)="prevStep()"
+      [disabled]="currentStep === 1"
+      class="btn btn-secondary"
+    >
+      ← Étape précédente
+    </button>
+
+    <div class="progress-info">
+      Étape {{ currentStep }} / {{ totalSteps }}
+    </div>
+
+    <button
+      *ngIf="currentStep < totalSteps"
+      (click)="nextStep()"
+      class="btn btn-primary"
+    >
+      Étape suivante →
+    </button>
+
+    <button
+      *ngIf="currentStep === totalSteps"
+      (click)="onSubmit()"
+      [disabled]="isSubmitting || !wizardForm.valid"
+      class="btn btn-success"
+    >
+      <span *ngIf="!isSubmitting">✓ {{ isEditing ? 'Mettre à jour' : 'Créer l\'offre' }}</span>
+      <span *ngIf="isSubmitting">⏳ Sauvegarde...</span>
+    </button>
+  </div>
+</div>

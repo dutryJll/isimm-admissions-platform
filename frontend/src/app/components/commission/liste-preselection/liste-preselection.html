@@ -1,0 +1,397 @@
+<div class="liste-preselection-page page" (click)="onPageClick()">
+  <div class="main-container">
+    <section class="header-section">
+      <div class="hero-card">
+        <div class="header-content">
+          <button class="btn-back" [routerLink]="['/commission/dashboard']" aria-label="Retour">
+            <i class="fas fa-arrow-left"></i>
+          </button>
+          <div class="hero-title-block">
+            <div class="eyebrow">Commission / Présélection</div>
+            <h1><i class="fas fa-layer-group"></i><span>Liste de Présélection</span></h1>
+            <p>Consulter et donner votre avis sur les candidats postulés</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-icon"><i class="fas fa-calendar"></i></div>
+          <div>
+            <span class="info-label">Session</span>
+            <span class="info-value">2026 - {{ currentCommissionType }}</span>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon"><i class="fas fa-users"></i></div>
+          <div>
+            <span class="info-label">Total candidats</span>
+            <span class="info-value">{{ totalItems }}</span>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon"><i class="fas fa-chart-line"></i></div>
+          <div>
+            <span class="info-label">Score moyen</span>
+            <span class="info-value">{{ averageScore | number: '1.2-2' }}</span>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon"><i class="fas fa-check-circle"></i></div>
+          <div>
+            <span class="info-label">Présélectionnés</span>
+            <span class="info-value">{{ preselectionCount }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="toolbar-card">
+      <div class="toolbar-row">
+        <div class="filter-field">
+          <label>Session</label>
+          <select class="form-control" [ngModel]="sessionText" disabled>
+            <option>{{ sessionText }}</option>
+          </select>
+        </div>
+
+        <div class="filter-field filter-field--search">
+          <label>Recherche</label>
+          <input
+            class="form-control"
+            type="text"
+            [(ngModel)]="searchQuery"
+            (input)="onFilterChange()"
+            placeholder="Nom ou N° Candidature"
+          />
+        </div>
+
+        <div class="filter-field">
+          <label>Spécialité demandée</label>
+          <select class="form-control" [(ngModel)]="selectedSpecialite" (change)="onFilterChange()">
+            <option value="">Toutes les spécialités</option>
+            <option *ngFor="let speciality of availableSpecialites" [value]="speciality">
+              {{ speciality }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label>Type candidature</label>
+          <select class="form-control" [(ngModel)]="selectedType" (change)="onFilterChange()">
+            <option value="all">Tous</option>
+            <option value="interne">Interne</option>
+            <option value="externe">Externe</option>
+          </select>
+        </div>
+
+        <div class="filter-field filter-field--score">
+          <label>Score Min</label>
+          <input
+            class="form-control"
+            type="number"
+            min="0"
+            max="20"
+            step="0.01"
+            [(ngModel)]="scoreMin"
+            (input)="onFilterChange()"
+          />
+        </div>
+
+        <div class="filter-field filter-field--score">
+          <label>Score Max</label>
+          <input
+            class="form-control"
+            type="number"
+            min="0"
+            max="20"
+            step="0.01"
+            [(ngModel)]="scoreMax"
+            (input)="onFilterChange()"
+          />
+        </div>
+
+        <div class="filter-actions">
+          <button class="btn btn-sec" type="button" (click)="reinitialiserFiltres()">
+            Réinitialiser
+          </button>
+        </div>
+      </div>
+
+      <div class="toolbar-bottom-row">
+        <button class="btn btn-action btn-export" type="button" (click)="exporterExcel()">
+          <i class="fas fa-file-excel"></i>
+          <span>Exporter Excel</span>
+        </button>
+        <button class="btn btn-action btn-print" type="button" (click)="openGlobalAvisModal()">
+          <i class="fas fa-print"></i>
+          <span>Imprimer Liste</span>
+        </button>
+        <button
+          class="btn btn-action btn-global-avis"
+          type="button"
+          (click)="openGlobalAvisModal()"
+        >
+          <i class="fas fa-paper-plane"></i>
+          <span>Donner Avis</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="listing-panel">
+      <div class="table-head-row">
+        <h2>Liste des Candidats Postulés</h2>
+      </div>
+
+      <div class="table-wrap">
+        <table class="listing-table">
+          <thead>
+            <tr>
+              <th style="width: 36px">
+                <input
+                  type="checkbox"
+                  [checked]="isAllPageSelected()"
+                  (change)="toggleAll($event)"
+                />
+              </th>
+              <th>Numéro Candidature</th>
+              <th>Nom & Prénom</th>
+              <th>Spécialité Demandée</th>
+              <th>Score</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let candidat of paginatedCandidats">
+              <td>
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(candidat.id)"
+                  (change)="toggleSelect(candidat.id, $event)"
+                />
+              </td>
+              <td>{{ candidat.numeroCandidature }}</td>
+              <td>{{ candidat.firstName }} {{ candidat.lastName }}</td>
+              <td>{{ candidat.specialiteDemandee }}</td>
+              <td>{{ candidat.score | number: '1.2-2' }}</td>
+              <td>
+                <span class="status-pill" [ngClass]="getStatusClass(candidat.statut)">
+                  {{ candidat.statut }}
+                </span>
+              </td>
+              <td>
+                <div class="action-menu-container">
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    style="margin-right: 8px"
+                    (click)="ouvrirAvisCandidat(candidat)"
+                  >
+                    Donner avis
+                  </button>
+                  <button
+                    class="kebab-btn"
+                    type="button"
+                    aria-label="Actions"
+                    (click)="$event.stopPropagation(); toggleActionMenu(candidat.id, $event)"
+                  >
+                    <i class="fas fa-ellipsis-v"></i>
+                  </button>
+                  <div
+                    class="action-menu"
+                    *ngIf="actionMenuOpenId === candidat.id"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <button type="button" class="menu-item" (click)="voirDossier(candidat)">
+                      <i class="fas fa-folder-open"></i>
+                      <span>Consulter</span>
+                    </button>
+                    <button type="button" class="menu-item" (click)="ouvrirAvisCandidat(candidat)">
+                      <i class="fas fa-pen-to-square"></i>
+                      <span>Donner avis</span>
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pag-row">
+        <div class="pag-info" id="pag-info">{{ paginationInfoText }}</div>
+        <div class="pag-btns">
+          <button class="pag-btn" (click)="changePage(-1)">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path d="M6 2L4 5l2 3"></path>
+            </svg>
+          </button>
+          <button class="pag-btn" [class.active]="currentPage === 1" (click)="goToPage(1)">
+            1
+          </button>
+          <button class="pag-btn" [class.active]="currentPage === 2" (click)="goToPage(2)">
+            2
+          </button>
+          <button class="pag-btn" [class.active]="currentPage === 3" (click)="goToPage(3)">
+            3
+          </button>
+          <span style="font-size: 12px; color: gray; padding: 0 4px">...</span>
+          <button
+            class="pag-btn"
+            [class.active]="currentPage === totalPages"
+            (click)="goToPage(totalPages)"
+          >
+            {{ totalPages }}
+          </button>
+          <button class="pag-btn" (click)="changePage(1)">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path d="M4 2l2 3-2 3"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-root" *ngIf="dossierModalOpen" (click)="closeDossierModal()">
+    <div class="modal-md" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Détails du Candidat</h3>
+        <button class="close" type="button" (click)="closeDossierModal()">✕</button>
+      </div>
+      <div class="modal-body" *ngIf="dossierModalCandidate as c">
+        <p><strong>Numéro:</strong> {{ c.numeroCandidature }}</p>
+        <p><strong>Nom:</strong> {{ c.firstName }} {{ c.lastName }}</p>
+        <p><strong>Spécialité:</strong> {{ c.specialiteDemandee }}</p>
+        <p><strong>Score:</strong> {{ c.score | number: '1.2-2' }}</p>
+        <p><strong>Statut:</strong> {{ c.statut }}</p>
+      </div>
+      <div class="modal-footer">
+        <button
+          class="btn"
+          type="button"
+          (click)="prevBulkDossier()"
+          [disabled]="selectedIds.length <= 1 || bulkDossierIndex <= 0"
+        >
+          Précédent
+        </button>
+        <button
+          class="btn"
+          type="button"
+          (click)="nextBulkDossier()"
+          [disabled]="selectedIds.length <= 1 || bulkDossierIndex >= selectedIds.length - 1"
+        >
+          Suivant
+        </button>
+        <button class="btn" type="button" (click)="closeDossierModal()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="avis-modal-backdrop" *ngIf="avisModalOpen" (click)="closeAvisModal()">
+    <div class="avis-modal" (click)="$event.stopPropagation()">
+      <div class="avis-modal-header">
+        <h3>Donner avis</h3>
+        <button class="avis-modal-close" type="button" (click)="closeAvisModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <p class="avis-modal-subtitle" *ngIf="avisCandidate as c">
+        {{ c.firstName }} {{ c.lastName }}
+      </p>
+
+      <div class="global-avis-choices">
+        <label>
+          <input type="radio" name="candidateStatut" value="favorable" [(ngModel)]="avisStatut" />
+          Favorable
+        </label>
+        <label>
+          <input type="radio" name="candidateStatut" value="defavorable" [(ngModel)]="avisStatut" />
+          Défavorable
+        </label>
+      </div>
+
+      <textarea
+        class="form-control"
+        rows="4"
+        [(ngModel)]="avisCommentaire"
+        placeholder="Commentaire..."
+        [required]="avisStatut === 'defavorable'"
+      ></textarea>
+
+      <div class="global-avis-actions">
+        <button class="btn btn-sec" type="button" (click)="closeAvisModal()">Annuler</button>
+        <button class="btn btn-primary" type="button" (click)="saveAvis()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="avis-modal-backdrop" *ngIf="showGlobalAvisModal" (click)="closeGlobalAvisModal()">
+    <div class="avis-modal" (click)="$event.stopPropagation()">
+      <div class="avis-modal-header">
+        <h3>Donner avis global</h3>
+        <button class="avis-modal-close" type="button" (click)="closeGlobalAvisModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <p class="avis-modal-subtitle">
+        {{ globalAvisSummary?.favorables || 0 }} favorables /
+        {{ globalAvisSummary?.defavorables || 0 }} défavorables sur
+        {{ globalAvisSummary?.total || 0 }} candidats visibles
+      </p>
+
+      <div class="global-avis-choices">
+        <label>
+          <input
+            type="radio"
+            name="globalAvisStatut"
+            value="favorable"
+            [(ngModel)]="globalAvisStatut"
+          />
+          Favorable
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="globalAvisStatut"
+            value="defavorable"
+            [(ngModel)]="globalAvisStatut"
+          />
+          Défavorable
+        </label>
+      </div>
+
+      <textarea
+        class="form-control"
+        rows="4"
+        [(ngModel)]="globalAvisCommentaire"
+        placeholder="Commentaire global..."
+        [required]="globalAvisStatut === 'defavorable'"
+      ></textarea>
+
+      <div class="global-avis-actions">
+        <button class="btn btn-sec" type="button" (click)="closeGlobalAvisModal()">Annuler</button>
+        <button class="btn btn-primary" type="button" (click)="submitGlobalAvis()">
+          Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

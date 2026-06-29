@@ -1,0 +1,131 @@
+<div class="register-container">
+  <div class="register-card">
+    <div class="register-header">
+      <h1>ISIMM</h1>
+      <p>Plateforme d'Admission</p>
+    </div>
+
+    <h2 class="register-title">Créer un compte</h2>
+
+    <!-- Message d'erreur -->
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Message de succès -->
+    <div *ngIf="successMessage" class="alert alert-success">
+      {{ successMessage }}
+    </div>
+
+    <!-- Formulaire d'inscription -->
+    <form (ngSubmit)="onRegister()" *ngIf="!successMessage">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Prénom</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="userData.first_name"
+            name="first_name"
+            placeholder="Prénom"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nom</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="userData.last_name"
+            name="last_name"
+            placeholder="Nom"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input
+          type="email"
+          class="form-control"
+          [(ngModel)]="userData.email"
+          name="email"
+          placeholder="votre.email@example.com"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Nom d'utilisateur</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="userData.username"
+          name="username"
+          placeholder="nom_utilisateur"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">N° d'inscription universitaire</label>
+        <input
+          type="text"
+          class="form-control registration-number-input"
+          [(ngModel)]="userData.numero_inscription_universitaire"
+          name="numero_inscription_universitaire"
+          placeholder="Saisir votre N° d'inscription universitaire (ex: 26-999-ABC)..."
+          autocomplete="off"
+          required
+        />
+        <small class="form-text">
+          Ce numéro sera synchronisé avec votre dossier administratif et visible côté
+          administration.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input
+          type="password"
+          class="form-control"
+          [(ngModel)]="userData.password"
+          name="password"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confirmer le mot de passe</label>
+        <input
+          type="password"
+          class="form-control"
+          [(ngModel)]="userData.password2"
+          name="password2"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" required />
+          <span>J'accepte les <a href="#">conditions d'utilisation</a></span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Créer mon compte</span>
+        <span *ngIf="isLoading">Création en cours...</span>
+      </button>
+    </form>
+
+    <div class="login-box">
+      <p>Vous avez déjà un compte ?</p>
+      <a routerLink="/login" class="login-link">Se connecter</a>
+    </div>
+  </div>
+</div>

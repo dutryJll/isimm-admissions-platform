@@ -1,0 +1,614 @@
+<div class="examiner-ocr-page">
+  <div class="page-header">
+    <div class="header-content">
+      <button class="btn-back" [routerLink]="['/commission/dashboard']">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div>
+        <h1>Analyse OCR des Dossiers</h1>
+        <p>Vérification automatique des documents par OCR réel</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ia-banner">
+    <div class="banner-content">
+      <div class="ia-icon">
+        <i class="fas fa-robot"></i>
+      </div>
+      <div class="ia-info">
+        <h3>Intelligence Artificielle OCR</h3>
+        <p>
+          Le système analyse les documents déposés, extrait la moyenne et signale les écarts de
+          cohérence.
+        </p>
+      </div>
+      <div class="ia-stats">
+        <div class="stat-item">
+          <span class="stat-value">{{ dossiersAnalyses }}</span>
+          <span class="stat-label">Dossiers analysés</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ tauxPrecision }}%</span>
+          <span class="stat-label">Taux de précision</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="selection-section">
+    <div class="selection-content">
+      <h3>
+        <i class="fas fa-user-check"></i>
+        Sélectionner un candidat à analyser
+      </h3>
+
+      <div class="filters-bar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            [(ngModel)]="recherche"
+            (input)="filtrerCandidats()"
+            placeholder="Rechercher par nom, CIN, email..."
+          />
+        </div>
+
+        <select [(ngModel)]="filtreMaster" (change)="filtrerCandidats()">
+          <option value="">Tous les masters</option>
+          <option *ngFor="let master of masters" [value]="master.id">{{ master.nom }}</option>
+        </select>
+
+        <select [(ngModel)]="filtreStatut" (change)="filtrerCandidats()">
+          <option value="">Tous les statuts</option>
+          <option value="en_attente">En attente d'analyse</option>
+          <option value="analyse_ok">Analyse OK</option>
+          <option value="probleme">Problèmes détectés</option>
+        </select>
+
+        <select [(ngModel)]="selectedSpecialite" (change)="filtrerCandidats()">
+          <option value="">Toutes les spécialités</option>
+          <option *ngFor="let s of availableSpecialites" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+
+      <div class="lot-toolbar" *ngIf="candidatsFiltres.length > 0">
+        <label class="lot-select-all">
+          <input
+            type="checkbox"
+            [checked]="selectedIds.size === candidatsFiltres.length && candidatsFiltres.length > 0"
+            (change)="toutSelectionner()"
+          />
+          {{ toutSelectionneLabel }}
+        </label>
+
+        <span class="lot-count" *ngIf="selectedIds.size > 0">
+          <i class="fas fa-check-square"></i>
+          {{ selectedIds.size }} candidature(s) sélectionnée(s)
+        </span>
+
+        <button
+          class="btn-lancer-lot"
+          [disabled]="selectedIds.size === 0 || lotEnCours"
+          (click)="lancerAnalyseLot()"
+        >
+          <i
+            class="fas"
+            [class.fa-robot]="!lotEnCours"
+            [class.fa-spinner]="lotEnCours"
+            [class.fa-spin]="lotEnCours"
+          ></i>
+          {{
+            lotEnCours ? 'Analyse en cours...' : "Lancer l'analyse OCR (" + selectedIds.size + ')'
+          }}
+        </button>
+      </div>
+
+      <div class="candidats-list">
+        <div
+          class="candidat-item"
+          *ngFor="let candidat of candidatsFiltres"
+          [class.selected]="candidatSelectionne?.id === candidat.id"
+          [class.lot-checked]="isSelected(candidat.id)"
+          [class.analyse]="candidat.analyse_effectuee"
+          (click)="selectionnerCandidat(candidat)"
+        >
+          <div class="candidat-checkbox" (click)="$event.stopPropagation()">
+            <input
+              type="checkbox"
+              [checked]="isSelected(candidat.id)"
+              (change)="toggleSelection(candidat.id)"
+            />
+          </div>
+          <div class="candidat-avatar">
+            {{ candidat.first_name.charAt(0) }}{{ candidat.last_name.charAt(0) }}
+          </div>
+          <div class="candidat-info">
+            <strong>{{ candidat.first_name }} {{ candidat.last_name }}</strong>
+            <small>{{ candidat.cin }} • {{ candidat.email }}</small>
+            <span class="master-name">{{ candidat.master_nom }}</span>
+          </div>
+          <div class="candidat-statut">
+            <span class="badge" [class]="'badge-' + candidat.statut_analyse">
+              <i
+                class="fas"
+                [class.fa-clock]="candidat.statut_analyse === 'en_attente'"
+                [class.fa-check]="candidat.statut_analyse === 'analyse_ok'"
+                [class.fa-exclamation-triangle]="candidat.statut_analyse === 'probleme'"
+              ></i>
+              {{ getStatutAnalyseLabel(candidat.statut_analyse) }}
+            </span>
+          </div>
+        </div>
+
+        <div *ngIf="candidatsFiltres.length === 0" class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <p>Aucun candidat trouvé</p>
+        </div>
+      </div>
+
+      <div class="lot-resultats" *ngIf="lotResume">
+        <div class="lot-resume-bar">
+          <span class="lot-resume-title">
+            <i class="fas fa-chart-bar"></i> Résultats de l'analyse en lot
+          </span>
+          <span class="lot-kpi lot-kpi-total">Total : {{ lotResume.total }}</span>
+          <span class="lot-kpi lot-kpi-ok">
+            <i class="fas fa-check-circle"></i> Analysées : {{ lotResume.nb_analysees }}
+          </span>
+          <span class="lot-kpi lot-kpi-ok">
+            <i class="fas fa-check-circle"></i> Conformes : {{ lotResume.nb_conformes }}
+          </span>
+          <span class="lot-kpi lot-kpi-warn">
+            <i class="fas fa-exclamation-triangle"></i> Anomalies : {{ lotResume.nb_anomalies }}
+          </span>
+          <span class="lot-kpi lot-kpi-err" *ngIf="lotResume.nb_erreurs > 0">
+            <i class="fas fa-times-circle"></i> Erreurs : {{ lotResume.nb_erreurs }}
+          </span>
+        </div>
+
+        <!-- MOD v7 §7.4 — Export du rapport de conformité OCR -->
+        <div class="lot-export-bar" *ngIf="lotResultats.length">
+          <span class="lot-export-label">Exporter le rapport de conformité :</span>
+          <button class="btn-rapport btn-export" (click)="exporterRapportConformite('excel')">
+            <i class="fas fa-file-excel"></i> Excel
+          </button>
+          <button class="btn-rapport btn-export" (click)="exporterRapportConformite('pdf')">
+            <i class="fas fa-file-pdf"></i> PDF
+          </button>
+        </div>
+
+        <div class="lot-rows">
+          <div
+            class="lot-row"
+            *ngFor="let r of lotResultats"
+            [class.lot-row-ok]="r.statut === 'ok'"
+            [class.lot-row-warn]="r.statut === 'anomalie'"
+            [class.lot-row-err]="r.statut === 'erreur'"
+          >
+            <span class="lot-row-nom">{{ r.candidat_nom || '—' }}</span>
+            <span class="lot-row-master">{{ r.master || '—' }}</span>
+            <span class="lot-row-statut">
+              <i
+                class="fas"
+                [class.fa-check-circle]="r.statut === 'ok'"
+                [class.fa-exclamation-triangle]="r.statut === 'anomalie'"
+                [class.fa-times-circle]="r.statut === 'erreur'"
+              ></i>
+              {{ r.statut === 'ok' ? 'Conforme' : r.statut === 'anomalie' ? 'Anomalie' : 'Erreur' }}
+            </span>
+            <span class="lot-row-anomalies" *ngIf="r.nb_anomalies > 0">
+              {{ r.nb_anomalies }} anomalie(s)
+            </span>
+            <span class="lot-row-err-msg" *ngIf="r.message">{{ r.message }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lot-erreur" *ngIf="lotErreur">
+        <i class="fas fa-times-circle"></i> {{ lotErreur }}
+      </div>
+    </div>
+  </div>
+
+  <div class="content-container" *ngIf="candidatSelectionne">
+    <div class="candidat-header-card">
+      <div class="candidat-header-info">
+        <h2>{{ candidatSelectionne.first_name }} {{ candidatSelectionne.last_name }}</h2>
+        <p>{{ candidatSelectionne.cin }} • {{ candidatSelectionne.master_nom }}</p>
+      </div>
+      <button
+        class="btn-analyser-tous"
+        (click)="analyserTousDocuments()"
+        [disabled]="analysisEnCours"
+      >
+        <i
+          class="fas"
+          [class.fa-robot]="!analysisEnCours"
+          [class.fa-spinner]="analysisEnCours"
+          [class.fa-spin]="analysisEnCours"
+        ></i>
+        {{ analysisEnCours ? 'Analyse en cours...' : 'Analyser tous les documents' }}
+      </button>
+    </div>
+
+    <div class="ocr-section">
+      <h3>
+        <i class="fas fa-file-invoice"></i>
+        Analyse automatique des documents
+      </h3>
+
+      <div class="documents-ocr">
+        <div class="document-ocr" *ngFor="let doc of documentsOCR">
+          <div class="ocr-header">
+            <div
+              class="doc-icon"
+              [class.success]="doc.verification?.statut === 'valide'"
+              [class.error]="doc.verification?.statut === 'invalide'"
+              [class.loading]="doc.analyzing"
+              [class.pending]="!doc.analyzing && !doc.verification"
+            >
+              <i [class]="'fas ' + doc.icon"></i>
+            </div>
+            <div class="doc-info">
+              <h4>{{ doc.nom }}</h4>
+              <p *ngIf="!doc.analyzing && doc.verification">
+                <span [class]="'statut-badge ' + doc.verification.statut">
+                  <i
+                    class="fas"
+                    [class.fa-check-circle]="doc.verification.statut === 'valide'"
+                    [class.fa-times-circle]="doc.verification.statut === 'invalide'"
+                  ></i>
+                  {{
+                    doc.verification.statut === 'valide' ? 'Document valide' : 'Document invalide'
+                  }}
+                </span>
+                <span
+                  class="confiance-score"
+                  [class.high]="doc.verification.confiance >= 90"
+                  [class.medium]="
+                    doc.verification.confiance >= 70 && doc.verification.confiance < 90
+                  "
+                  [class.low]="doc.verification.confiance < 70"
+                >
+                  Confiance: {{ doc.verification.confiance }}%
+                </span>
+              </p>
+              <p *ngIf="doc.analyzing" class="analyzing">
+                <i class="fas fa-spinner fa-spin"></i>
+                Analyse en cours...
+                <span class="progress-text">{{ doc.progress }}%</span>
+              </p>
+              <p *ngIf="!doc.analyzing && !doc.verification" class="non-analyse">
+                <i class="fas fa-hourglass-start"></i>
+                Non analysé
+              </p>
+            </div>
+          </div>
+
+          <div class="progress-bar-container" *ngIf="doc.analyzing">
+            <div class="progress-bar" [style.width.%]="doc.progress"></div>
+          </div>
+
+          <div class="ocr-results" *ngIf="!doc.analyzing && doc.verification">
+            <div
+              class="ocr-result-banner"
+              [class.ok]="doc.verification.statut === 'valide'"
+              [class.warn]="doc.verification.statut !== 'valide'"
+            >
+              <div class="ocr-result-banner-icon">
+                <i
+                  class="fas"
+                  [class.fa-circle-check]="doc.verification.statut === 'valide'"
+                  [class.fa-triangle-exclamation]="doc.verification.statut !== 'valide'"
+                ></i>
+              </div>
+              <div class="ocr-result-banner-text">
+                <strong>{{ doc.verification.message || 'Résultat OCR disponible' }}</strong>
+                <span
+                  >Moteur {{ doc.verification.moteur || 'pdfplumber' }} · Confiance
+                  {{ doc.verification.confiance }}%</span
+                >
+              </div>
+            </div>
+
+            <div class="extracted-data">
+              <h5>
+                <i class="fas fa-database"></i>
+                Données OCR
+              </h5>
+              <div class="data-grid">
+                <div class="data-item">
+                  <span class="data-label">Score extrait</span>
+                  <span class="data-value">{{
+                    doc.verification.score_extrait != null ? doc.verification.score_extrait : '—'
+                  }}</span>
+                </div>
+                <div class="data-item">
+                  <span class="data-label">Score déclaré</span>
+                  <span class="data-value">{{
+                    doc.verification.score_declare != null ? doc.verification.score_declare : '—'
+                  }}</span>
+                </div>
+                <div class="data-item">
+                  <span class="data-label">Écart Δ</span>
+                  <span
+                    class="data-value"
+                    [class.is-ko]="doc.verification.ecart != null && doc.verification.ecart > 0.5"
+                  >
+                    {{ doc.verification.ecart != null ? doc.verification.ecart : '—' }}
+                  </span>
+                </div>
+                <div class="data-item">
+                  <span class="data-label">Confiance</span>
+                  <span class="data-value">{{ doc.verification.confiance }}%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="moteur-box">
+              <span class="moteur-label">Moteur</span>
+              <span class="moteur-value">{{ doc.verification.moteur || 'pdfplumber' }}</span>
+            </div>
+
+            <div
+              class="verdict"
+              [class.ok]="doc.verification.statut === 'valide'"
+              [class.suspect]="doc.verification.statut !== 'valide'"
+            >
+              <div class="verdict-icon">
+                <i
+                  class="fas"
+                  [class.fa-check]="doc.verification.statut === 'valide'"
+                  [class.fa-triangle-exclamation]="doc.verification.statut !== 'valide'"
+                ></i>
+              </div>
+              <div>
+                <div class="verdict-title">
+                  {{ doc.verification.statut === 'valide' ? 'Concordance vérifiée' : 'Dossier Suspect' }}
+                </div>
+                <div class="verdict-text">
+                  {{ doc.verification.statut === 'valide'
+                    ? 'Validation automatique — les données extraites correspondent au score déclaré'
+                    : 'Écart détecté — vérification manuelle requise' }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Tableau des notes détaillées -->
+            <div class="ocr-detail-notes" *ngIf="doc.verification?.detail_notes as detail">
+              <div class="detail-title">
+                <i class="fas fa-table"></i> Notes extraites du relevé
+              </div>
+              <table class="detail-table">
+                <tr>
+                  <td>Moyenne L1</td>
+                  <td>{{ detail.l1 || '—' }}</td>
+                </tr>
+                <tr>
+                  <td>Moyenne L2</td>
+                  <td>{{ detail.l2 || '—' }}</td>
+                </tr>
+                <tr>
+                  <td>Moyenne L3</td>
+                  <td>{{ detail.l3 || '—' }}</td>
+                </tr>
+                <tr class="highlight">
+                  <td>M.G (calculée)</td>
+                  <td>{{ detail.mg || '—' }}</td>
+                </tr>
+                <tr>
+                  <td>B.N.R ({{ detail.redoublements }} redoub.)</td>
+                  <td>{{ detail.bnr || '—' }}</td>
+                </tr>
+                <tr>
+                  <td>B.S.P ({{ detail.sessions }} session)</td>
+                  <td>{{ detail.bsp || '—' }}</td>
+                </tr>
+                <tr class="total">
+                  <td>SCORE RECALCULÉ</td>
+                  <td>{{ detail.score_recalcule || '—' }}</td>
+                </tr>
+              </table>
+            </div>
+
+            <div class="ocr-alert" *ngIf="doc.verification.alerte">
+              <i class="fas fa-triangle-exclamation"></i>
+              <div>
+                <strong>Alerte OCR</strong>
+                <p>{{ doc.verification.alerte }}</p>
+              </div>
+            </div>
+
+            <div
+              class="anomalies"
+              *ngIf="doc.verification.anomalies && doc.verification.anomalies.length > 0"
+            >
+              <h5>
+                <i class="fas fa-exclamation-triangle"></i>
+                Anomalies détectées ({{ doc.verification.anomalies.length }})
+              </h5>
+              <div class="anomalie-item" *ngFor="let anomalie of doc.verification.anomalies">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ anomalie }}</span>
+              </div>
+            </div>
+
+            <details class="ocr-text-preview" *ngIf="doc.verification.texte_extrait">
+              <summary>Texte OCR extrait</summary>
+              <pre>{{ doc.verification.texte_extrait }}</pre>
+            </details>
+          </div>
+
+          <div class="ocr-actions">
+            <button
+              class="btn-ocr btn-analyze"
+              (click)="analyserDocument(doc)"
+              [disabled]="doc.analyzing"
+            >
+              <i [class]="doc.analyzing ? 'fas fa-spinner fa-spin' : 'fas fa-robot'"></i>
+              {{ doc.analyzing ? 'Analyse...' : 'Analyser' }}
+            </button>
+            <button class="btn-ocr btn-view" (click)="voirDocument(doc)">
+              <i class="fas fa-eye"></i>
+              Voir
+            </button>
+            <button
+              class="btn-ocr btn-reanalyze"
+              (click)="reanalyserDocument(doc)"
+              *ngIf="doc.verification"
+            >
+              <i class="fas fa-redo"></i>
+              Réanalyser
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOD v7 §7.1 — OCR : vérification de la correspondance de spécialité (relevé) -->
+    <div class="spec-ocr-section" *ngIf="candidatSelectionne">
+      <h3><i class="fas fa-id-card"></i> OCR — Correspondance de la spécialité (relevé de notes)</h3>
+      <p class="spec-ocr-sub">
+        Téléverse le relevé du candidat : le module détecte la spécialité réellement écrite
+        et la compare à la spécialité déclarée.
+      </p>
+
+      <div class="spec-ocr-form">
+        <div class="spec-ocr-field">
+          <label>Spécialité déclarée</label>
+          <input type="text" [(ngModel)]="specOcrDeclaree"
+            [placeholder]="candidatSelectionne.master_nom || 'Ex : Licence en Sciences de l\'Informatique'" />
+        </div>
+        <div class="spec-ocr-field">
+          <label>Relevé de notes (PDF / image)</label>
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png" (change)="onSpecOcrFile($event)" />
+        </div>
+        <button class="spec-ocr-btn" (click)="analyserSpecialiteOcr()"
+          [disabled]="!specOcrFile || specOcrLoading">
+          <i [class]="specOcrLoading ? 'fas fa-spinner fa-spin' : 'fas fa-robot'"></i>
+          {{ specOcrLoading ? 'Analyse…' : 'Uploader / Traiter le PDF' }}
+        </button>
+      </div>
+
+      <div class="spec-ocr-result" *ngIf="specOcrResult"
+        [class.ok]="!specOcrResult.alerte" [class.warn]="specOcrResult.alerte">
+        <div class="spec-ocr-line">
+          <i [class]="specOcrResult.correspondance_specialite ? 'fas fa-check-circle' : 'fas fa-triangle-exclamation'"></i>
+          Spécialité détectée :
+          <strong>{{ specOcrResult.specialite_detectee || 'Non identifiée' }}</strong>
+        </div>
+        <div class="spec-ocr-verdict ok" *ngIf="specOcrResult.correspondance_specialite">
+          ✅ Correspond à la déclaration
+        </div>
+        <div class="spec-ocr-verdict warn" *ngIf="!specOcrResult.correspondance_specialite">
+          ⚠️ Ne correspond pas à la déclaration — vérification recommandée
+        </div>
+        <div class="spec-ocr-line" *ngIf="specOcrResult.type_diplome_detecte">
+          Type de diplôme détecté : <strong>{{ specOcrResult.type_diplome_detecte }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="rapport-section" *ngIf="rapportFinal">
+      <h3>
+        <i class="fas fa-file-alt"></i>
+        Rapport d'analyse final
+      </h3>
+
+      <div
+        class="rapport-card"
+        [class.success]="rapportFinal.resultat === 'valide'"
+        [class.error]="rapportFinal.resultat === 'invalide'"
+      >
+        <div class="rapport-header">
+          <div class="rapport-icon">
+            <i
+              class="fas"
+              [class.fa-check-circle]="rapportFinal.resultat === 'valide'"
+              [class.fa-times-circle]="rapportFinal.resultat === 'invalide'"
+            ></i>
+          </div>
+          <div class="rapport-info">
+            <h4>
+              {{ rapportFinal.resultat === 'valide' ? 'Dossier Valide' : 'Dossier Invalide' }}
+            </h4>
+            <p>{{ rapportFinal.message }}</p>
+          </div>
+        </div>
+
+        <div class="rapport-resume">
+          <div class="resume-item">
+            <i class="fas fa-check success"></i>
+            <span>{{ rapportFinal.documents_valides }} documents valides</span>
+          </div>
+          <div class="resume-item">
+            <i class="fas fa-times error"></i>
+            <span>{{ rapportFinal.documents_invalides }} documents invalides</span>
+          </div>
+          <div class="resume-item">
+            <i class="fas fa-exclamation-triangle warning"></i>
+            <span>{{ rapportFinal.total_anomalies }} anomalies détectées</span>
+          </div>
+        </div>
+
+        <div class="confiance-globale">
+          <h5>Score de confiance global</h5>
+          <div class="confiance-bar-container">
+            <div
+              class="confiance-bar"
+              [style.width.%]="rapportFinal.confiance_globale"
+              [class.high]="rapportFinal.confiance_globale >= 90"
+              [class.medium]="
+                rapportFinal.confiance_globale >= 70 && rapportFinal.confiance_globale < 90
+              "
+              [class.low]="rapportFinal.confiance_globale < 70"
+            ></div>
+          </div>
+          <span class="confiance-value">{{ rapportFinal.confiance_globale }}%</span>
+        </div>
+
+        <div class="rapport-actions">
+          <button
+            class="btn-rapport btn-valider"
+            (click)="validerDossier()"
+            *ngIf="rapportFinal.resultat === 'valide'"
+          >
+            <i class="fas fa-check"></i>
+            Valider le dossier
+          </button>
+          <button
+            class="btn-rapport btn-rejeter"
+            (click)="rejeterDossier()"
+            *ngIf="rapportFinal.resultat === 'invalide'"
+          >
+            <i class="fas fa-times"></i>
+            Rejeter le dossier
+          </button>
+          <button class="btn-rapport btn-reclamation" (click)="envoyerReclamation()">
+            <i class="fas fa-envelope"></i>
+            Envoyer Réclamation
+          </button>
+          <button class="btn-rapport btn-export" (click)="exporterRapport()">
+            <i class="fas fa-download"></i>
+            Exporter Rapport
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="documentViewer" (click)="fermerViewer()">
+    <div class="modal-window" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ documentViewer.nom }}</h3>
+        <button type="button" class="modal-close" (click)="fermerViewer()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <iframe [src]="documentViewer.urlSafe" title="Aperçu document"></iframe>
+      </div>
+    </div>
+  </div>
+</div>

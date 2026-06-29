@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maquette provisoire - Espace responsable</title>
+    <style>
+      :root {
+        --bg: #f3f7fb;
+        --surface: rgba(255, 255, 255, 0.9);
+        --surface-strong: #ffffff;
+        --text: #0f172a;
+        --muted: #64748b;
+        --line: rgba(148, 163, 184, 0.22);
+        --blue: #185fa5;
+        --blue-dark: #0f4f8c;
+        --teal: #0f8b7a;
+        --amber: #b45309;
+        --red: #b91c1c;
+        --green: #0f766e;
+        --shadow: 0 18px 60px rgba(15, 23, 42, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          Inter,
+          'Segoe UI',
+          system-ui,
+          -apple-system,
+          sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(24, 95, 165, 0.16), transparent 28%),
+          radial-gradient(circle at top right, rgba(15, 139, 122, 0.13), transparent 26%),
+          linear-gradient(135deg, #f8fbff 0%, #edf2f7 55%, #f7fafc 100%);
+      }
+
+      .page {
+        width: min(1480px, calc(100vw - 32px));
+        margin: 16px auto 28px;
+      }
+
+      .hero {
+        padding: 22px;
+        border-radius: 30px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(241, 245, 249, 0.84));
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        color: var(--blue-dark);
+        background: rgba(24, 95, 165, 0.1);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      .hero h1 {
+        margin-top: 14px;
+        font-size: clamp(28px, 4vw, 56px);
+        line-height: 1;
+        letter-spacing: -0.05em;
+      }
+
+      .hero p {
+        margin-top: 12px;
+        max-width: 66ch;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+
+      .btn {
+        appearance: none;
+        border: 0;
+        border-radius: 14px;
+        padding: 12px 16px;
+        font-weight: 800;
+        font-size: 14px;
+        cursor: pointer;
+        transition:
+          transform 0.18s ease,
+          box-shadow 0.18s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .btn-primary {
+        color: white;
+        background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+        box-shadow: 0 14px 28px rgba(24, 95, 165, 0.22);
+      }
+
+      .btn-secondary {
+        color: var(--text);
+        background: #fff;
+        border: 1px solid var(--line);
+      }
+
+      .meta-grid {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr;
+        gap: 18px;
+      }
+
+      .panel {
+        padding: 18px;
+        border-radius: 26px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .chip.blue {
+        background: rgba(24, 95, 165, 0.1);
+        color: var(--blue-dark);
+      }
+
+      .chip.teal {
+        background: rgba(15, 139, 122, 0.12);
+        color: var(--green);
+      }
+
+      .chooser {
+        display: grid;
+        gap: 10px;
+      }
+
+      .chooser label,
+      .filter label,
+      .mini-label {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      select,
+      input,
+      textarea {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 11px 13px;
+        background: white;
+        font: inherit;
+      }
+
+      .stats {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .stat {
+        padding: 16px;
+        border-radius: 20px;
+        background: var(--surface-strong);
+        border: 1px solid var(--line);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      .stat-title {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .stat-value {
+        margin-top: 8px;
+        font-size: 30px;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+      }
+
+      .content {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 1.3fr 0.7fr;
+        gap: 18px;
+      }
+
+      .section {
+        padding: 18px;
+        border-radius: 26px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+      }
+
+      .section-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .section-head p {
+        margin-top: 6px;
+        color: var(--muted);
+      }
+
+      .avis-global-card {
+        margin-top: 14px;
+        padding: 16px;
+        border-radius: 22px;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        background: linear-gradient(135deg, rgba(24, 95, 165, 0.08), rgba(15, 118, 110, 0.08));
+      }
+
+      .avis-global-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .avis-global-head h3 {
+        font-size: 18px;
+      }
+
+      .avis-global-head p {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .table-wrap {
+        margin-top: 14px;
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 18px;
+        overflow: hidden;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 12px 14px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+        font-size: 13px;
+      }
+
+      th {
+        background: #f8fafc;
+        color: #334155;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .b-admis {
+        color: #0f766e;
+        background: rgba(15, 118, 110, 0.12);
+      }
+
+      .b-exam {
+        color: #b45309;
+        background: rgba(180, 83, 9, 0.12);
+      }
+
+      .b-nonlu {
+        color: #475569;
+        background: rgba(71, 85, 105, 0.12);
+      }
+
+      .filters {
+        margin-top: 14px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .filters input {
+        min-width: 220px;
+        flex: 1;
+      }
+
+      .filters select {
+        min-width: 190px;
+      }
+
+      .candidat-card {
+        margin-top: 12px;
+        padding: 16px;
+        border-radius: 22px;
+        background: white;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+      }
+
+      .candidate-top {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 14px;
+        align-items: center;
+      }
+
+      .rank {
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+      }
+
+      .cand-name {
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .cand-sub {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .tags {
+        margin-top: 10px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .tag {
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        background: #eef2ff;
+        color: #3730a3;
+      }
+
+      .tag.muted {
+        background: #f1f5f9;
+        color: #475569;
+      }
+
+      .score {
+        min-width: 88px;
+        text-align: center;
+        padding: 12px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(24, 95, 165, 0.08), rgba(15, 118, 110, 0.08));
+      }
+
+      .score strong {
+        display: block;
+        font-size: 28px;
+        line-height: 1;
+      }
+
+      .candidate-actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .btn-mini {
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: white;
+        font-weight: 800;
+      }
+
+      .btn-mini.primary {
+        background: var(--blue);
+        color: white;
+        border-color: transparent;
+      }
+
+      .decision-box {
+        margin-top: 14px;
+        padding: 16px;
+        border-radius: 22px;
+        background: linear-gradient(135deg, rgba(24, 95, 165, 0.08), rgba(15, 118, 110, 0.08));
+        border: 1px dashed rgba(24, 95, 165, 0.2);
+      }
+
+      .decision-box h3 {
+        font-size: 18px;
+      }
+
+      .decision-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+
+      .right-stack {
+        display: grid;
+        gap: 14px;
+        align-content: start;
+      }
+
+      .summary-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .summary-item {
+        padding: 14px;
+        border-radius: 18px;
+        background: white;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+      }
+
+      .summary-item .title {
+        font-weight: 800;
+      }
+
+      .summary-item .sub {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .prototype-note {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 10px;
+      }
+
+      @media (max-width: 1080px) {
+        .meta-grid,
+        .content {
+          grid-template-columns: 1fr;
+        }
+
+        .stats {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        .page {
+          width: min(100vw - 20px, 100%);
+          margin: 10px auto 18px;
+        }
+
+        .stats {
+          grid-template-columns: 1fr;
+        }
+
+        .candidate-top {
+          grid-template-columns: 1fr;
+        }
+
+        .score {
+          width: fit-content;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <section class="hero">
+        <span class="eyebrow">Espace responsable - prototype provisoire</span>
+        <h1>Décision collégiale sur la présélection</h1>
+        <p>
+          Cette maquette montre la vue du responsable: résumé des avis reçus, tableau des réponses
+          des membres, bouton décision finale et validation Top 100. Les actions membre restent
+          séparées.
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary">Décision Finale (Top 100)</button>
+          <button class="btn btn-secondary">Actualiser les avis</button>
+          <button class="btn btn-secondary">Envoyer rappel d'avis</button>
+        </div>
+      </section>
+
+      <section class="meta-grid">
+        <div class="panel">
+          <div class="chooser">
+            <label>Commission active</label>
+            <select>
+              <option>Master Génie Logiciel - 2025/2026</option>
+              <option>Master Data Science - 2025/2026</option>
+              <option>Cycle Ingénieur - 2025/2026</option>
+            </select>
+          </div>
+          <div class="prototype-note">
+            La sélection charge la liste de présélection et les réponses des membres.
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="chooser">
+            <label>État du collectage</label>
+            <div class="chip teal">4 / 6 avis reçus</div>
+          </div>
+          <div class="prototype-note">
+            Le bouton décision finale s'active après complétion ou expiration du délai.
+          </div>
+        </div>
+      </section>
+
+      <section class="stats">
+        <article class="stat">
+          <div class="stat-title">Total candidats</div>
+          <div class="stat-value">100</div>
+        </article>
+        <article class="stat">
+          <div class="stat-title">Avis favorables</div>
+          <div class="stat-value">4</div>
+        </article>
+        <article class="stat">
+          <div class="stat-title">Avis défavorables</div>
+          <div class="stat-value">2</div>
+        </article>
+        <article class="stat">
+          <div class="stat-title">Validation finale</div>
+          <div class="stat-value">Top 100</div>
+        </article>
+      </section>
+
+      <section class="content">
+        <div class="section">
+          <div class="section-head">
+            <div>
+              <h2>Réponses des membres</h2>
+              <p>Table de suivi des avis globaux pour la commission active.</p>
+            </div>
+            <span class="chip blue">Avis global</span>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Membre</th>
+                  <th>Email</th>
+                  <th>Statut</th>
+                  <th>Commentaire</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Mohamed Ben Ali</td>
+                  <td>m.benali@isimm.rnu.tn</td>
+                  <td><span class="badge b-admis">Favorable</span></td>
+                  <td>Profil solide et cohérent.</td>
+                  <td>15/05/2026 08:40</td>
+                </tr>
+                <tr>
+                  <td>Fatma Gharbi</td>
+                  <td>f.gharbi@isimm.rnu.tn</td>
+                  <td><span class="badge b-exam">Défavorable</span></td>
+                  <td>Besoin d'une justification complémentaire.</td>
+                  <td>15/05/2026 09:10</td>
+                </tr>
+                <tr>
+                  <td>Ahmed Trabelsi</td>
+                  <td>a.trabelsi@isimm.rnu.tn</td>
+                  <td><span class="badge b-nonlu">En attente</span></td>
+                  <td>-</td>
+                  <td>-</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="filters">
+            <input type="text" placeholder="Rechercher un candidat..." />
+            <select>
+              <option>Tous les statuts</option>
+              <option>Présélectionné</option>
+              <option>Sous examen</option>
+            </select>
+            <select>
+              <option>Top 100 seulement</option>
+              <option>Tous les candidats</option>
+            </select>
+          </div>
+
+          <div class="candidat-card">
+            <div class="candidate-top">
+              <div class="rank">1</div>
+              <div>
+                <div class="cand-name">Amina Ben Salah</div>
+                <div class="cand-sub">amina@example.com · CIN 12345678 · Master Génie Logiciel</div>
+                <div class="tags">
+                  <span class="tag">Score 17.8/20</span>
+                  <span class="tag muted">Sélection Top 100</span>
+                </div>
+                <div class="candidate-actions">
+                  <button class="btn-mini primary">Voir dossier complet</button>
+                  <button class="btn-mini">Marquer à valider</button>
+                  <button class="btn-mini">Retirer du top 100</button>
+                </div>
+              </div>
+              <div class="score">
+                <strong>17.8</strong>
+                <span>/20</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="decision-box">
+            <h3>Décision Finale</h3>
+            <p style="margin-top: 6px; color: var(--muted)">
+              Cette action est visible uniquement côté responsable, après réception de tous les avis
+              ou expiration du délai.
+            </p>
+            <div class="decision-actions">
+              <button class="btn btn-primary">Valider le Top 100</button>
+              <button class="btn btn-secondary">Publier les listes</button>
+              <button class="btn btn-secondary">Envoyer un rappel</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="right-stack">
+          <div class="section">
+            <div class="section-head">
+              <div>
+                <h2>Résumé responsable</h2>
+                <p>Lecture rapide de l'état de collecte et de validation.</p>
+              </div>
+            </div>
+            <div class="summary-list">
+              <div class="summary-item">
+                <div class="title">Avis complets</div>
+                <div class="sub">4 membres ont déjà répondu</div>
+              </div>
+              <div class="summary-item">
+                <div class="title">Avis manquants</div>
+                <div class="sub">2 réponses en attente ou auto-validées après délai</div>
+              </div>
+              <div class="summary-item">
+                <div class="title">Décision finale</div>
+                <div class="sub">Active uniquement quand la collecte est complète</div>
+              </div>
+              <div class="summary-item">
+                <div class="title">Notification</div>
+                <div class="sub">Demande d'avis pour le parcours X</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-head">
+              <div>
+                <h2>Actions rapides</h2>
+                <p>Exemples d'actions possibles dans cette vue.</p>
+              </div>
+            </div>
+            <div class="hero-actions">
+              <button class="btn btn-primary">Actualiser</button>
+              <button class="btn btn-secondary">Exporter Excel</button>
+              <button class="btn btn-secondary">Marquer les avis lus</button>
+            </div>
+            <div class="prototype-note">Aucun bouton membre n'apparaît dans cette maquette.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

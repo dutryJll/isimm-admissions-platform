@@ -1,0 +1,334 @@
+.candidatures-page {
+  padding: 2rem;
+  max-width: 1250px;
+  margin: 0 auto;
+  min-height: 80vh;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  margin-top: 0.45rem;
+  color: #4d6179;
+}
+
+.detail-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.candidatures-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.candidature-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(15, 43, 77, 0.12);
+}
+
+.detail-main-card,
+.detail-side-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 14px;
+  box-shadow: 0 6px 22px rgba(15, 43, 77, 0.12);
+}
+
+.detail-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.tag {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: #e0ecff;
+  color: #103a77;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.status-pill {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.status-approved {
+  background: #d7f8e7;
+  color: #085f39;
+}
+
+.status-rejected {
+  background: #ffe2e2;
+  color: #9a1d1d;
+}
+
+.status-pending {
+  background: #fff1cb;
+  color: #8a5a00;
+}
+
+.detail-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.info-block {
+  background: #f7fbff;
+  border: 1px solid #dce8f6;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.info-block h3 {
+  margin: 0 0 0.65rem;
+  color: #163d70;
+}
+
+.info-block p {
+  margin: 0.4rem 0;
+}
+
+.score-box {
+  margin: 0.6rem 0 0.8rem;
+  background: linear-gradient(135deg, #1d5fae, #164f93);
+  color: white;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.score-box strong {
+  font-size: 1.25rem;
+}
+
+.helper-text {
+  color: #4d6179;
+  margin-bottom: 1rem;
+}
+
+.rejection-block {
+  margin-top: 1rem;
+  border: 1px solid #f9c6c6;
+  background: #fff6f6;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+}
+
+.rejection-block h3 {
+  margin: 0 0 0.4rem;
+  color: #8b1f1f;
+  font-size: 1rem;
+}
+
+.rejection-block p {
+  margin: 0;
+  color: #7a2d2d;
+}
+
+.progress-card {
+  margin-top: 1.2rem;
+  border: 1px solid #d4dfec;
+  border-radius: 6px;
+  padding: 1rem 1rem 0.9rem;
+  background: #fff;
+}
+
+.progress-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.progress-card-head h4 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #17324d;
+}
+
+.progress-meta {
+  margin-bottom: 0.7rem;
+}
+
+.progress-master {
+  margin: 0;
+  color: #18334d;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.progress-number {
+  margin: 0.15rem 0 0;
+  color: #4f657d;
+  font-weight: 600;
+}
+
+.history-link {
+  border: none;
+  background: transparent;
+  color: #0f4f7a;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0;
+}
+
+.progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.progress-item {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  align-items: flex-start;
+  column-gap: 0.65rem;
+}
+
+.progress-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 44px;
+}
+
+.progress-marker {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2.5px solid #95a7be;
+  margin-top: 2px;
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.progress-check {
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.progress-connector {
+  width: 2px;
+  height: 26px;
+  background: #a6bbcd;
+  margin-top: 4px;
+}
+
+.progress-text p {
+  margin: 0.05rem 0 0;
+  color: #22384f;
+  font-weight: 500;
+}
+
+.progress-text small {
+  color: #526c88;
+}
+
+.state-done {
+  background: #1abc9c !important;
+  border-color: #16a085 !important;
+  box-shadow: 0 0 8px rgba(26, 188, 156, 0.5);
+}
+
+.state-current {
+  background: #ffffff !important;
+  border-color: #1abc9c !important;
+  border-width: 3px !important;
+  box-shadow: 0 0 8px rgba(26, 188, 156, 0.4);
+}
+
+.state-pending {
+  background: #ecf0f1 !important;
+  border-color: #bdc3c7 !important;
+}
+
+.state-rejected {
+  background: #e74c3c !important;
+  border-color: #c0392b !important;
+  box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+}
+
+.btn-back {
+  margin-top: 1rem;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  background: #1e40af;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn-back:hover {
+  background: #1d4ed8;
+}
+
+.btn-primary,
+.btn-ghost {
+  border: none;
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btn-primary {
+  background: #1d5fae;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #164f93;
+}
+
+.btn-ghost {
+  background: #e8f1fb;
+  color: #20466f;
+}
+
+.btn-ghost:hover {
+  background: #d5e6f8;
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+}
+
+@media (max-width: 980px) {
+  .detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

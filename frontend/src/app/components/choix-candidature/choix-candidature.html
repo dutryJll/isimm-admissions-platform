@@ -1,0 +1,112 @@
+<div class="choix-candidature-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="container">
+      <h1>{{ 'choix.header.title' | translate }}</h1>
+      <p>{{ 'choix.header.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- Choix des candidatures -->
+  <div class="choix-container">
+    <!-- Validation Message -->
+    <div *ngIf="showValidationMessage" [ngClass]="'validation-message ' + validationMessageType">
+      {{ validationMessage }}
+    </div>
+
+    <div class="choix-grid">
+      <!-- CANDIDATURE MASTER -->
+      <div class="choix-card master" (click)="selectType('master')" [class.selected]="selectedType === 'master'">
+        <div class="card-icon">
+          <i class="fas fa-graduation-cap"></i>
+        </div>
+        <h2>{{ 'choix.master.title' | translate }}</h2>
+        <p class="card-description">
+          {{ 'choix.master.desc' | translate }}
+        </p>
+
+        <ul class="features-list">
+          <li><i class="fas fa-check"></i> {{ 'choix.master.feature.1' | translate }}</li>
+          <li><i class="fas fa-check"></i> {{ 'choix.master.feature.2' | translate }}</li>
+          <li><i class="fas fa-check"></i> {{ 'choix.master.feature.3' | translate }}</li>
+          <li><i class="fas fa-check"></i> {{ 'choix.master.feature.4' | translate }}</li>
+          <li *ngIf="getTotalPlaces('mpgl') !== null">
+            <i class="fas fa-check"></i> MPGL: {{ getTotalPlaces('mpgl') }} places
+          </li>
+          <li *ngIf="getTotalPlaces('mrgl') !== null">
+            <i class="fas fa-check"></i> MRGL: {{ getTotalPlaces('mrgl') }} places
+          </li>
+          <li *ngIf="getTotalPlaces('mrmi') !== null">
+            <i class="fas fa-check"></i> MRMI: {{ getTotalPlaces('mrmi') }} places
+          </li>
+          <li *ngIf="getTotalPlaces('mpds') !== null">
+            <i class="fas fa-check"></i> MPDS: {{ getTotalPlaces('mpds') }} places
+          </li>
+          <li *ngIf="getTotalPlaces('mp3i') !== null">
+            <i class="fas fa-check"></i> MP3I: {{ getTotalPlaces('mp3i') }} places
+          </li>
+        </ul>
+
+        <div class="card-footer">
+          <button type="button" class="btn-choisir" (click)="choisirType('master')">
+            <span>{{ 'choix.master.button' | translate }}</span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- CANDIDATURE CYCLE INGÉNIEUR -->
+      <div class="choix-card ingenieur" (click)="selectType('ingenieur')" [class.selected]="selectedType === 'ingenieur'">
+        <div class="card-icon">
+          <i class="fas fa-cogs"></i>
+        </div>
+        <h2>{{ 'choix.ing.title' | translate }}</h2>
+        <p class="card-description">{{ 'choix.ing.desc' | translate }}</p>
+
+        <ul class="features-list">
+          <li><i class="fas fa-check"></i> {{ 'choix.ing.feature.1' | translate }}</li>
+          <li><i class="fas fa-check"></i> {{ 'choix.ing.feature.2' | translate }}</li>
+          <li><i class="fas fa-check"></i> {{ 'choix.ing.feature.3' | translate }}</li>
+          <li><i class="fas fa-check"></i> {{ 'choix.ing.feature.4' | translate }}</li>
+        </ul>
+
+        <div class="card-footer">
+          <button type="button" class="btn-choisir featured" (click)="choisirType('ingenieur')">
+            <span>{{ 'choix.ing.button' | translate }}</span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Retour -->
+    <div class="back-link">
+      <a [routerLink]="['/']">
+        <i class="fas fa-arrow-left"></i>
+        {{ 'choix.back' | translate }}
+      </a>
+    </div>
+  </div>
+
+  <!-- Validation Actions -->
+  <div class="validation-actions">
+    <button
+      type="button"
+      class="btn-verification"
+      (click)="verifierSelection()"
+      [disabled]="!selectedType"
+    >
+      <i class="fas fa-check-circle"></i>
+      Vérifier la sélection
+    </button>
+    <button
+      type="button"
+      class="btn-confirmer"
+      [disabled]="!selectedType"
+      (click)="confirmerEtProceeder()"
+    >
+      <i class="fas fa-arrow-right"></i>
+      Procéder à la candidature
+    </button>
+  </div>
+</div>

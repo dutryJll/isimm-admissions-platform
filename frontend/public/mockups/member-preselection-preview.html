@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maquette provisoire - Espace membre</title>
+    <style>
+      :root {
+        --bg: #f4f7fb;
+        --surface: rgba(255, 255, 255, 0.88);
+        --surface-strong: #ffffff;
+        --text: #0f172a;
+        --muted: #64748b;
+        --line: rgba(148, 163, 184, 0.22);
+        --blue: #185fa5;
+        --blue-dark: #0f4f8c;
+        --teal: #0f8b7a;
+        --red: #c2410c;
+        --green: #0f766e;
+        --shadow: 0 18px 60px rgba(15, 23, 42, 0.12);
+        --radius: 22px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          Inter,
+          'Segoe UI',
+          system-ui,
+          -apple-system,
+          sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(24, 95, 165, 0.16), transparent 30%),
+          radial-gradient(circle at top right, rgba(15, 139, 122, 0.14), transparent 25%),
+          linear-gradient(135deg, #f7fafc 0%, #edf2f7 55%, #f8fbff 100%);
+      }
+
+      .page {
+        width: min(1440px, calc(100vw - 32px));
+        margin: 16px auto 28px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.4fr 0.9fr;
+        gap: 18px;
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(241, 245, 249, 0.82));
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(16px);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        color: var(--blue-dark);
+        background: rgba(24, 95, 165, 0.1);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      .hero h1 {
+        margin-top: 14px;
+        font-size: clamp(28px, 3.8vw, 54px);
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+      }
+
+      .hero p {
+        margin-top: 12px;
+        color: var(--muted);
+        max-width: 58ch;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      .hero-actions {
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .btn {
+        appearance: none;
+        border: 0;
+        border-radius: 14px;
+        padding: 12px 16px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition:
+          transform 0.18s ease,
+          box-shadow 0.18s ease,
+          opacity 0.18s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .btn-primary {
+        color: white;
+        background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+        box-shadow: 0 14px 28px rgba(24, 95, 165, 0.24);
+      }
+
+      .btn-secondary {
+        color: var(--text);
+        background: #fff;
+        border: 1px solid var(--line);
+      }
+
+      .side-panel {
+        display: grid;
+        gap: 12px;
+        align-content: start;
+      }
+
+      .panel-card {
+        padding: 16px;
+        border-radius: 22px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      }
+
+      .panel-label {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .panel-value {
+        margin-top: 6px;
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .commission-select {
+        width: 100%;
+        margin-top: 10px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: white;
+        font-size: 14px;
+      }
+
+      .grid {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .stat {
+        padding: 16px;
+        border-radius: 20px;
+        background: var(--surface-strong);
+        border: 1px solid var(--line);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      .stat-title {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .stat-value {
+        margin-top: 8px;
+        font-size: 30px;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+      }
+
+      .main {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 1.35fr 0.65fr;
+        gap: 18px;
+      }
+
+      .section {
+        padding: 18px;
+        border-radius: 26px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+      }
+
+      .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .chip.blue {
+        background: rgba(24, 95, 165, 0.1);
+        color: var(--blue-dark);
+      }
+
+      .chip.green {
+        background: rgba(15, 118, 110, 0.12);
+        color: var(--green);
+      }
+
+      .filters {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+
+      .filters select,
+      .filters input,
+      .sidebar-input {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 11px 13px;
+        background: #fff;
+        font-size: 14px;
+      }
+
+      .filters input {
+        min-width: 220px;
+        flex: 1;
+      }
+
+      .candidate {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 14px;
+        padding: 16px;
+        border-radius: 20px;
+        background: #fff;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        margin-top: 12px;
+      }
+
+      .rank {
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+      }
+
+      .cand-name {
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .cand-sub {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .tags {
+        margin-top: 10px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .tag {
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        background: #eef2ff;
+        color: #3730a3;
+      }
+
+      .tag.muted {
+        background: #f1f5f9;
+        color: #475569;
+      }
+
+      .score {
+        min-width: 86px;
+        text-align: center;
+        padding: 12px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(24, 95, 165, 0.08), rgba(15, 118, 110, 0.08));
+      }
+
+      .score strong {
+        display: block;
+        font-size: 28px;
+        line-height: 1;
+      }
+
+      .candidate-actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .btn-mini {
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: white;
+        font-weight: 700;
+      }
+
+      .btn-mini.primary {
+        background: var(--blue);
+        color: white;
+        border-color: transparent;
+      }
+
+      .summary-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .summary-item {
+        padding: 14px;
+        border-radius: 18px;
+        background: white;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+      }
+
+      .summary-item .title {
+        font-weight: 800;
+      }
+
+      .summary-item .sub {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .modal {
+        margin-top: 18px;
+        padding: 18px;
+        border-radius: 24px;
+        background: linear-gradient(135deg, rgba(24, 95, 165, 0.08), rgba(15, 118, 110, 0.08));
+        border: 1px dashed rgba(24, 95, 165, 0.2);
+      }
+
+      .radio-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin: 14px 0;
+      }
+
+      .radio-pill {
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: white;
+        border: 1px solid var(--line);
+        font-weight: 700;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 120px;
+        resize: vertical;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        padding: 14px;
+        font: inherit;
+      }
+
+      .footer-note {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      @media (max-width: 1080px) {
+        .hero,
+        .main {
+          grid-template-columns: 1fr;
+        }
+
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        .page {
+          width: min(100vw - 20px, 100%);
+          margin: 10px auto 18px;
+        }
+
+        .hero,
+        .section {
+          border-radius: 22px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .candidate {
+          grid-template-columns: 1fr;
+        }
+
+        .score {
+          width: fit-content;
+        }
+
+        .actions-bar,
+        .hero-actions,
+        .candidate-actions {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <section class="hero">
+        <div>
+          <span class="eyebrow">Espace membre - prototype provisoire</span>
+          <h1>Présélection du parcours actif</h1>
+          <p>
+            Cette maquette montre uniquement ce que le membre voit: sélection de commission,
+            filtrage des candidats, consultation du dossier et envoi d'un avis global.
+          </p>
+          <div class="hero-actions">
+            <button class="btn btn-primary">Donner mon avis pour le parcours</button>
+            <button class="btn btn-secondary">Voir dossier du candidat</button>
+          </div>
+        </div>
+
+        <div class="side-panel">
+          <div class="panel-card">
+            <div class="panel-label">Commission active</div>
+            <div class="panel-value">Master Génie Logiciel - 2025/2026</div>
+            <select class="commission-select">
+              <option>Master Génie Logiciel - 2025/2026</option>
+              <option>Master Data Science - 2025/2026</option>
+              <option>Cycle Ingénieur - 2025/2026</option>
+            </select>
+          </div>
+          <div class="panel-card">
+            <div class="panel-label">Statut du membre</div>
+            <div class="panel-value">Membre Commission</div>
+            <div style="margin-top: 8px; color: var(--muted); font-size: 13px">
+              Affichage limité à la consultation et à l'avis global.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid" aria-label="Résumé membre">
+        <article class="stat">
+          <div class="stat-title">Candidats visibles</div>
+          <div class="stat-value">12</div>
+        </article>
+        <article class="stat">
+          <div class="stat-title">Avis favorables</div>
+          <div class="stat-value">8</div>
+        </article>
+        <article class="stat">
+          <div class="stat-title">Avis défavorables</div>
+          <div class="stat-value">2</div>
+        </article>
+        <article class="stat">
+          <div class="stat-title">Commission</div>
+          <div class="stat-value">01</div>
+        </article>
+      </section>
+
+      <section class="main">
+        <div class="section">
+          <div class="section-head">
+            <div>
+              <h2>Liste de présélection</h2>
+              <p style="margin-top: 6px; color: var(--muted)">
+                Candidats filtrés pour la commission active.
+              </p>
+            </div>
+            <span class="chip blue">Avis global disponible</span>
+          </div>
+
+          <div class="filters">
+            <input type="text" placeholder="Rechercher un candidat..." />
+            <select>
+              <option>Tous les types</option>
+              <option>Masters uniquement</option>
+              <option>Ingénieurs uniquement</option>
+            </select>
+            <select>
+              <option>Tous les avis</option>
+              <option>Favorables</option>
+              <option>Défavorables</option>
+            </select>
+          </div>
+
+          <div class="candidate">
+            <div class="rank">1</div>
+            <div>
+              <div class="cand-name">Amina Ben Salah</div>
+              <div class="cand-sub">amina@example.com · CIN 12345678 · Master Génie Logiciel</div>
+              <div class="tags">
+                <span class="tag">Score 17.8/20</span>
+                <span class="tag muted">Top 3</span>
+              </div>
+              <div class="candidate-actions">
+                <button class="btn-mini primary">Voir dossier</button>
+                <button class="btn-mini">Favorable</button>
+                <button class="btn-mini">Défavorable</button>
+              </div>
+            </div>
+            <div class="score">
+              <strong>17.8</strong>
+              <span>/20</span>
+            </div>
+          </div>
+
+          <div class="candidate">
+            <div class="rank">2</div>
+            <div>
+              <div class="cand-name">Youssef Trabelsi</div>
+              <div class="cand-sub">youssef@example.com · CIN 87654321 · Cycle Ingénieur</div>
+              <div class="tags">
+                <span class="tag">Score 16.4/20</span>
+                <span class="tag muted">Présélectionné</span>
+              </div>
+              <div class="candidate-actions">
+                <button class="btn-mini primary">Voir dossier</button>
+                <button class="btn-mini">Favorable</button>
+                <button class="btn-mini">Défavorable</button>
+              </div>
+            </div>
+            <div class="score">
+              <strong>16.4</strong>
+              <span>/20</span>
+            </div>
+          </div>
+
+          <div class="modal">
+            <div class="section-head" style="margin-bottom: 8px">
+              <div>
+                <h2>Donner mon avis pour le parcours</h2>
+                <p style="margin-top: 6px; color: var(--muted)">
+                  Un seul avis pour toute la liste de présélection de la commission active.
+                </p>
+              </div>
+              <span class="chip green">Formulaire membre</span>
+            </div>
+            <div class="radio-row">
+              <label class="radio-pill">◉ Favorable</label>
+              <label class="radio-pill">◯ Défavorable</label>
+            </div>
+            <textarea placeholder="Argumentaire global ou commentaire optionnel..."></textarea>
+            <div class="hero-actions" style="margin-top: 14px">
+              <button class="btn btn-primary">Soumettre l'avis</button>
+              <button class="btn btn-secondary">Annuler</button>
+            </div>
+            <div class="footer-note">
+              Si l'avis est défavorable, le commentaire devient obligatoire.
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div>
+              <h2>Résumé membre</h2>
+              <p style="margin-top: 6px; color: var(--muted)">
+                Ce bloc n'expose aucune décision responsable.
+              </p>
+            </div>
+          </div>
+
+          <div class="summary-list">
+            <div class="summary-item">
+              <div class="title">Commission active</div>
+              <div class="sub">Commission liée au parcours choisi</div>
+            </div>
+            <div class="summary-item">
+              <div class="title">Avis global</div>
+              <div class="sub">Un seul formulaire pour la liste entière</div>
+            </div>
+            <div class="summary-item">
+              <div class="title">Dossier candidat</div>
+              <div class="sub">Ouverture avant vote pour consultation complète</div>
+            </div>
+            <div class="summary-item">
+              <div class="title">Visibilité</div>
+              <div class="sub">Pas de bouton décision finale côté membre</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

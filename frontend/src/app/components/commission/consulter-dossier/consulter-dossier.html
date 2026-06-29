@@ -1,0 +1,12 @@
+<div class="legacy-consulter-dossier">
+  <div class="consulter-dossier-header">
+    <p>Le dossier de consultation est désormais centralisé dans /consultation-dossier/:id.</p>
+    <div class="specialite-select">
+      <label>Spécialité:</label>
+      <select [(ngModel)]="selectedSpecialite">
+        <option value="">Toutes</option>
+        <option *ngFor="let s of availableSpecialites" [value]="s">{{ s }}</option>
+      </select>
+    </div>
+  </div>
+</div>

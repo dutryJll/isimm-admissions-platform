@@ -1,0 +1,286 @@
+<div class="commission-dossier-upload">
+  <header class="commission-dossier-upload__header">
+    <div class="commission-dossier-upload__header-content">
+      <button class="commission-dossier-upload__back" (click)="retourListe()">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div>
+        <h1 class="commission-dossier-upload__title">Dépôt de dossier - {{ candidatNom }}</h1>
+        <p class="commission-dossier-upload__subtitle">
+          Téléchargez les documents requis pour cette candidature
+        </p>
+      </div>
+      <div class="commission-dossier-upload__specialite">
+        <label>Spécialité</label>
+        <select [(ngModel)]="selectedSpecialite">
+          <option value="">Choisir une spécialité</option>
+          <option *ngFor="let s of availableSpecialites" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <section class="commission-dossier-upload__progress-card">
+    <div class="commission-dossier-upload__progress-head">
+      <h3>Progression du dossier</h3>
+      <span>{{ documentsUploaded }}/4 documents</span>
+    </div>
+    <mat-progress-bar mode="determinate" [value]="(documentsUploaded / 4) * 100"></mat-progress-bar>
+  </section>
+
+  <main class="commission-dossier-upload__content">
+    <article class="commission-dossier-upload__card">
+      <div class="commission-dossier-upload__card-head">
+        <div class="commission-dossier-upload__icon commission-dossier-upload__icon--cin">
+          <i class="fas fa-id-card"></i>
+        </div>
+        <div class="commission-dossier-upload__meta">
+          <h3>Carte d'identite nationale (CIN)</h3>
+          <p>Formats: PDF, JPG, PNG | Taille max: 5 MB</p>
+        </div>
+        <div class="commission-dossier-upload__status" *ngIf="hasFile('cin')">
+          <i class="fas fa-check-circle"></i>
+        </div>
+      </div>
+
+      <div
+        class="commission-dossier-upload__drop"
+        *ngIf="!hasFile('cin')"
+        (click)="fileInputCin.click()"
+      >
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Cliquez pour ajouter un fichier</p>
+        <input
+          #fileInputCin
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png"
+          (change)="onFileSelected($event, 'cin')"
+          hidden
+        />
+      </div>
+
+      <div
+        class="commission-dossier-upload__preview"
+        *ngIf="hasFile('cin') && previewFor('cin') as preview"
+      >
+        <img
+          *ngIf="preview.isImage && preview.previewUrl"
+          [src]="preview.previewUrl"
+          alt="Apercu CIN"
+          class="commission-dossier-upload__thumb"
+        />
+        <div class="commission-dossier-upload__file">
+          <strong>{{ preview.fileName }}</strong>
+          <small>{{ preview.fileSize }} - {{ preview.mimeType }}</small>
+          <div class="commission-dossier-upload__file-progress">
+            <mat-progress-bar mode="determinate" [value]="progressFor('cin')"></mat-progress-bar>
+            <span>{{ progressFor('cin') }}%</span>
+          </div>
+        </div>
+        <button class="commission-dossier-upload__remove" (click)="removeFile('cin')" type="button">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </article>
+
+    <article class="commission-dossier-upload__card">
+      <div class="commission-dossier-upload__card-head">
+        <div class="commission-dossier-upload__icon commission-dossier-upload__icon--releves">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="commission-dossier-upload__meta">
+          <h3>Relevés de notes (L1, L2, L3)</h3>
+          <p>Un seul PDF pour tous les relevés | Taille max: 10 MB</p>
+        </div>
+        <div class="commission-dossier-upload__status" *ngIf="hasFile('releves')">
+          <i class="fas fa-check-circle"></i>
+        </div>
+      </div>
+
+      <div
+        class="commission-dossier-upload__drop"
+        *ngIf="!hasFile('releves')"
+        (click)="fileInputReleves.click()"
+      >
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Cliquez pour ajouter un fichier</p>
+        <input
+          #fileInputReleves
+          type="file"
+          accept=".pdf"
+          (change)="onFileSelected($event, 'releves')"
+          hidden
+        />
+      </div>
+
+      <div
+        class="commission-dossier-upload__preview"
+        *ngIf="hasFile('releves') && previewFor('releves') as preview"
+      >
+        <div class="commission-dossier-upload__file">
+          <strong>{{ preview.fileName }}</strong>
+          <small>{{ preview.fileSize }} - {{ preview.mimeType }}</small>
+          <div class="commission-dossier-upload__file-progress">
+            <mat-progress-bar
+              mode="determinate"
+              [value]="progressFor('releves')"
+            ></mat-progress-bar>
+            <span>{{ progressFor('releves') }}%</span>
+          </div>
+        </div>
+        <button
+          class="commission-dossier-upload__remove"
+          (click)="removeFile('releves')"
+          type="button"
+        >
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </article>
+
+    <article class="commission-dossier-upload__card">
+      <div class="commission-dossier-upload__card-head">
+        <div class="commission-dossier-upload__icon commission-dossier-upload__icon--diplome">
+          <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="commission-dossier-upload__meta">
+          <h3>Diplôme de Licence</h3>
+          <p>Format: PDF | Taille max: 5 MB</p>
+        </div>
+        <div class="commission-dossier-upload__status" *ngIf="hasFile('diplome')">
+          <i class="fas fa-check-circle"></i>
+        </div>
+      </div>
+
+      <div
+        class="commission-dossier-upload__drop"
+        *ngIf="!hasFile('diplome')"
+        (click)="fileInputDiplome.click()"
+      >
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Cliquez pour ajouter un fichier</p>
+        <input
+          #fileInputDiplome
+          type="file"
+          accept=".pdf"
+          (change)="onFileSelected($event, 'diplome')"
+          hidden
+        />
+      </div>
+
+      <div
+        class="commission-dossier-upload__preview"
+        *ngIf="hasFile('diplome') && previewFor('diplome') as preview"
+      >
+        <div class="commission-dossier-upload__file">
+          <strong>{{ preview.fileName }}</strong>
+          <small>{{ preview.fileSize }} - {{ preview.mimeType }}</small>
+          <div class="commission-dossier-upload__file-progress">
+            <mat-progress-bar
+              mode="determinate"
+              [value]="progressFor('diplome')"
+            ></mat-progress-bar>
+            <span>{{ progressFor('diplome') }}%</span>
+          </div>
+        </div>
+        <button
+          class="commission-dossier-upload__remove"
+          (click)="removeFile('diplome')"
+          type="button"
+        >
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </article>
+
+    <article class="commission-dossier-upload__card">
+      <div class="commission-dossier-upload__card-head">
+        <div class="commission-dossier-upload__icon commission-dossier-upload__icon--photo">
+          <i class="fas fa-camera"></i>
+        </div>
+        <div class="commission-dossier-upload__meta">
+          <h3>Photo d'identité</h3>
+          <p>Formats: JPG, PNG | Taille max: 2 MB</p>
+        </div>
+        <div class="commission-dossier-upload__status" *ngIf="hasFile('photo')">
+          <i class="fas fa-check-circle"></i>
+        </div>
+      </div>
+
+      <div
+        class="commission-dossier-upload__drop"
+        *ngIf="!hasFile('photo')"
+        (click)="fileInputPhoto.click()"
+      >
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Cliquez pour ajouter un fichier</p>
+        <input
+          #fileInputPhoto
+          type="file"
+          accept=".jpg,.jpeg,.png"
+          (change)="onFileSelected($event, 'photo')"
+          hidden
+        />
+      </div>
+
+      <div
+        class="commission-dossier-upload__preview"
+        *ngIf="hasFile('photo') && previewFor('photo') as preview"
+      >
+        <img
+          *ngIf="photoPreview"
+          [src]="photoPreview"
+          alt="Apercu Photo"
+          class="commission-dossier-upload__thumb"
+        />
+        <div class="commission-dossier-upload__file">
+          <strong>{{ preview.fileName }}</strong>
+          <small>{{ preview.fileSize }} - {{ preview.mimeType }}</small>
+          <div class="commission-dossier-upload__file-progress">
+            <mat-progress-bar mode="determinate" [value]="progressFor('photo')"></mat-progress-bar>
+            <span>{{ progressFor('photo') }}%</span>
+          </div>
+        </div>
+        <button
+          class="commission-dossier-upload__remove"
+          (click)="removeFile('photo')"
+          type="button"
+        >
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </article>
+
+    <section class="commission-dossier-upload__submit">
+      <button
+        class="commission-dossier-upload__submit-btn"
+        (click)="soumettre()"
+        [disabled]="documentsUploaded < 4 || isSubmitting"
+        type="button"
+      >
+        <i class="fas fa-check"></i>
+        Soumettre tous les documents
+      </button>
+
+      <p class="commission-dossier-upload__hint" *ngIf="documentsUploaded < 4">
+        Veuillez télécharger tous les documents requis ({{ 4 - documentsUploaded }} restant)
+      </p>
+
+      <div class="commission-dossier-upload__submit-progress" *ngIf="isSubmitting">
+        <div class="commission-dossier-upload__submit-progress-head">
+          <strong>{{ uploadStepLabel }}</strong>
+          <span>{{ submitProgress }}%</span>
+        </div>
+        <div
+          class="commission-dossier-upload__progress-track commission-dossier-upload__progress-track--submit"
+        >
+          <mat-progress-bar
+            mode="determinate"
+            [value]="submitProgress"
+            class="commission-dossier-upload__progress-value--submit"
+          ></mat-progress-bar>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>

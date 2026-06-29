@@ -1,0 +1,53 @@
+<nav class="navbar" [class.scrolled]="isScrolled">
+  <div class="navbar-container">
+    <div class="navbar-logo">
+      <img src="/ISIMM_LOGO.png" alt="ISIMM Logo" class="logo-img" />
+      <span class="logo-text">ISIMM</span>
+    </div>
+
+    <ul class="navbar-menu">
+      <li>
+        <a
+          routerLink="/"
+          class="nav-link"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <span class="link-text">Accueil</span>
+          <span class="link-underline"></span>
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/choisir-candidature" class="nav-link" routerLinkActive="active">
+          <span class="link-text">Candidater</span>
+          <span class="link-underline"></span>
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/choisir-candidature" class="nav-link" routerLinkActive="active">
+          <span class="link-text">Candidater</span>
+          <span class="link-underline"></span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="navbar-actions">
+      <button class="btn-login" routerLink="/login">
+        <i class="fas fa-sign-in-alt"></i>
+        Connexion
+      </button>
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-toggle" (click)="toggleMobileMenu()">
+      <span class="hamburger"></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Bouton Retour en Haut -->
+<button class="scroll-to-top" [class.visible]="showScrollTop" (click)="scrollToTop()">
+  <i class="fas fa-arrow-up"></i>
+</button>

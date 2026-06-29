@@ -1,0 +1,158 @@
+<div class="detail-page" *ngIf="detail as d; else notFound">
+  <header class="detail-header">
+    <h1>{{ d.title }}</h1>
+    <p>{{ d.intro }}</p>
+    <p *ngIf="d.annee" class="meta">Annee universitaire {{ d.annee }}</p>
+  </header>
+
+  <section class="detail-tools">
+    <a
+      class="btn-back"
+      [routerLink]="['/candidat/dashboard']"
+      [queryParams]="{ view: 'offres-inscription' }"
+      >Retour aux offres</a
+    >
+
+    <a *ngIf="pdfUrl" class="btn-pdf" [href]="pdfUrl" target="_blank" rel="noopener noreferrer">
+      Telecharger le PDF officiel signe
+    </a>
+
+    <span *ngIf="isLoadingOffer" class="pdf-status">Chargement du PDF officiel...</span>
+    <span *ngIf="!isLoadingOffer && !pdfUrl" class="pdf-status warning">
+      Aucun PDF officiel signe publie pour cette offre.
+    </span>
+  </section>
+
+  <section class="stepper-card">
+    <h2>Parcours de candidature</h2>
+    <div class="stepper-row" role="list" aria-label="Etapes candidature">
+      <div class="stepper-line"></div>
+      <article
+        class="step-item"
+        *ngFor="let step of candidatureSteps; let i = index"
+        role="listitem"
+      >
+        <div class="step-dot" [ngClass]="step.state">{{ i + 1 }}</div>
+        <div class="step-content">
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.subtitle }}</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section *ngIf="hasSyncedContent" class="sync-card">
+    <div class="sync-card-copy">
+      <span class="sync-badge">Version éditée</span>
+      <h2>Contenu synchronisé avec l espace responsable</h2>
+      <p>Cette page reprend la version modifiée de l offre pour la consultation candidat.</p>
+    </div>
+    <div class="sync-card-side">
+      <strong>{{ d.sourceLabel || 'Version officielle' }}</strong>
+      <span>Offre ID {{ syncedOfferId }}</span>
+    </div>
+  </section>
+
+  <section *ngIf="d.description" class="detail-description">
+    {{ d.description }}
+  </section>
+
+  <section class="documents-card">
+    <h2>Documents requis</h2>
+    <div class="documents-grid">
+      <article class="document-item" *ngFor="let doc of requiredDocuments">
+        <div class="document-icon">
+          <mat-icon>{{ doc.icon }}</mat-icon>
+        </div>
+        <div class="document-body">
+          <strong>{{ doc.label }}</strong>
+          <small>{{ doc.type }}</small>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section *ngIf="d.importantDates?.length" class="dates-card">
+    <h2>Dates importantes</h2>
+    <ul>
+      <li *ngFor="let dateLine of d.importantDates">{{ dateLine }}</li>
+    </ul>
+  </section>
+
+  <section *ngIf="d.table" class="table-card">
+    <h2>{{ d.tableTitle || 'Details' }}</h2>
+
+    <div class="table-wrapper">
+      <table class="modern-capacity-table">
+        <thead>
+          <tr>
+            <th *ngFor="let h of d.table.headers">{{ h }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of d.table.rows">
+            <td *ngFor="let col of row; let colIndex = index">
+              <ng-container
+                *ngIf="isEtablissementColumn(d.table.headers[colIndex]); else normalCell"
+              >
+                <span class="etab-badge">{{ col || '-' }}</span>
+              </ng-container>
+
+              <ng-template #normalCell>
+                <ng-container
+                  *ngIf="colIndex === getPlacesColumnIndex(d.table.headers); else plainTextCell"
+                >
+                  <div class="places-cell">
+                    <strong>{{ getPlaceProgress(row, d.table.headers).valueLabel }}</strong>
+                    <div class="places-progress" aria-hidden="true">
+                      <span
+                        class="places-fill"
+                        [style.width.%]="getPlaceProgress(row, d.table.headers).percent"
+                      ></span>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <ng-template #plainTextCell>
+                  <span [innerText]="col"></span>
+                </ng-template>
+              </ng-template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section *ngIf="d.scoreTable" class="table-card">
+    <h2>{{ d.scoreTableTitle || 'Calcul du score' }}</h2>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th *ngFor="let h of d.scoreTable.headers">{{ h }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of d.scoreTable.rows">
+            <td *ngFor="let col of row" [innerText]="col"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<ng-template #notFound>
+  <div class="detail-page not-found">
+    <h1>Detail introuvable</h1>
+    <p>Le code de formation demande est inconnu.</p>
+    <a
+      class="btn-back"
+      [routerLink]="['/candidat/dashboard']"
+      [queryParams]="{ view: 'offres-inscription' }"
+      >Retour aux offres</a
+    >
+  </div>
+</ng-template>

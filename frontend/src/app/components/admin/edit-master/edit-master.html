@@ -1,0 +1,51 @@
+<div class="master-edit-page">
+  <div class="master-edit-card">
+    <div class="card-header">
+      <button type="button" class="btn-back" (click)="goBack()">Retour</button>
+      <div>
+        <p class="eyebrow">Gestion des masters</p>
+        <h1>{{ isCreateMode ? 'Ajouter un Master' : 'Modifier un Master' }}</h1>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="banner info">Chargement des informations...</div>
+    <div *ngIf="errorMessage" class="banner error">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="banner success">{{ successMessage }}</div>
+
+    <form *ngIf="!isLoading" (ngSubmit)="saveMaster()" class="master-form">
+      <label>
+        Nom du Master *
+        <input type="text" [(ngModel)]="masterForm.nom" name="nom" required />
+      </label>
+
+      <div class="grid-two">
+        <label>
+          Type *
+          <select [(ngModel)]="masterForm.type" name="type" required>
+            <option value="recherche">Recherche</option>
+            <option value="professionnel">Professionnel</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="grid-two">
+        <label>
+          Nombre de places *
+          <input type="number" [(ngModel)]="masterForm.places" name="places" required />
+        </label>
+
+        <label>
+          Date limite *
+          <input type="date" [(ngModel)]="masterForm.date_limite" name="date_limite" required />
+        </label>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn-secondary" (click)="goBack()">Annuler</button>
+        <button type="submit" class="btn-primary" [disabled]="isSaving">
+          {{ isSaving ? 'Enregistrement...' : isCreateMode ? 'Ajouter' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

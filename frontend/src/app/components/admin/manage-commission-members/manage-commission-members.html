@@ -1,0 +1,210 @@
+<div class="manage-commission-members-container">
+  <div class="header">
+    <h2>Gestion des Membres de Commission</h2>
+    <button class="btn btn-secondary" (click)="goBack()">← Retour</button>
+  </div>
+
+  <!-- Messages d'alerte et succès -->
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <div class="content">
+    <!-- Section: Liste actuelle des membres -->
+    <div class="section members-list">
+      <h3>Membres Actuels</h3>
+      <div *ngIf="isLoadingMembers" class="loading">Chargement des membres...</div>
+      <table *ngIf="!isLoadingMembers && membres.length > 0" class="table">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Date Nomination</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let membre of membres">
+            <td>{{ membre.user_email }}</td>
+            <td>{{ membre.role }}</td>
+            <td>{{ membre.date_nomination | date: 'dd/MM/yyyy' }}</td>
+            <td>
+              <span class="badge" [ngClass]="membre.actif ? 'badge-success' : 'badge-secondary'">
+                {{ membre.actif ? 'Actif' : 'Inactif' }}
+              </span>
+            </td>
+            <td>
+              <button
+                class="btn btn-sm btn-danger"
+                (click)="removeMember(membre.id)"
+                [disabled]="isAddingMember"
+              >
+                Supprimer
+              </button>
+              <button class="btn btn-sm btn-secondary" (click)="ouvrirEditionMembre(membre)">
+                Modifier
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p *ngIf="!isLoadingMembers && membres.length === 0" class="text-muted">
+        Aucun membre dans cette commission.
+      </p>
+    </div>
+
+    <!-- Section: Affecter un utilisateur existant -->
+    <div class="section add-member">
+      <h3>Affecter un utilisateur existant</h3>
+
+      <div class="form-group">
+        <label for="search-user">Rechercher un utilisateur:</label>
+        <input
+          type="text"
+          id="search-user"
+          class="form-control"
+          placeholder="Email ou nom..."
+          [(ngModel)]="searchUserTerm"
+          (input)="onSearchChange()"
+        />
+        <button class="btn btn-sm btn-info" (click)="loadAvailableUsers()" [disabled]="isLoadingUsers">
+          {{ isLoadingUsers ? 'Chargement...' : 'Charger les utilisateurs' }}
+        </button>
+      </div>
+
+      <div *ngIf="filteredUsers.length > 0" class="user-list">
+        <p class="text-muted small">{{ filteredUsers.length }} utilisateur(s) trouvé(s)</p>
+        <div class="user-items">
+          <button
+            *ngFor="let user of filteredUsers"
+            type="button"
+            class="user-item"
+            [ngClass]="{ selected: selectedUserId === user.id }"
+            (click)="selectUser(user.id)"
+          >
+            <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
+            <div class="user-email">{{ user.email }}</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="role-select">Rôle:</label>
+        <select id="role-select" class="form-control" [(ngModel)]="selectedRole" disabled>
+          <option value="membre">Membre commission</option>
+        </select>
+      </div>
+
+      <button
+        class="btn btn-primary"
+        (click)="addMember()"
+        [disabled]="!selectedUserId || isAddingMember"
+      >
+        {{ isAddingMember ? 'Ajout en cours...' : 'Ajouter le Membre' }}
+      </button>
+    </div>
+
+    <!-- Section: Créer un nouveau membre + email -->
+    <div class="section add-member">
+      <h3>Créer un nouveau membre (email d'activation)</h3>
+
+      <div class="form-group">
+        <label for="new-first-name">Prénom</label>
+        <input
+          id="new-first-name"
+          type="text"
+          class="form-control"
+          [(ngModel)]="nouveauMembre.first_name"
+          placeholder="Prénom"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="new-last-name">Nom</label>
+        <input
+          id="new-last-name"
+          type="text"
+          class="form-control"
+          [(ngModel)]="nouveauMembre.last_name"
+          placeholder="Nom"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="new-email">Email</label>
+        <input
+          id="new-email"
+          type="email"
+          class="form-control"
+          [(ngModel)]="nouveauMembre.email"
+          placeholder="email@isimm.rnu.tn"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="new-specialite">Spécialité</label>
+        <input
+          id="new-specialite"
+          type="text"
+          class="form-control"
+          [(ngModel)]="nouveauMembre.specialite"
+          placeholder="Tous les masters"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="new-grade">Grade</label>
+        <input
+          id="new-grade"
+          type="text"
+          class="form-control"
+          [(ngModel)]="nouveauMembre.grade"
+          placeholder="Maître de conférences"
+        />
+      </div>
+
+      <button
+        class="btn btn-primary"
+        (click)="createAndAddMember()"
+        [disabled]="isCreatingMember"
+      >
+        {{ isCreatingMember ? 'Création en cours...' : 'Créer + envoyer email + affecter' }}
+      </button>
+    </div>
+
+    <!-- Modal modification membre -->
+    <div class="modal-overlay" *ngIf="showEditModal" (click)="fermerEditionMembre()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h3>Modifier le membre</h3>
+
+        <div class="form-group">
+          <label>Prénom</label>
+          <input type="text" class="form-control" [(ngModel)]="memberEnEdition!.first_name" />
+        </div>
+
+        <div class="form-group">
+          <label>Nom</label>
+          <input type="text" class="form-control" [(ngModel)]="memberEnEdition!.last_name" />
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" class="form-control" [(ngModel)]="memberEnEdition!.email" />
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="fermerEditionMembre()">
+            Annuler
+          </button>
+          <button type="button" class="btn btn-primary" (click)="sauvegarderMembre()" [disabled]="isSavingMember">
+            {{ isSavingMember ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

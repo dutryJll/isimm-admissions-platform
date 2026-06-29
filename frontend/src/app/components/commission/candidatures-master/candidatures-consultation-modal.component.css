@@ -1,0 +1,26 @@
+.modal-root {
+  width: 720px;
+  max-width: 95vw;
+  background: #fff;
+  padding: 16px;
+  border-radius: 6px;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-body {
+  padding: 12px 0;
+}
+.modal-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.close {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}

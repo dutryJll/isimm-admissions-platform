@@ -1,0 +1,46 @@
+<div class="concours-container">
+  <div class="page-header">
+    <h1>🎓 Concours Cycle Ingénieur</h1>
+    <p>Découvrez les concours d'admission au cycle ingénieur ISIMM</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement des concours...</p>
+  </div>
+
+  <div class="concours-grid" *ngIf="!loading">
+    <div class="concours-card" *ngFor="let concours of concoursIngenieurs">
+      <div class="concours-badge">{{ concours.type_concours }}</div>
+
+      <h3>{{ concours.nom }}</h3>
+      <p>{{ concours.description }}</p>
+
+      <div class="concours-info">
+        <div class="info-item">
+          <i class="fas fa-calendar"></i>
+          <span>Ouverture: {{ concours.date_ouverture | date: 'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-calendar-times"></i>
+          <span>Clôture: {{ concours.date_cloture | date: 'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-users"></i>
+          <span>Places: {{ concours.places_disponibles }}</span>
+        </div>
+      </div>
+
+      <button class="btn-primary" (click)="candidaterConcours(concours)">
+        <i class="fas fa-paper-plane"></i>
+        Candidater
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && concoursIngenieurs.length === 0" class="empty-state">
+    <i class="fas fa-inbox"></i>
+    <h3>Aucun concours disponible</h3>
+    <p>Il n'y a pas de concours ouvert pour le moment</p>
+  </div>
+</div>

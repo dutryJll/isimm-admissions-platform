@@ -1,0 +1,211 @@
+<div class="masters-page">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1>🎓 {{ 'masters.hero.title' | translate }}</h1>
+      <p>{{ 'masters.hero.subtitle' | translate }}</p>
+      <p class="hero-mini">{{ 'masters.hero.mini' | translate }}</p>
+    </div>
+  </section>
+
+  <section class="appel-ref-section" *ngIf="referentielMasters as ref">
+    <div class="appel-ref-card">
+      <h2>{{ 'masters.referentiel.title' | translate }}</h2>
+      <p>
+        <strong>{{ 'masters.referentiel.school' | translate }}:</strong>
+        {{ ref.metadata?.etablissement }}
+        <span> | </span>
+        <strong>{{ 'masters.referentiel.year' | translate }}:</strong>
+        {{ ref.metadata?.annee_universitaire }}
+      </p>
+    </div>
+  </section>
+
+  <section class="appel-ref-section" *ngIf="isLoadingReferentiel">
+    <div class="appel-ref-card">{{ 'masters.referentiel.loading' | translate }}</div>
+  </section>
+
+  <section class="appel-ref-section" *ngIf="referentielMessage">
+    <div class="appel-ref-card warning">{{ referentielMessage }}</div>
+  </section>
+
+  <!-- Cards Section - 4 Formation Types -->
+  <section class="formations-cards-section">
+    <div class="formations-container">
+      <!-- Masters de Recherche -->
+      <div class="formation-card research">
+        <div class="card-icon-container">
+          <div class="icon-circle research-bg">
+            <i class="fas fa-flask"></i>
+          </div>
+          <div class="card-badge research-badge">
+            {{ 'masters.card.research.badge' | translate }}
+          </div>
+        </div>
+        <h3 class="card-title">{{ 'masters.card.research.title' | translate }}</h3>
+        <p class="card-description">
+          {{ 'masters.card.research.desc' | translate }}
+        </p>
+        <ul class="card-features">
+          <li *ngFor="let master of mastersRecherche">
+            <span class="feature-icon research-icon"><i class="fas fa-check"></i></span>
+            <span>{{ master.titre.split(' ').slice(-3).join(' ') }}</span>
+          </li>
+          <li *ngIf="getTotalPlaces('mrgl') !== null">
+            <span class="feature-icon research-icon"><i class="fas fa-bullseye"></i></span>
+            <span>
+              {{ 'masters.capacity.mrgl' | translate }}: {{ getTotalPlaces('mrgl') }}
+              {{ 'masters.capacity.places' | translate }}
+            </span>
+          </li>
+        </ul>
+        <div class="card-actions">
+          <button
+            type="button"
+            class="btn-card research-btn"
+            (click)="goToResearchExploration($event)"
+          >
+            <span>{{ 'masters.explore' | translate }}</span>
+          </button>
+          <button class="btn-card research-btn" [routerLink]="['/preinscription/detail/mrgl']">
+            <span>Detail MRGL</span>
+          </button>
+          <button class="btn-card research-btn" [routerLink]="['/preinscription/detail/mrmi']">
+            <span>Detail MRMI</span>
+          </button>
+          <button
+            *ngIf="getPdfUrlForCode('mrgl') || getPdfUrlForCode('mrmi')"
+            class="btn-card research-btn pdf-btn"
+            (click)="downloadOfficialDocument(getPdfUrlForCode('mrgl') ? 'mrgl' : 'mrmi')"
+            title="Télécharger le document officiel d'appel à candidatures"
+          >
+            <span>📄 {{ 'masters.download_pdf' | translate }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Masters Professionnels -->
+      <div class="formation-card professional">
+        <div class="card-icon-container">
+          <div class="icon-circle professional-bg">
+            <i class="fas fa-briefcase"></i>
+          </div>
+          <div class="card-badge professional-badge">
+            {{ 'masters.card.professional.badge' | translate }}
+          </div>
+        </div>
+        <h3 class="card-title">{{ 'masters.card.professional.title' | translate }}</h3>
+        <p class="card-description">
+          {{ 'masters.card.professional.desc' | translate }}
+        </p>
+        <ul class="card-features">
+          <li *ngFor="let master of mastersProfessionnels">
+            <span class="feature-icon professional-icon"><i class="fas fa-check"></i></span>
+            <span>{{ master.titre.split(' ').slice(-3).join(' ') }}</span>
+          </li>
+          <li *ngIf="getTotalPlaces('mpgl') !== null">
+            <span class="feature-icon professional-icon"><i class="fas fa-bullseye"></i></span>
+            <span>
+              {{ 'masters.capacity.mpgl' | translate }}: {{ getTotalPlaces('mpgl') }}
+              {{ 'masters.capacity.places' | translate }}
+            </span>
+          </li>
+          <li *ngIf="getTotalPlaces('mpds') !== null">
+            <span class="feature-icon professional-icon"><i class="fas fa-bullseye"></i></span>
+            <span>
+              {{ 'masters.capacity.mpds' | translate }}: {{ getTotalPlaces('mpds') }}
+              {{ 'masters.capacity.places' | translate }}
+            </span>
+          </li>
+        </ul>
+        <div class="card-actions">
+          <button
+            class="btn-card professional-btn"
+            [routerLink]="['/masters/professionnel/exploration']"
+          >
+            <span>{{ 'masters.explore' | translate }}</span>
+          </button>
+          <button class="btn-card professional-btn" [routerLink]="['/preinscription/detail/mpgl']">
+            <span>Detail MPGL</span>
+          </button>
+          <button class="btn-card professional-btn" [routerLink]="['/preinscription/detail/mpds']">
+            <span>Detail MPDS</span>
+          </button>
+          <button class="btn-card professional-btn" [routerLink]="['/preinscription/detail/mp3i']">
+            <span>Detail MP3I</span>
+          </button>
+          <button
+            *ngIf="hasPdfForCodes(['mpgl', 'mpds', 'mp3i'])"
+            class="btn-card professional-btn pdf-btn"
+            (click)="
+              downloadOfficialDocument(
+                getPdfUrlForCode('mpgl') ? 'mpgl' : getPdfUrlForCode('mpds') ? 'mpds' : 'mp3i'
+              )
+            "
+            title="Télécharger le document officiel d'appel à candidatures"
+          >
+            <span>📄 {{ 'masters.download_pdf' | translate }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cycle Ingenieurs -->
+      <div class="formation-card engineer">
+        <div class="card-icon-container">
+          <div class="icon-circle engineer-bg">
+            <i class="fas fa-cog"></i>
+          </div>
+          <div class="card-badge engineer-badge">
+            {{ 'masters.card.engineer.badge' | translate }}
+          </div>
+        </div>
+        <h3 class="card-title">{{ 'masters.card.engineer.title' | translate }}</h3>
+        <p class="card-description">
+          {{ 'masters.card.engineer.desc' | translate }}
+        </p>
+        <ul class="card-features">
+          <li *ngFor="let ingenieur of cycleIngenieur">
+            <span class="feature-icon engineer-icon"><i class="fas fa-check"></i></span>
+            <span>{{ ingenieur.titre.split(' ').slice(-2).join(' ') }}</span>
+          </li>
+          <li>
+            <span class="feature-icon engineer-icon"><i class="fas fa-info-circle"></i></span>
+            <span>{{ 'masters.engineer.rule' | translate }}</span>
+          </li>
+        </ul>
+        <div class="card-actions">
+          <button class="btn-card engineer-btn" [routerLink]="['/masters/ingenieur/exploration']">
+            <span>{{ 'masters.explore' | translate }}</span>
+          </button>
+          <button
+            class="btn-card engineer-btn"
+            [routerLink]="['/preinscription/detail/ing_info_gl']"
+          >
+            <span>Detail Ingenieur</span>
+          </button>
+          <button
+            *ngIf="getPdfUrlForCode('ing_info_gl')"
+            class="btn-card engineer-btn pdf-btn"
+            (click)="downloadOfficialDocument('ing_info_gl')"
+            title="Télécharger le document officiel d'appel à candidatures"
+          >
+            <span>📄 {{ 'masters.download_pdf' | translate }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA Section -->
+  <section class="bottom-cta-section">
+    <h2>{{ 'masters.bottom.title' | translate }}</h2>
+    <p>
+      {{ 'masters.bottom.desc' | translate }}
+    </p>
+  </section>
+
+  <!-- Retour -->
+  <div class="back-link">
+    <a [routerLink]="['/']">← {{ 'masters.back' | translate }}</a>
+  </div>
+</div>

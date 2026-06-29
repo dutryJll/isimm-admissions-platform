@@ -1,0 +1,29 @@
+<div class="pv-root" id="pv-root">
+  <header class="pv-header">
+    <div class="pv-left">
+      <img src="/assets/images/isimm-logo.png" alt="ISIMM" />
+    </div>
+    <div class="pv-center">
+      <div class="pv-institution">
+        Institut Supérieur d'Informatique et de Mathématiques de Monastir
+      </div>
+      <div class="pv-title">{{ title || '' }}</div>
+    </div>
+    <div class="pv-right">
+      <img src="/assets/images/univ-logo.png" alt="Université" />
+    </div>
+  </header>
+
+  <main class="pv-body">
+    <div [innerHTML]="contentHtml"></div>
+    <ng-content></ng-content>
+  </main>
+
+  <footer class="pv-footer">
+    <div class="pv-iso">Conforme ISO - ISIMM</div>
+    <div class="pv-page">
+      Page
+      <!-- page numbering added by jsPDF -->
+    </div>
+  </footer>
+</div>

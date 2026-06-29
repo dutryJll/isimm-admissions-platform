@@ -1,0 +1,9 @@
+<div class="skeleton-shell" [class.skeleton-cards]="variant === 'cards'">
+  <ng-container *ngIf="variant === 'cards'; else lineSkeleton">
+    <div class="skeleton-card" *ngFor="let _ of placeholders"></div>
+  </ng-container>
+
+  <ng-template #lineSkeleton>
+    <div class="skeleton-line" *ngFor="let _ of placeholders"></div>
+  </ng-template>
+</div>

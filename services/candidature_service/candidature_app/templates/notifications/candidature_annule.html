@@ -1,0 +1,20 @@
+{% extends "notifications/candidature_base.html" %}
+
+{% block specific_content %}
+<div class="info-box" style="background: #ffebee; border-left-color: #f44336;">
+    <p style="margin: 0; color: #c62828;">
+        <strong>⏹️ Annulée</strong> - Votre candidature a été annulée.
+    </p>
+</div>
+
+<p>Votre candidature au programme <strong>{{ master_nom }}</strong> a été annulée.</p>
+
+<p>Si vous n'avez pas demandé cette annulation ou si vous avez des questions, veuillez contacter notre équipe d'admission au plus tôt.</p>
+
+<p><strong>Coordonnées de contact:</strong></p>
+<p>
+    Email: admission@isimm.tn<br>
+    Téléphone: +216 XX XXX XXX<br>
+    Horaires: Du lundi au vendredi, 9h à 17h
+</p>
+{% endblock %}

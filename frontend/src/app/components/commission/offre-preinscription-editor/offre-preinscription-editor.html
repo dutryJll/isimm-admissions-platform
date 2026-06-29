@@ -1,0 +1,594 @@
+<div class="ofe-page">
+  <!-- Page header -->
+  <div class="ofe-header">
+    <div class="ofe-header-left">
+      <button type="button" class="ofe-back-btn" (click)="retourOffreList()">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div>
+        <div class="ofe-eyebrow">Offre de Préinscription</div>
+        <div class="ofe-page-title">{{ titre || 'Nouvelle offre' }}</div>
+      </div>
+    </div>
+    <div class="ofe-header-right">
+      <span class="ofe-badge-vis" [class.ofe-badge-vis-on]="visibilite">
+        <i class="fas fa-circle" style="font-size:7px"></i>
+        {{ visibilite ? 'Visible' : 'Masquée' }}
+      </span>
+      <span class="ofe-badge-appel" [class.ofe-badge-appel-on]="appel">
+        {{ appel ? '● Appel actif' : '○ Appel inactif' }}
+      </span>
+    </div>
+  </div>
+
+  <div class="ofe-body">
+    <!-- Form column -->
+    <div class="ofe-form-col">
+  <div class="stepper" id="stepper">
+    <button class="step-tab" [class.active]="currentStep === 1" id="tab-1" (click)="goStep(1)">
+      <div class="step-num" id="sn-1">1</div>
+      Informations
+    </button>
+    <button class="step-tab" [class.active]="currentStep === 2" id="tab-2" (click)="goStep(2)">
+      <div class="step-num" id="sn-2">2</div>
+      Critères d'évaluation
+    </button>
+    <button class="step-tab" [class.active]="currentStep === 3" id="tab-3" (click)="goStep(3)">
+      <div class="step-num" id="sn-3">3</div>
+      Calendrier
+    </button>
+    <button class="step-tab" [class.active]="currentStep === 4" id="tab-4" (click)="goStep(4)">
+      <div class="step-num" id="sn-4">4</div>
+      Quotas &amp; Diplômes
+    </button>
+  </div>
+
+  <div class="card-wrapper">
+    <div class="step-content">
+      <div class="step-panel" [class.active]="currentStep === 1" id="panel-1">
+        <div class="form-grid">
+          <div class="form-group">
+            <div class="flbl">Titre de l'offre</div>
+            <input type="text" class="finput" [(ngModel)]="titre" (input)="syncLive()" />
+          </div>
+          <div class="form-group">
+            <div class="flbl">Type</div>
+            <select class="finput" [(ngModel)]="typeFormation" (change)="syncLive()">
+              <option value="master">Master</option>
+              <option value="ingenieur">Cycle Ingénieur</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="flbl">Sous-type</div>
+            <select class="finput" [(ngModel)]="soustype" (change)="syncLive()">
+              <option value="professionnel">Professionnel</option>
+              <option value="recherche">Recherche</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="flbl">Spécialité</div>
+            <select class="finput" [value]="parcoursCode" disabled>
+              <option *ngIf="currentParcours" [value]="currentParcours.code">
+                {{ currentParcours.label }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <div class="flbl">
+              Spécialités demandées
+              <button
+                type="button"
+                class="btn btn-sec btn-sm specialites-edit-btn"
+                (click)="toggleSpecialitesEditor()"
+                style="margin-left: 8px"
+              >
+                <i class="fas fa-pen"></i> Éditer
+              </button>
+            </div>
+            <select class="finput" disabled>
+              <option *ngFor="let s of specialitesDemandees" [value]="s">{{ s }}</option>
+              <option *ngIf="specialitesDemandees.length === 0" value="">
+                Aucune spécialité — cliquez sur Éditer
+              </option>
+            </select>
+            <div *ngIf="showSpecialitesEditor" class="specialites-editor-panel">
+              <div class="specialites-editor-list">
+                <div
+                  *ngFor="let s of specialitesDemandees; let i = index"
+                  class="specialites-editor-row"
+                >
+                  <span class="specialites-editor-name">{{ s }}</span>
+                  <button
+                    type="button"
+                    class="del-btn"
+                    (click)="supprimerSpecialiteDemandee(i)"
+                    title="Supprimer"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                <div *ngIf="specialitesDemandees.length === 0" class="specialites-editor-empty">
+                  Aucune spécialité demandée — ajoutez-en une ci-dessous.
+                </div>
+              </div>
+              <div class="specialites-editor-add">
+                <input
+                  type="text"
+                  class="finput"
+                  placeholder="Ex : Licence en Sciences de l'Informatique..."
+                  [(ngModel)]="nouvelleSpecialiteDemandee"
+                  (keyup.enter)="ajouterSpecialiteDemandee()"
+                />
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm"
+                  (click)="ajouterSpecialiteDemandee()"
+                >
+                  <i class="fas fa-plus"></i> Ajouter
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="form-group full">
+            <div class="flbl">Description</div>
+            <textarea class="finput" [(ngModel)]="description" (input)="syncLive()"></textarea>
+          </div>
+          <div class="form-group full">
+            <div class="flbl">PDF officiel signé <span style="font-weight:400;font-size:11px;color:#94A3B8">(optionnel — offre signée par le directeur)</span></div>
+            <div class="ofe-pdf-upload-area">
+              <input type="file" accept=".pdf" id="pdf-signe-input" style="display:none"
+                (change)="onPdfSelected($event)" />
+              <label for="pdf-signe-input" class="ofe-pdf-upload-label">
+                <i class="fas fa-file-pdf" style="color:#EF4444;font-size:18px"></i>
+                <span *ngIf="!selectedPdfFile">Cliquer pour sélectionner un PDF signé</span>
+                <span *ngIf="selectedPdfFile" style="color:#185FA5;font-weight:500">{{ selectedPdfFile.name }}</span>
+              </label>
+              <button *ngIf="selectedPdfFile" type="button" class="ofe-pdf-remove-btn"
+                (click)="selectedPdfFile = null" title="Supprimer">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+          <div class="form-group full" style="gap: 0.55rem">
+            <div class="toggle-row">
+              <div
+                class="toggle"
+                [class.on]="appel"
+                [class.blue]="appel"
+                id="tog-appel"
+                (click)="toggleAppel()"
+              ></div>
+              <span id="tog-appel-lbl">{{ appel ? 'Appel actif' : 'Appel inactif' }}</span>
+            </div>
+            <div class="vis-toggle">
+              <div
+                class="toggle"
+                [class.on]="visibilite"
+                [class.green]="visibilite"
+                id="tog-vis"
+                (click)="toggleVis()"
+              ></div>
+              <span id="tog-vis-lbl"
+                >Visibilité : <strong>{{ visibilite ? 'Validée' : 'Masquée' }}</strong></span
+              >
+            </div>
+          </div>
+        </div>
+        <div class="nav-footer">
+          <div></div>
+          <button class="btn btn-primary btn-primary-large" (click)="goStep(2)">
+            Suivant
+            <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 2l4 3-4 3"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="step-panel" [class.active]="currentStep === 2" id="panel-2">
+        <div class="criteres-intro">
+          <strong>Critères d'évaluation</strong>
+          <p>
+            Définissez les critères numériques (codes utilisés dans la formule), puis composez la
+            formule de calcul du score. Cette formule sera appliquée automatiquement à chaque
+            préinscription.
+          </p>
+        </div>
+
+        <div class="criteres-list">
+          <div *ngFor="let c of scoreCriteres; let i = index" class="critere-card">
+            <div class="critere-card-head">
+              <div class="critere-head-field">
+                <label class="flbl-sm">Code</label>
+                <input
+                  type="text"
+                  class="qt-input critere-code-input"
+                  [(ngModel)]="c.code"
+                  placeholder="Ex: M.G"
+                />
+              </div>
+              <div class="critere-head-field critere-head-grow">
+                <label class="flbl-sm">Nom du critère</label>
+                <input
+                  type="text"
+                  class="qt-input"
+                  [(ngModel)]="c.label"
+                  placeholder="Ex: Moyenne Générale"
+                />
+              </div>
+              <div class="critere-head-field">
+                <label class="flbl-sm">Mode de calcul</label>
+                <select
+                  class="qt-input critere-mode-select"
+                  [(ngModel)]="c.mode"
+                  (ngModelChange)="onCritereModeChange(c)"
+                >
+                  <option value="palier">Palier (barème conditionnel)</option>
+                  <option value="formule">Formule (pondérée)</option>
+                  <option value="fixe">Fixe (valeur unique)</option>
+                </select>
+              </div>
+              <button class="critere-del-btn" (click)="supprimerCritereScore(i)" title="Supprimer">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+
+            <div *ngIf="c.description" class="critere-desc">
+              <i class="fas fa-info-circle"></i> {{ c.description }}
+            </div>
+
+            <div *ngIf="c.mode === 'palier'" class="critere-body">
+              <div class="critere-body-label">Barème par palier</div>
+              <table class="paliers-table">
+                <thead>
+                  <tr>
+                    <th>Condition</th>
+                    <th style="width: 100px">Points</th>
+                    <th style="width: 40px"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let p of c.paliers; let pi = index">
+                    <td>
+                      <input
+                        type="text"
+                        class="qt-input"
+                        [(ngModel)]="p.condition"
+                        placeholder="Ex: 0 redoublement"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        step="0.5"
+                        class="qt-input"
+                        [(ngModel)]="p.points"
+                      />
+                    </td>
+                    <td>
+                      <button class="palier-del-btn" (click)="supprimerPalier(c, pi)" title="Retirer">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!c.paliers || c.paliers.length === 0">
+                    <td colspan="3" style="text-align:center;color:#94A3B8;font-style:italic;padding:8px">
+                      Aucun palier — ajoutez-en un ci-dessous.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <button type="button" class="btn btn-sec btn-sm palier-add-btn" (click)="ajouterPalier(c)">
+                <i class="fas fa-plus"></i> Ajouter un palier
+              </button>
+            </div>
+
+            <div *ngIf="c.mode === 'formule'" class="critere-body">
+              <div class="critere-body-label">Formule pondérée (variables : l1, l2, l3, bac, math_bac)</div>
+              <input
+                type="text"
+                class="finput"
+                [(ngModel)]="c.formuleCalc"
+                placeholder="Ex: 2*bac + 1.5*l1 + 1*l2 + 0.5*l3"
+              />
+            </div>
+
+            <div *ngIf="c.mode === 'fixe'" class="critere-body">
+              <div class="critere-body-label">Valeur fixe</div>
+              <input
+                type="number"
+                step="0.5"
+                class="qt-input"
+                [(ngModel)]="c.valeurFixe"
+                style="width: 120px"
+              />
+            </div>
+          </div>
+
+          <div *ngIf="scoreCriteres.length === 0" class="criteres-empty">
+            Aucun critère défini — cliquez sur « Ajouter un critère ».
+          </div>
+        </div>
+
+        <div style="margin-top: 0.75rem">
+          <button type="button" class="btn btn-sec btn-sm" (click)="ajouterCritereScore()">
+            <i class="fas fa-plus"></i> Ajouter un critère
+          </button>
+        </div>
+
+        <div class="form-group full" style="margin-top: 1rem">
+          <div class="flbl">Formule de calcul du score</div>
+          <input
+            type="text"
+            class="finput"
+            [(ngModel)]="scoreFormule"
+            placeholder="Ex: M.G + B.N.R + B.S.P"
+          />
+          <div class="formule-help">
+            Codes disponibles (cliquez pour insérer) :
+            <span
+              *ngFor="let c of scoreCriteres"
+              class="formule-code-chip clickable"
+              (click)="insererCodeDansFormule(c.code)"
+              title="Insérer dans la formule"
+            >{{ c.code }}</span>
+            <span *ngIf="scoreCriteres.length === 0" style="color: #94A3B8; font-style: italic">
+              Aucun (ajoutez un critère)
+            </span>
+          </div>
+          <div
+            class="formule-result"
+            [class.formule-ok]="evaluerScoreFormule().ok"
+            [class.formule-err]="!evaluerScoreFormule().ok"
+          >
+            <ng-container *ngIf="evaluerScoreFormule().ok">
+              <i class="fas fa-check-circle"></i> Formule valide — score avec valeurs par défaut :
+              <strong>{{ evaluerScoreFormule().value }}</strong>
+            </ng-container>
+            <ng-container *ngIf="!evaluerScoreFormule().ok">
+              <i class="fas fa-exclamation-triangle"></i> {{ evaluerScoreFormule().error }}
+            </ng-container>
+          </div>
+        </div>
+
+        <div class="nav-footer">
+          <button type="button" class="btn btn-sec btn-sm" (click)="goStep(1)">
+            <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M7 2L3 5l4 3"></path>
+            </svg>
+            Précédent
+          </button>
+          <button type="button" class="btn btn-primary btn-primary-large" (click)="goStep(3)">
+            Suivant
+            <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 2l4 3-4 3"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="step-panel" [class.active]="currentStep === 3" id="panel-3">
+        <div class="cal-grid">
+          <div class="form-group">
+            <div class="flbl">Date début visibilité</div>
+            <input type="date" class="finput" [(ngModel)]="dateDebut" (change)="syncLive()" />
+          </div>
+          <div class="form-group">
+            <div class="flbl">Date fin visibilité</div>
+            <input type="date" class="finput" [(ngModel)]="dateFin" (change)="syncLive()" />
+          </div>
+          <div class="form-group">
+            <div class="flbl">Date limite préinscription</div>
+            <input type="date" class="finput" [(ngModel)]="dateLimitePre" (change)="syncLive()" />
+          </div>
+          <div class="form-group">
+            <div class="flbl">Date limite dépôt dossier</div>
+            <input type="date" class="finput" [(ngModel)]="dateLimiteDep" (change)="syncLive()" />
+          </div>
+        </div>
+        <div class="nav-footer">
+          <button type="button" class="btn btn-sec btn-sm" (click)="goStep(2)">
+            <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M7 2L3 5l4 3"></path>
+            </svg>
+            Précédent
+          </button>
+          <button type="button" class="btn btn-primary btn-primary-large" (click)="goStep(4)">
+            Suivant
+            <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 2l4 3-4 3"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="step-panel" [class.active]="currentStep === 4" id="panel-4">
+        <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 0.55rem">
+          Tableau dynamique des quotas (ISIMM Internes, Externes...)
+        </div>
+        <table class="quota-table" id="quota-table">
+          <thead>
+            <tr>
+              <th>Catégorie</th>
+              <th>Établissement</th>
+              <th>Places</th>
+              <th>Diplôme requis</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="quota-body">
+            <tr *ngFor="let q of quotas; let i = index">
+              <td>
+                <input type="text" class="qt-input" [(ngModel)]="q.cat" (change)="syncLive()" />
+              </td>
+              <td>
+                <input type="text" class="qt-input" [(ngModel)]="q.etab" (change)="syncLive()" />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  class="qt-input"
+                  style="width: 60px"
+                  [(ngModel)]="q.places"
+                  (change)="updateTotal(); syncLive()"
+                />
+              </td>
+              <td>
+                <select class="qt-input" [(ngModel)]="q.diplome" (change)="syncLive()">
+                  <option value="">— Choisir une spécialité demandée —</option>
+                  <option *ngFor="let s of specialitesDemandees" [value]="s">{{ s }}</option>
+                </select>
+              </td>
+              <td>
+                <button class="del-btn" (click)="delQuota(i)" title="Supprimer">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M2 3h8M5 3V2h2v1M4 3v6h4V3"></path>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+          "
+        >
+          <button type="button" class="btn btn-sec btn-sm" (click)="addQuota()">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+              <line x1="6" y1="2" x2="6" y2="10"></line>
+              <line x1="2" y1="6" x2="10" y2="6"></line>
+            </svg>
+            Ajouter un quota
+          </button>
+          <div class="total-pill">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4">
+              <circle cx="8" cy="5" r="2.5"></circle>
+              <path d="M1 10c0-2.5 2-4 5-4M11 10c0-1.5-1-2.5-3-3"></path>
+            </svg>
+            Capacité totale : <strong id="cap-total">{{ capaciteTotal }}</strong> places
+          </div>
+        </div>
+        <div class="nav-footer">
+          <button type="button" class="btn btn-sec btn-sm" (click)="goStep(3)">
+            <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M7 2L3 5l4 3"></path>
+            </svg>
+            Précédent
+          </button>
+          <div style="display: flex; gap: 0.5rem">
+            <button class="btn btn-primary btn-sm" type="button" (click)="publierOffre()">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4">
+                <path d="M1 6l4-4 4 4M5 2v8"></path>
+              </svg>
+              Publier maintenant
+            </button>
+            <button class="btn btn-teal btn-sm" type="button" (click)="enregistrer()">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4">
+                <path d="M2 6l3 3 5-5"></path>
+              </svg>
+              Enregistrer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    </div><!-- /ofe-form-col -->
+
+    <!-- Live preview sidebar -->
+    <div class="ofe-preview-col">
+      <div class="ofe-preview-card">
+        <div class="ofe-preview-head">
+          <i class="fas fa-eye" style="font-size:12px;color:#185FA5"></i>
+          Aperçu — Vue candidat
+        </div>
+        <div class="ofe-preview-body">
+          <div class="ofe-prev-title">{{ titre || '—' }}</div>
+          <div class="ofe-prev-type">
+            <span>{{ typeFormation === 'master' ? 'Master' : 'Cycle Ingénieur' }}</span>
+            <span class="ofe-prev-dot">·</span>
+            <span>{{ soustype }}</span>
+          </div>
+          <div class="ofe-prev-desc">{{ description || '—' }}</div>
+          <div class="ofe-prev-sep"></div>
+          <div class="ofe-prev-row">
+            <i class="fas fa-tag ofe-prev-icon"></i>
+            <span>Spécialité : <strong>{{ spec || '—' }}</strong></span>
+          </div>
+          <div class="ofe-prev-row">
+            <i class="fas fa-calendar ofe-prev-icon"></i>
+            <span>Limite préinscription : <strong>{{ dateLimitePre || '—' }}</strong></span>
+          </div>
+          <div class="ofe-prev-row">
+            <i class="fas fa-calendar-check ofe-prev-icon"></i>
+            <span>Limite dépôt dossier : <strong>{{ dateLimiteDep || '—' }}</strong></span>
+          </div>
+          <div class="ofe-prev-row">
+            <i class="fas fa-users ofe-prev-icon"></i>
+            <span>Capacité : <strong>{{ capaciteTotal }} places</strong></span>
+          </div>
+          <div class="ofe-prev-sep"></div>
+          <div class="ofe-prev-quotas">
+            <div class="ofe-prev-qlbl">Répartition des quotas</div>
+            <div *ngFor="let q of quotas" class="ofe-prev-quota-row">
+              <span class="ofe-prev-qcat">{{ q.cat }}</span>
+              <span class="ofe-prev-qplaces">{{ q.places }} places</span>
+            </div>
+            <div *ngIf="quotas.length === 0" style="font-size:11px;color:#94A3B8;font-style:italic">Aucun quota défini</div>
+          </div>
+          <div class="ofe-prev-sep"></div>
+          <div class="ofe-prev-status-row">
+            <span class="ofe-prev-status-badge" [class.ofe-prev-status-on]="visibilite">
+              {{ visibilite ? '✓ Visible' : '○ Masquée' }}
+            </span>
+            <span class="ofe-prev-status-badge" [class.ofe-prev-status-appel]="appel">
+              {{ appel ? '● Appel actif' : '— Appel inactif' }}
+            </span>
+          </div>
+        </div>
+        <div class="ofe-preview-foot">
+          <button class="btn btn-primary btn-sm" type="button" (click)="enregistrer()">
+            <i class="fas fa-save"></i> Enregistrer
+          </button>
+          <button class="btn btn-teal btn-sm" type="button" (click)="publierOffre()">
+            <i class="fas fa-upload"></i> Publier
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /ofe-body -->
+
+  <!-- Overlay preview modal (kept for backward compat) -->
+  <div
+    id="preview-wrap"
+    *ngIf="previewOpen"
+    style="position:fixed;inset:0;background:rgba(2,8,23,.5);z-index:50;display:flex;align-items:center;justify-content:center"
+  >
+    <div class="preview-modal">
+      <div class="preview-head">
+        <span>Aperçu — Vue candidat</span>
+        <button class="preview-close" (click)="togglePreview()">
+          <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5">
+            <line x1="2" y1="2" x2="8" y2="8"></line>
+            <line x1="8" y1="2" x2="2" y2="8"></line>
+          </svg>
+        </button>
+      </div>
+      <div id="preview-card-wrap" style="padding:0.75rem">
+        <div class="offre-title">{{ titre }}</div>
+        <div class="offre-desc" style="margin-top:0.4rem">{{ description }}</div>
+        <div class="offre-info-row" style="margin-top:0.55rem">Spécialité: {{ spec }}</div>
+        <div class="offre-info-row">Date limite: {{ dateLimitePre }}</div>
+        <div class="offre-info-row">Capacité: {{ capaciteTotal }} places</div>
+      </div>
+    </div>
+  </div>
+</div>

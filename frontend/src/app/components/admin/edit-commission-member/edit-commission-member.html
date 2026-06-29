@@ -1,0 +1,69 @@
+<div class="member-edit-page">
+  <div class="member-edit-card">
+    <div class="card-header">
+      <button type="button" class="btn-back" (click)="goBack()">Retour</button>
+      <div>
+        <p class="eyebrow">Gestion des commissions</p>
+        <h1>Modifier le membre</h1>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="banner info">Chargement des informations...</div>
+    <div *ngIf="errorMessage" class="banner error">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="banner success">{{ successMessage }}</div>
+
+    <form *ngIf="!isLoading" (ngSubmit)="saveMember()" class="member-form">
+      <div class="grid-two">
+        <label>
+          Prénom *
+          <input type="text" [(ngModel)]="memberForm.first_name" name="first_name" required />
+        </label>
+
+        <label>
+          Nom *
+          <input type="text" [(ngModel)]="memberForm.last_name" name="last_name" required />
+        </label>
+      </div>
+
+      <label>
+        Email *
+        <input type="email" [(ngModel)]="memberForm.email" name="email" required />
+      </label>
+
+      <label>
+        Spécialité *
+        <select [(ngModel)]="memberForm.specialite" name="specialite" required>
+          <option *ngFor="let spec of specialites" [value]="spec">{{ spec }}</option>
+        </select>
+      </label>
+
+      <div class="grid-two">
+        <label>
+          Grade *
+          <select [(ngModel)]="memberForm.grade" name="grade" required>
+            <option *ngFor="let grade of grades" [value]="grade">{{ grade }}</option>
+          </select>
+        </label>
+
+        <label>
+          Rôle *
+          <select [(ngModel)]="memberForm.role" name="role" required>
+            <option value="commission">Membre Commission</option>
+            <option value="responsable_commission">Responsable Commission</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="note">
+        Les champs Spécialité et Grade sont conservés pour la cohérence d'affichage de la page.
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn-secondary" (click)="goBack()">Annuler</button>
+        <button type="submit" class="btn-primary" [disabled]="isSaving">
+          {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

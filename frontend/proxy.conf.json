@@ -1,0 +1,79 @@
+{
+  "/api/auth": {
+    "target": "http://127.0.0.1:8001",
+    "secure": false,
+    "changeOrigin": true,
+    "ws": false,
+    "logLevel": "warn"
+  },
+  "/api/user": {
+    "target": "http://127.0.0.1:8002",
+    "secure": false,
+    "changeOrigin": true,
+    "ws": false,
+    "logLevel": "warn"
+  },
+  "/api/candidatures": {
+    "target": "http://127.0.0.1:8003",
+    "secure": false,
+    "changeOrigin": true,
+    "ws": true,
+    "logLevel": "warn"
+  },
+  "/api/commission": {
+    "target": "http://127.0.0.1:8003",
+    "secure": false,
+    "changeOrigin": true,
+    "ws": true,
+    "logLevel": "warn"
+  },
+  "/api/concours": {
+    "target": "http://127.0.0.1:8003",
+    "secure": false,
+    "changeOrigin": true,
+    "ws": true,
+    "logLevel": "warn"
+  },
+  "/api/ocr": {
+    "target": "http://127.0.0.1:8003",
+    "secure": false,
+    "changeOrigin": true,
+    "ws": false,
+    "logLevel": "warn"
+  },
+  "/api/listes": {
+    "target": "http://127.0.0.1:8003",
+    "secure": false,
+    "changeOrigin": true,
+    "ws": false,
+    "logLevel": "warn"
+  },
+  "/api/deliberations": {
+    "target": "http://127.0.0.1:8003",
+    "secure": false,
+    "changeOrigin": true,
+    "ws": false,
+    "logLevel": "warn"
+  },
+  "/api/reclamations": {
+    "target": "http://127.0.0.1:8003",
+    "secure": false,
+    "changeOrigin": true,
+    "ws": false,
+    "logLevel": "warn"
+  },
+  "/api/commissions": {
+    "target": "http://127.0.0.1:8003",
+    "secure": false,
+    "changeOrigin": true,
+    "ws": false,
+    "logLevel": "warn"
+  },
+  "/ws": {
+    "target": "http://127.0.0.1:8003",
+    "secure": false,
+    "changeOrigin": true,
+    "ws": true,
+    "logLevel": "warn"
+  }
+}

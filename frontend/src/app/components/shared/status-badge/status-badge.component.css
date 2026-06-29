@@ -1,0 +1,29 @@
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
+}
+
+.status-pill.success {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+.status-pill.warning {
+  color: #9a3412;
+  background: #ffedd5;
+  border-color: #fdba74;
+}
+
+.status-pill.info {
+  color: #1d4ed8;
+  background: #dbeafe;
+  border-color: #93c5fd;
+}

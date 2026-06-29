@@ -1,0 +1,44 @@
+<div class="master-catalog-page">
+  <section class="hero">
+    <p class="kicker">Catalogue admissions 2025-2026</p>
+    <h1>Mastères disponibles</h1>
+    <p>
+      Choisissez la voie qui correspond a votre profil puis explorez les conditions officielles
+      avant de lancer votre candidature.
+    </p>
+  </section>
+
+  <section class="cards-grid">
+    <article class="catalog-card research-card">
+      <div class="card-icon"><i class="fas fa-flask"></i></div>
+      <p class="card-tag">Voie recherche</p>
+      <h2>Mastères Recherche</h2>
+      <p class="card-desc">MRGL, MRMI et conditions officielles de classement.</p>
+      <ul class="feature-list">
+        <li>Classement sur score selon referentiel</li>
+        <li>Processus en 4 etapes (inscription, preselection, depot, resultat)</li>
+      </ul>
+      <div class="actions">
+        <a class="btn primary" [routerLink]="['/masters/recherche/exploration']">Explorer</a>
+      </div>
+    </article>
+
+    <article class="catalog-card pro-card">
+      <div class="card-icon"><i class="fas fa-briefcase"></i></div>
+      <p class="card-tag">Voie professionnelle</p>
+      <h2>Mastères Professionnels</h2>
+      <p class="card-desc">MPGL, MPDS, MP3I avec calendrier, capacites et depots officiels.</p>
+      <ul class="feature-list">
+        <li>Parcours orientes employabilite et industrie</li>
+        <li>Capacites et calendrier centralises</li>
+      </ul>
+      <div class="actions">
+        <a class="btn primary" [routerLink]="['/masters/professionnel/exploration']">Explorer</a>
+      </div>
+    </article>
+  </section>
+
+  <div class="back-link">
+    <a [routerLink]="['/choisir-candidature']"><i class="fas fa-arrow-left"></i> Retour au choix</a>
+  </div>
+</div>
