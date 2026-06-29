@@ -1,8 +1,4 @@
-"""Middleware to force `charset=utf-8` on JSON responses.
 
-Some browsers default to Latin-1 when application/json is sent without
-charset, producing mojibake (e.g. PrÃ©sÃ©lectionnÃ© instead of Présélectionné).
-"""
 
 
 class UTF8JSONCharsetMiddleware:

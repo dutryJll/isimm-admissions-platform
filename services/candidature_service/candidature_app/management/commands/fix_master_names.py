@@ -1,11 +1,4 @@
-"""
-Commande de management : corrige les noms de masters de démonstration
-en appellations officielles ISIMM.
 
-Usage:
-    python manage.py fix_master_names
-    python manage.py fix_master_names --dry-run
-"""
 
 from django.core.management.base import BaseCommand
 

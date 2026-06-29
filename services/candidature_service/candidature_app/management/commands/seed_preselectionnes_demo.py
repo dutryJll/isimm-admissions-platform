@@ -1,11 +1,4 @@
-"""
-Seed plusieurs candidats préselectionés sur le master MPGL avec différentes
-spécialités diplôme pour démontrer la génération PDF officielle GFH FOR 09 v1
-au format identique au modèle ISIMM (sections par spécialité de diplôme).
 
-Usage:
-    python manage.py seed_preselectionnes_demo
-"""
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import timezone

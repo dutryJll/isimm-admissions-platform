@@ -1,31 +1,4 @@
-"""
-Service de génération PDF officiel ISIMM — Listes de sélection
 
-Génère le document de sélection finale avec :
-  • En-tête officielle ISIMM (3 colonnes : Logo | Institution | Référence + QR)
-  • LISTE PRINCIPALE   — candidats admis (fond vert)
-  • LISTE D'ATTENTE    — candidats en attente (fond ambre)
-  • QR Code d'authenticité en bas à droite de chaque page
-  • Pied de page avec numérotation
-
-Usage :
-    from .pdf_service import ISIMMSelectionPDFService
-
-    service = ISIMMSelectionPDFService()
-    pdf_buf = service.generer(
-        candidats_principale=[
-            {'num_dossier': 'CAND-001', 'nom': 'Ben Ali', 'prenom': 'Sami',
-             'cin': '12345678', 'score': 16.75},
-        ],
-        candidats_attente=[...],
-        master_nom='Mastère Professionnel en Génie Logiciel (MPGL)',
-        annee='2025-2026',
-        selecteur='Dr. Ahmed Khemiri',
-        qr_url='https://isimm.rnu.tn/verifier/liste/MPGL-2025',
-        logo_path='/app/assets/images/logo-isimm.png',
-    )
-    # pdf_buf est un BytesIO prêt pour HttpResponse
-"""
 
 from io import BytesIO
 from datetime import date

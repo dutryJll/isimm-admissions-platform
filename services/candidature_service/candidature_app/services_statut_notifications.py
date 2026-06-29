@@ -1,7 +1,3 @@
-"""
-Service pour gérer les changements de statut et les notifications associées.
-Centralise la logique de workflow de candidature.
-"""
 
 import logging
 from typing import Dict, Optional, List

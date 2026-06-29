@@ -1,7 +1,4 @@
-"""
-Module de génération de PDF officiel ISIMM
-Respecte la charte qualité GFH FOR 09 v1
-"""
+
 from io import BytesIO
 from datetime import date
 import os

@@ -1,7 +1,4 @@
-"""
-Views pour la gestion du dépôt de dossier - Sprint2
-Endpoints pour upload, traitement OCR, validation et consultation
-"""
+
 from rest_framework import status, viewsets
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response

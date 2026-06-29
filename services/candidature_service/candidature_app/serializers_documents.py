@@ -1,6 +1,4 @@
-"""
-Serializers pour la gestion des documents et dépôt de dossiers - Sprint2
-"""
+
 from rest_framework import serializers
 from django.core.files.base import ContentFile
 from django.utils import timezone

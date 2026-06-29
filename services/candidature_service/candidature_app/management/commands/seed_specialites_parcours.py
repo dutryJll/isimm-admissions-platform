@@ -1,22 +1,10 @@
-"""
-Management command — Peuplement / resynchronisation de SpecialiteParcoursMapping.
 
-Usage :
-    python manage.py seed_specialites_parcours
-    python manage.py seed_specialites_parcours --reset   # supprime d'abord les entrées existantes
-    python manage.py seed_specialites_parcours --dry-run # affiche ce qui serait inséré
-
-Idempotent : update_or_create sur (code_parcours, type_formation).
-"""
 
 from django.core.management.base import BaseCommand
 
 from candidature_app.models import SpecialiteParcoursMapping
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# DONNÉES SOURCES (source de vérité unique, identique à la migration 0025)
-# ──────────────────────────────────────────────────────────────────────────────
 
 _MPGL_SPECIALITES = [
     {
@@ -186,10 +174,6 @@ PARCOURS_DATA = [
     },
 ]
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# COMMANDE
-# ──────────────────────────────────────────────────────────────────────────────
 
 class Command(BaseCommand):
     help = (

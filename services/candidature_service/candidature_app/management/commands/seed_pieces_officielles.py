@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Crée/met à jour les 6 pièces officielles du dossier ISIMM pour chaque master.
 
-Usage:
-    python manage.py seed_pieces_officielles
-"""
 from django.core.management.base import BaseCommand
 from candidature_app.models import Master, DocumentType
 

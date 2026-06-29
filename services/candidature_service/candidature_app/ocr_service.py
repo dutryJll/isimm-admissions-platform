@@ -1,11 +1,4 @@
-"""
-OCR Service — Extraction réelle des scores/moyennes depuis PDF
-Utilise pdfplumber (extraction texte) + EasyOCR (fallback OCR image)
 
-Req-3 — Actions automatiques :
-- conforme (écart ≤ 0.5) → pièce validée auto
-- incoherence (écart > 0.5) → alerte "Dossier Suspect"
-"""
 
 import re
 import logging

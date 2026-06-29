@@ -1,10 +1,4 @@
-"""
-Vues : attestation individuelle PDF + analyse OCR par candidature.
 
-Endpoints:
-  GET  /api/candidatures/<id>/generer-pdf/      -> télécharge l'attestation PDF
-  POST /api/candidatures/<id>/analyser-ocr/     -> OCR sur un fichier + update note_extraite_ocr
-"""
 
 import logging
 import os

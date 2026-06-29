@@ -1,14 +1,4 @@
-"""Management command to initialize ParcoursAdmission and ValeurCritere for common tracks.
 
-Creates 4 Parcours:
-- Master Professionnel (GL/DS) -> type 'pro'
-- Master Recherche (MR-GL) -> type 'recherche'
-- Cycle Ingénieur (Interne) -> type 'ingenieur' (interne)
-- Cycle Ingénieur (Externe) -> type 'ingenieur' (externe)
-
-Also creates ValeurCritere entries mapped to existing CritereEvaluation codes.
-Run with: `python manage.py init_parcours`
-"""
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone

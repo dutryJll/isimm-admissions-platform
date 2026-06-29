@@ -151,9 +151,7 @@ def register(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# ========================================
-# CONNEXION
-# ========================================
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login(request):
@@ -167,20 +165,18 @@ def login(request):
             status=status.HTTP_400_BAD_REQUEST
         )
     
-    # Authentifier (tolérant: email direct, clé USERNAME_FIELD, puis username)
+
     user = authenticate(request=request, email=email, password=password)
     if user is None:
         user = authenticate(request=request, username=email, password=password)
 
-    # Fallback: si l'UI envoie un email mais que le backend attend le username,
-    # on récupère le user par email puis on tente une authentification par username.
+
     if user is None:
         candidate = User.objects.filter(email__iexact=email).first()
         if candidate is not None:
             user = authenticate(request=request, username=candidate.username, password=password)
 
-    # Fallback ultime: verification directe du mot de passe pour tolerer
-    # des ecarts de configuration AUTHENTICATION_BACKENDS.
+
     if user is None:
         candidate = User.objects.filter(email__iexact=email).first()
         if candidate is None:
@@ -200,7 +196,7 @@ def login(request):
             status=status.HTTP_403_FORBIDDEN
         )
     
-    # Générer tokens JWT
+    
     refresh = RefreshToken.for_user(user)
     refresh['email'] = user.email
     refresh['username'] = user.username
@@ -208,11 +204,11 @@ def login(request):
     refresh['first_name'] = user.first_name or ''
     refresh['last_name'] = user.last_name or ''
     
-    # Mettre à jour dernière connexion
+    
     user.derniere_connexion = timezone.now()
     user.save()
     
-    # Envoyer notification
+    
     try:
         ip_address = request.META.get('REMOTE_ADDR')
         send_login_notification(user, ip_address)
@@ -226,9 +222,7 @@ def login(request):
     }, status=status.HTTP_200_OK)
 
 
-# ========================================
-# PROFIL
-# ========================================
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_profile(request):
@@ -499,14 +493,12 @@ def update_user_account_status(request, user_id):
     )
 
 
-# ========================================
-# CRÉATION MEMBRE COMMISSION
-# ========================================
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_commission_member(request):
     """Créer un membre de commission et envoyer lien d'activation"""
-    # Vérifier que c'est un admin ou un responsable de commission.
+
     if request.user.role not in ['admin', 'responsable_commission']:
         return Response(
             {'error': 'Accès refusé'}, 
@@ -521,7 +513,7 @@ def create_commission_member(request):
     requested_role = request.data.get('role')
     role = requested_role
 
-    # Un responsable ne peut créer que des membres de commission.
+    
     if request.user.role == 'responsable_commission':
         role = 'commission'
 
@@ -552,7 +544,7 @@ def create_commission_member(request):
     
     created_new_user = False
 
-    # Si un compte existe deja avec cet email, on le reutilise pour reaffecter la commission.
+    
     user = User.objects.filter(email=email).first()
 
     if user:
@@ -585,9 +577,7 @@ def create_commission_member(request):
             is_active=False
         )
 
-    # Générer ou réutiliser le token d'activation.
-    # Si le compte est déjà en attente d'activation, on conserve le même token
-    # pour éviter que les anciens emails deviennent invalides.
+    
     reuse_existing_token = (
         bool(user.email_verification_token)
         and not user.is_active
@@ -598,12 +588,11 @@ def create_commission_member(request):
     user.email_verification_token = activation_token
     user.save()
     
-    # Préparer l'email
+    
     role_display = 'Responsable de Commission' if role == 'responsable_commission' else 'Membre de Commission'
     activation_link = f"{settings.FRONTEND_URL}/create-password/{activation_token}"
 
-    # Vérification explicite de la configuration SMTP.
-    # Si SMTP est mal configuré, on bascule en backend console au lieu d'échouer.
+   
     email_mode = getattr(settings, 'EMAIL_MODE', 'console')
     email_user = (getattr(settings, 'EMAIL_HOST_USER', '') or '').strip()
     email_password = (getattr(settings, 'EMAIL_HOST_PASSWORD', '') or '').strip()
@@ -696,9 +685,7 @@ L'équipe ISIMM
         )
 
 
-# ========================================
-# CRÉER MOT DE PASSE AVEC TOKEN
-# ========================================
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def set_password_with_token(request, token):
@@ -729,11 +716,11 @@ def set_password_with_token(request, token):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         
-        # Définir le mot de passe
+        
         user.set_password(password)
         user.is_active = True
         user.is_email_verified = True
-        # Invalider le token en le remplaçant par un nouveau UUID.
+    
         user.email_verification_token = uuid.uuid4()
         user.save()
         
@@ -749,9 +736,7 @@ def set_password_with_token(request, token):
         )
 
 
-# ========================================
-# LISTER MEMBRES COMMISSION
-# ========================================
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_commission_members(request):
@@ -762,12 +747,12 @@ def list_commission_members(request):
             status=status.HTTP_403_FORBIDDEN
         )
     
-    # Récupérer les membres
+    
     members = User.objects.filter(
         role__in=['commission', 'responsable_commission']
     ).order_by('-date_inscription')
     
-    # Transformer en format Angular
+    
     members_data = []
     for member in members:
         members_data.append({
@@ -834,10 +819,10 @@ def verify_token(request, token):
     Vérifie si le token est valide et retourne les infos utilisateur
     """
     try:
-        # Le convertisseur <uuid:token> de Django peut déjà fournir un UUID.
+        
         token_uuid = token if isinstance(token, uuid.UUID) else uuid.UUID(str(token))
 
-        # Token de creation de mot de passe commission.
+        
         user = User.objects.filter(
             email_verification_token=token_uuid,
             is_active=False
@@ -852,7 +837,7 @@ def verify_token(request, token):
                 status=status.HTTP_200_OK,
             )
         
-        # Un compte deja actif a deja finalise son mot de passe.
+        
         if user.has_usable_password() and user.is_email_verified:
             return Response(
                 {
@@ -882,9 +867,7 @@ def verify_token(request, token):
         )
 
 
-# ========================================
-# MATRICE ACTIONS / RÔLES (ADMIN)
-# ========================================
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def action_roles_matrix(request):
@@ -961,9 +944,7 @@ def my_enabled_actions(request):
     )
 
 
-# ========================================
-# COMMISSIONS MULTIPLES (ÉTAPE 3)
-# ========================================
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def my_commissions(request):
@@ -999,11 +980,10 @@ def my_commissions(request):
         )
     
     try:
-        # Appeler le service candidature pour récupérer les commissions
-        # GET /api/commissions/my-commissions/?user_id=<id>
+      
         candidature_url = f"{settings.CANDIDATURE_SERVICE_URL}/api/commissions/my-commissions/"
         
-        # Passer le token d'authentification
+       
         auth_header = request.headers.get('Authorization', '')
         headers = {
             'Authorization': auth_header,
@@ -1018,7 +998,7 @@ def my_commissions(request):
             return Response(data, status=status.HTTP_200_OK)
         
         elif response.status_code == 404:
-            # Pas de commission trouvée pour cet utilisateur
+           
             return Response(
                 {
                     'success': True,
@@ -1105,8 +1085,7 @@ def select_commission(request):
         )
     
     try:
-        # Récupérer les détails de la commission et ses membres
-        # pour valider l'accès
+        
         candidature_url = f"{settings.CANDIDATURE_SERVICE_URL}/api/commissions/commission-members/"
         
         auth_header = request.headers.get('Authorization', '')
@@ -1121,7 +1100,7 @@ def select_commission(request):
         if response.status_code == 200:
             members_data = response.json()
             
-            # Vérifier que l'utilisateur est membre de cette commission
+        
             members = members_data.get('members', [])
             user_is_member = any(m['user_id'] == request.user.id for m in members)
             
@@ -1131,7 +1110,7 @@ def select_commission(request):
                     status=status.HTTP_403_FORBIDDEN
                 )
             
-            # Stocker la sélection en session (le frontend stockera aussi en localStorage)
+            
             request.session['selected_commission_id'] = commission_id
             
             return Response(
@@ -1154,7 +1133,7 @@ def select_commission(request):
         
         else:
             print(f"[WARN] Service candidature retourne: {response.status_code}")
-            # Fallback: accepter la sélection même si le service a une erreur
+            
             request.session['selected_commission_id'] = commission_id
             return Response(
                 {
@@ -1168,7 +1147,7 @@ def select_commission(request):
     
     except requests.exceptions.Timeout:
         print("[ERROR] Timeout lors de la validation de la commission")
-        # Fallback: accepter la sélection même si le service est indisponible
+        
         request.session['selected_commission_id'] = commission_id
         return Response(
             {
@@ -1182,7 +1161,7 @@ def select_commission(request):
     
     except requests.exceptions.RequestException as e:
         print(f"[ERROR] Erreur validation commission: {e}")
-        # Fallback: accepter la sélection même si le service est indisponible
+        
         request.session['selected_commission_id'] = commission_id
         return Response(
             {
@@ -1194,9 +1173,7 @@ def select_commission(request):
             status=status.HTTP_200_OK
         )
 
-# ========================================
-# RÉINITIALISATION MOT DE PASSE
-# ========================================
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def password_reset(request):
@@ -1208,7 +1185,7 @@ def password_reset(request):
     try:
         user = User.objects.get(email__iexact=email)
     except User.DoesNotExist:
-        # Ne pas révéler si l'email existe ou non
+        
         return Response({'message': 'Si cet email existe, un lien a été envoyé.'}, status=status.HTTP_200_OK)
 
     token = uuid.uuid4()

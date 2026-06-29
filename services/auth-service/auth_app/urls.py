@@ -9,7 +9,7 @@ urlpatterns = [
     path('profile/update/', views.update_profile, name='update_profile'),
     path('profile/two-factor/', views.toggle_two_factor, name='toggle_two_factor'),
     
-    # Admin
+    
     path('users/', views.list_users, name='list_users'),
     path('users/create/', views.create_user, name='create_user'),
     path('users/<int:user_id>/', views.user_detail_update, name='user_detail_update'),
@@ -25,7 +25,7 @@ urlpatterns = [
     path('admin/action-roles/matrix/update/', views.update_action_roles_matrix, name='update_action_roles_matrix'),
     path('my-actions/', views.my_enabled_actions, name='my_enabled_actions'),
     
-    # ÉTAPE 3: Commissions multiples
+   
     path('my-commissions/', views.my_commissions, name='my_commissions'),
     path('select-commission/', views.select_commission, name='select_commission'),
     path('password-reset/', views.password_reset, name='password_reset'),

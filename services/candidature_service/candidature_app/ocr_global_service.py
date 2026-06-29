@@ -1,19 +1,3 @@
-"""
-OCR Global Service — Audit complet de dossier candidat avec PaddleOCR
-======================================================================
-Pipeline full-local (aucune API externe) qui audite tous les documents
-obligatoires d'une candidature et signale les anomalies/fraudes.
-
-Documents audités :
-  - CIN (carte d'identité nationale)
-  - Diplôme Baccalauréat
-  - Diplôme Licence
-  - Relevés de notes (L1 / L2 / L3)
-
-Usage :
-    from .ocr_global_service import auditer_dossier_complet
-    rapport = auditer_dossier_complet(candidat_id=42)
-"""
 
 import io
 import re

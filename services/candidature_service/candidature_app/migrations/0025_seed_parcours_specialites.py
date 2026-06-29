@@ -1,12 +1,4 @@
-"""
-Data migration — Peuplement initial de SpecialiteParcoursMapping.
 
-Insère les 6 parcours officiels de l'ISIMM (5 Masters + 1 Ingénieur) avec
-leur matrice complète d'éligibilité de diplômes/licences.
-
-Idempotent : utilise update_or_create sur (code_parcours, type_formation).
-Réversible : la fonction reverse supprime uniquement les entrées créées ici.
-"""
 
 from django.db import migrations
 

@@ -1,8 +1,4 @@
-"""
-Générateur d'attestation individuelle PDF ISIMM
-Produit un document officiel pour un seul candidat (Préselection / Sélection).
-Utilise ReportLab (déjà installé) + qrcode (déjà installé).
-"""
+
 
 import os
 from io import BytesIO

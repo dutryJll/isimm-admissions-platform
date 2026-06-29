@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Endpoints pour le workflow d'inscription en ligne:
-1. Candidat saisit N° inscription universitaire
-2. Responsable importe fichier Excel pour validation
-"""
+
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated

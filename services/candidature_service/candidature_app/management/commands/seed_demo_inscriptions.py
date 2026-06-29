@@ -1,30 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Données de démonstration pour la page « Inscriptions » (espace responsable) et
-la démo d'IMPORT EXCEL + RAPPROCHEMENT (vidéo PFE).
 
-Ce que fait la commande :
-  1. Pour un ou plusieurs masters, attribue à quelques candidats un numéro
-     d'inscription universitaire fictif et les passe en
-     statut_inscription = 'en_attente_verification' (sans toucher au statut
-     principal de la candidature → n'impacte pas les écrans Présélection/Sélection).
-  2. EXCLUT Ranim Jellali : c'est elle que tu saisis EN LIVE dans la vidéo
-     (son numéro est tout de même placé dans l'Excel pour que le rapprochement
-     la confirme).
-  3. Génère l'Excel officiel `demo_files/liste_inscriptions_officielles.xlsx`
-     (colonne `numero_inscription`) contenant les numéros seedés SAUF un
-     (→ démo « non trouvé ») + le numéro de Ranim (→ confirmée en live).
-
-Après la commande :
-  - Espace responsable → page « Inscriptions » : montre les candidats seedés
-    (En attente) via l'endpoint réel /inscriptions-saisies/.
-  - Espace candidat Ranim → saisit son numéro (celui affiché par la commande).
-  - Espace responsable → « Importer les inscriptions » : upload de l'Excel →
-    rapprochement → confirmés / non trouvés.
-
-Usage :
-    python manage.py seed_demo_inscriptions --master-ids 18,20 --n 6 --reset
-"""
 import os
 
 from django.conf import settings

@@ -1,11 +1,4 @@
-"""
-Score calculator — formules officielles par branche ISIMM.
 
-Called from POST /api/candidatures/ to validate the score submitted by the
-front-end.  If the recalculated score deviates by more than TOLERANCE from the
-submitted score, flag_fraude is set to True on the Candidature and the dossier
-is blocked.
-"""
 from __future__ import annotations
 
 import logging

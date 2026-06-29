@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Endpoints pour les membres de commission
-"""
+
 
 import logging
 from rest_framework.decorators import api_view, permission_classes

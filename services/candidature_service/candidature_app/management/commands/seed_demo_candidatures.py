@@ -1,19 +1,4 @@
-"""
-Management command — Seeding complet pour la démo MPGL.
 
-Corrections par rapport au script Gemini :
-  - Imports corrects (candidature_app, pas 'your_app')
-  - Lookup Master par specialite='MPGL' (pas par 'code' qui n'existe pas)
-  - Statuts valides Django : 'soumis', 'preselectionne', 'selectionne', 'rejete'
-  - specialite_diplome stocké dans DonneesAcademiques.notes_detaillees
-    (lu par _extract_specialite_diplome() dans views.py → dropdown dynamique)
-  - User sans champs role/cin/specialite (pas dans ce service)
-
-Usage :
-    python manage.py seed_demo_candidatures
-    python manage.py seed_demo_candidatures --dry-run
-    python manage.py seed_demo_candidatures --reset
-"""
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand

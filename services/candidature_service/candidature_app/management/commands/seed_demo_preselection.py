@@ -1,27 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-MOD v6 §1 — Données de démonstration pour la phase de PRÉSÉLECTION (vidéo PFE).
 
-Crée des candidats fictifs répartis sur un ou plusieurs masters (pour varier la
-spécialité affichée), remplit le tableau « Réponses des membres » (AvisMembre),
-et marque les candidats présélectionnés comme ayant déposé leur dossier.
-
-Spécificités demandées :
-  - Ranim Jellali : étudiante ISIMM (interne) + dossier déposé.
-  - Les présélectionnés déposent aussi leur dossier (dossier_depose = True).
-  - La spécialité affichée = master.specialite → on répartit donc les candidats
-    sur plusieurs masters pour éviter une spécialité unique (ex : Génie Logiciel
-    + Business Computing au lieu de tout « Big Data »).
-
-Adapté aux modèles RÉELS : Candidature, AvisMembre(avis bool + argument),
-MembreCommission, Commission, Master.
-
-Usage :
-    # un seul master
-    python manage.py seed_demo_preselection --master-id 18 --n 8 --reset
-    # plusieurs masters (spécialités variées) — recommandé
-    python manage.py seed_demo_preselection --master-ids 18,20 --n 8 --reset
-"""
 import random
 from datetime import timedelta
 

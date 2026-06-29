@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Routes montées sous /api/commission/ — espace membre de commission.
-"""
+
 from django.urls import path
 from . import views_commission_membre
 

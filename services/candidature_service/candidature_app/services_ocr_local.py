@@ -1,12 +1,4 @@
-"""
-OCRDocumentAuditor — Module IA OCR open-source (EasyOCR / PaddleOCR)
-Traitement 100 % local, gratuit, sans API tierce.
 
-Utilisation :
-    from .services_ocr_local import OCRDocumentAuditor
-    auditor = OCRDocumentAuditor()
-    result  = auditor.analyser_document(fichier_django, score_declare=14.5)
-"""
 
 import io
 import re

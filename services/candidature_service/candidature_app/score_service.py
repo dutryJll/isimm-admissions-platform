@@ -1,19 +1,4 @@
-"""
-ScoreService — Calcul officiel du score côté backend (Sprint 4).
 
-Recalcule le score à partir des critères de l'offre et des données saisies
-par le candidat, puis compare avec le score déclaré côté frontend pour
-détecter toute incohérence (anti-fraude).
-
-Modes supportés par critère :
-    - 'fixe'    → valeur unique, éventuellement multipliée pour M.R / M.C
-    - 'formule' → expression (l1, l2, l3, bac, math, fr, ang) évaluée
-    - 'palier'  → barème conditionnel selon le code du critère
-
-Sécurité :
-    - eval() n'est utilisé qu'avec {"__builtins__": {}} (sandbox)
-    - L'expression est filtrée via regex avant évaluation
-"""
 
 import re
 from typing import Any, Dict, List, Tuple

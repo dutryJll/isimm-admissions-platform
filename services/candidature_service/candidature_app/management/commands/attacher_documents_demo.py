@@ -1,26 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Attache les relevés de notes démo aux candidatures, SANS passer par l'UI ni se
-connecter dans l'espace de chaque candidat.
 
-ADAPTÉ aux modèles/stockage RÉELS du projet (différents du script d'origine) :
-
-  - Le modèle de candidature est `Candidature` (champ `master`, PAS `offre`).
-  - Les candidats démo créés par `seed_demo_preselection.py` ont un username
-    `demo_cand_N` mais un EMAIL stable `prenom.nom@demo.tn` → on matche par EMAIL.
-  - ⚠️ L'OCR par lot (`analyser_ocr_lot`) ET la liste « Voir/Télécharger » du
-    dossier (`list_fichiers_deposes`) lisent les fichiers depuis le SYSTÈME DE
-    FICHIERS : `MEDIA_ROOT/dossiers/<candidature_id>/<sous-dossier>/<fichier>.pdf`
-    — et NON depuis le modèle `Document` (dont le FileField pointe vers
-    `candidatures/AAAA/MM/JJ/`). On copie donc les PDF dans `dossiers/...` pour
-    que la démo OCR (cas 7.1 / 7.2) et le bouton « Voir » fonctionnent vraiment.
-
-Usage :
-  python manage.py attacher_documents_demo --dossier-source "C:/.../demo_v7_releves_ocr"
-  python manage.py attacher_documents_demo --dossier-source "..." --master-id 18
-
-Pré-requis : avoir lancé `seed_demo_preselection.py` pour que les candidats existent.
-"""
 import os
 import shutil
 

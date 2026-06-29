@@ -1,7 +1,4 @@
-"""
-Tests complets pour le dépôt de dossier - Sprint2
-Test des endpoints, uploads, validation OCR, etc.
-"""
+
 from django.test import TestCase, TransactionTestCase, Client
 from django.contrib.auth import get_user_model
 from django.utils import timezone

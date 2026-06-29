@@ -1,24 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Nettoie les données de test et recrée EXACTEMENT 3 candidats de test,
-avec 3 spécialités de diplôme DIFFÉRENTES :
 
-  1. Génie Logiciel et Systèmes d'Information
-  2. Big Data et Analyse de Données
-  3. Business Computing
-
-⚠️  DESTRUCTIF : supprime TOUTES les candidatures existantes (données de test).
-
-Usage:
-    python manage.py seed_3_candidats
-
-Équivalent Django shell (python manage.py shell) :
-    from django.contrib.auth import get_user_model
-    from candidature_app.models import Candidature, Master
-    Candidature.objects.all().delete()          # nettoyage
-    User = get_user_model()
-    # ... (voir handle() ci-dessous pour la recréation des 3 candidats)
-"""
 from datetime import timedelta
 
 from django.core.management.base import BaseCommand

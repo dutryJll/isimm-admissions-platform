@@ -1,7 +1,4 @@
-"""
-Contrôleur : générateur PDF officiel ISIMM
-GET /api/candidatures/documents/generer-pdf
-"""
+
 import logging
 import os
 from datetime import date

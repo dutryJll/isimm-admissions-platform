@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-MOD v7 §4 — Test de non-régression de l'extraction OCR des moyennes L1/L2/L3.
 
-Reproduit le bug réel : un relevé formulé « 1ère année … Moyenne annuelle : 12.80 »
-n'était pas reconnu par l'ancien regex rigide (« Moyenne L1 : XX »).
-
-Aucune DB requise → SimpleTestCase.
-"""
 from django.test import SimpleTestCase
 
 from candidature_app.ocr_service import OCRService

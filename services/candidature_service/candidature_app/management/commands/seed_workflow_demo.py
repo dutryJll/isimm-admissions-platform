@@ -1,24 +1,3 @@
-"""
-Seed DEMO Workflow — Commission Genie Logiciel Demo
-
-Cible EXACTE :
-  Commission existante : "Commission Genie Logiciel Demo"  (Commission [2])
-  Master lié           : Master [11]  -> actif=True forcé
-
-Membres (par email) :
-  responsable@isimm.tn  -> role='responsable'
-  commission@isimm.tn   -> role='membre'
-
-12 candidatures sur Master [11] :
-  4 x sous_examen      (présélection)
-  4 x dossier_depose   (sélection)
-  4 x selectionne      (admis)
-
-Usage :
-    python manage.py seed_workflow_demo
-    python manage.py seed_workflow_demo --reset
-    python manage.py seed_workflow_demo --dry-run
-"""
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
